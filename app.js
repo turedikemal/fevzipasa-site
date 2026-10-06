@@ -235,3 +235,89 @@ if (['127.0.0.1', 'localhost'].includes(location.hostname)) {
     requestAnimationFrame(() => scrollTo(0, Number(saved)));
   }
 }
+
+// Participants page
+const filtersContainer = document.getElementById('filters');
+const makersList = document.getElementById('makers');
+const hoverImg = document.querySelector('.hover-img img');
+const dialog = document.getElementById('brand-detail');
+
+if (filtersContainer && makersList) {
+  let currentFilter = 'all';
+  let brands = [];
+
+  async function loadAndRenderBrands() {
+    brands = await getBrands();
+    renderRows();
+    handleHashParameter();
+  }
+
+  function renderRows() {
+    const rows = makersList.querySelectorAll('.p-row');
+    rows.forEach((row, idx) => {
+      const category = row.dataset.category;
+      const show = currentFilter === 'all' || currentFilter === category;
+      row.style.display = show ? '' : 'none';
+    });
+  }
+
+  function handleHashParameter() {
+    const idx = parseInt(location.hash.slice(1));
+    if (!isNaN(idx) && idx >= 0 && idx < brands.length) {
+      openBrandDialog(idx);
+    }
+  }
+
+  function openBrandDialog(idx) {
+    const brand = brands[idx];
+    if (!brand) return;
+    const dlgImg = dialog.querySelector('img');
+    const dlgH2 = dialog.querySelector('h2');
+    const dlgP = dialog.querySelector('p');
+    dlgImg.src = brand.image;
+    dlgImg.alt = brand.name;
+    dlgH2.textContent = brand.name;
+    dlgP.textContent = brand.description;
+    dialog.showModal();
+  }
+
+  // Filter buttons
+  filtersContainer.querySelectorAll('.filter').forEach(btn => {
+    btn.addEventListener('click', () => {
+      filtersContainer.querySelectorAll('.filter').forEach(b => b.setAttribute('aria-pressed', 'false'));
+      btn.setAttribute('aria-pressed', 'true');
+      currentFilter = btn.dataset.category;
+      renderRows();
+    });
+  });
+
+  // Participant rows
+  makersList.querySelectorAll('.p-row button').forEach((btn, idx) => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      openBrandDialog(idx);
+    });
+  });
+
+  // Participant rows hover image
+  makersList.querySelectorAll('.p-row').forEach((row, idx) => {
+    row.addEventListener('mouseenter', () => {
+      if (hoverImg) {
+        hoverImg.src = row.dataset.image;
+        hoverImg.alt = row.querySelector('.name').textContent;
+      }
+    });
+  });
+
+  // Dialog close button
+  if (dialog) {
+    dialog.querySelector('.dlg-close').addEventListener('click', () => {
+      dialog.close();
+    });
+    dialog.addEventListener('click', (e) => {
+      if (e.target === dialog) dialog.close();
+    });
+  }
+
+  loadAndRenderBrands();
+}
