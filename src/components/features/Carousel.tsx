@@ -14,7 +14,6 @@ interface CarouselProps {
   items: CarouselItem[];
   title?: string;
   showPrice?: boolean;
-  itemsPerView?: number;
   autoScroll?: boolean;
 }
 
@@ -22,7 +21,6 @@ export const Carousel: React.FC<CarouselProps> = ({
   items,
   title,
   showPrice = true,
-  itemsPerView = 4,
   autoScroll = false,
 }) => {
   const [scrollPos, setScrollPos] = useState(0);

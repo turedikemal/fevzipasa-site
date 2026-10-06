@@ -1,5 +1,4 @@
 import Head from 'next/head';
-import Link from 'next/link';
 import Image from 'next/image';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
@@ -73,7 +72,6 @@ export default function ShopPage() {
             tag: p.id === '1' ? 'YENİ' : p.id === '3' ? 'ÖZEL' : undefined,
           }))}
           showPrice={true}
-          itemsPerView={4}
         />
 
         {/* Products Grid */}

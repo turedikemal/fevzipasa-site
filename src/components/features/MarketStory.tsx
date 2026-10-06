@@ -19,7 +19,7 @@ export const MarketStory: React.FC<MarketStoryProps> = ({ market }) => {
 
       {/* Story Sections */}
       <div className="space-y-16">
-        {market.story.sections.map((section, index) => (
+        {market.story.sections.map((section) => (
           <div
             key={section.id}
             className={`flex flex-col ${
