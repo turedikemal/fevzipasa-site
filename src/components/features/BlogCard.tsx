@@ -11,7 +11,7 @@ export const BlogCard: React.FC<BlogCardProps> = ({ post }) => {
   return (
     <div className="group cursor-pointer">
       <Link href={`/blog/${post.slug}`}>
-        <div className="overflow-hidden rounded-lg mb-4 h-64 relative">
+        <div className="overflow-hidden mb-4 h-64 relative">
           <Image
             src={post.image}
             alt={post.title}
@@ -21,28 +21,28 @@ export const BlogCard: React.FC<BlogCardProps> = ({ post }) => {
         </div>
         <div className="space-y-2">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-primary uppercase">
+            <span className="text-xs font-semibold text-ink uppercase">
               {post.category}
             </span>
-            <span className="text-xs text-neutral-500">{post.date}</span>
+            <span className="text-xs text-ink">{post.date}</span>
           </div>
-          <h3 className="text-xl font-bold group-hover:text-primary transition-colors">
+          <h3 className="text-xl font-bold group-hover:underline transition-colors">
             {post.title}
           </h3>
-          <p className="text-neutral-600 text-sm line-clamp-2">
+          <p className="text-ink text-sm line-clamp-2">
             {post.excerpt}
           </p>
           <div className="flex flex-wrap gap-2 mt-3">
             {post.tags.map((tag) => (
               <span
                 key={tag}
-                className="text-xs bg-neutral-100 text-neutral-600 px-2 py-1 rounded"
+                className="text-xs bg-linen text-ink px-2 py-1"
               >
                 #{tag}
               </span>
             ))}
           </div>
-          <p className="text-sm font-semibold text-primary pt-2">
+          <p className="text-sm font-semibold text-ink pt-2">
             Yazıyı Oku →
           </p>
         </div>

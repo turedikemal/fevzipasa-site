@@ -14,12 +14,12 @@ export const Button: React.FC<ButtonProps> = ({
   ...props
 }) => {
   const baseStyles =
-    'font-semibold rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed';
+    'font-semibold transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed';
 
   const variantStyles = {
-    primary: 'bg-primary text-white hover:bg-primary/90',
-    secondary: 'bg-secondary text-white hover:bg-secondary/90',
-    outline: 'border-2 border-primary text-primary hover:bg-primary/10',
+    primary: 'bg-ink text-white hover:bg-ink/80',
+    secondary: 'bg-ink text-white hover:bg-ink/80',
+    outline: 'border border-ink text-ink hover:bg-sage',
   };
 
   const sizeStyles = {

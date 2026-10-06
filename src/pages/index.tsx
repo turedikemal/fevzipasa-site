@@ -24,13 +24,13 @@ export default function Home() {
 
       <main className="min-h-screen">
         {/* Hero Section */}
-        <section className="relative h-screen bg-gradient-to-r from-primary/20 to-secondary/20 flex items-center">
+        <section className="relative h-screen bg-linen flex items-center">
           <div className="container mx-auto px-4">
             <div className="max-w-2xl">
               <h1 className="text-6xl font-bold mb-6">
                 Fevzipaşa Tasarım Pazarları
               </h1>
-              <p className="text-2xl text-neutral-600 mb-8">
+              <p className="text-2xl text-ink mb-8">
                 Tasarım ve sanatın yıl boyunca kutlandığı, tasarımcıların ve sanatçıların buluştuğu platform.
               </p>
               <div className="flex gap-4">
@@ -48,7 +48,7 @@ export default function Home() {
         </section>
 
         {/* Featured Markets */}
-        <section id="featured" className="py-20 bg-neutral-50">
+        <section id="featured" className="py-20 bg-linen">
           <div className="container mx-auto px-4">
             <h2 className="text-4xl font-bold mb-12 text-center">
               Öne Çıkan Pazarlar
@@ -57,7 +57,7 @@ export default function Home() {
               {featuredMarkets.map((market) => (
                 <div key={market.id} className="group cursor-pointer">
                   <Link href={`/pazarlar/${market.slug}`}>
-                    <div className="overflow-hidden rounded-lg mb-4 h-64 relative">
+                    <div className="overflow-hidden mb-4 h-64 relative">
                       <Image
                         src={market.thumbnail}
                         alt={market.name}
@@ -65,11 +65,11 @@ export default function Home() {
                         className="object-cover group-hover:scale-110 transition-transform duration-300"
                       />
                     </div>
-                    <h3 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors">
+                    <h3 className="text-xl font-bold mb-2 group-hover:underline transition-colors">
                       {market.name}
                     </h3>
-                    <p className="text-neutral-600 mb-4">{market.description}</p>
-                    <p className="text-sm text-primary font-semibold">
+                    <p className="text-ink mb-4">{market.description}</p>
+                    <p className="text-sm text-ink font-semibold">
                       {market.dates.start} - {market.dates.end}
                     </p>
                   </Link>
@@ -83,7 +83,7 @@ export default function Home() {
         <section className="py-20">
           <div className="container mx-auto px-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-              <div className="relative h-96 rounded-lg overflow-hidden">
+              <div className="relative h-96 overflow-hidden">
                 <Image
                   src={upcomingMarket.hero}
                   alt={upcomingMarket.name}
@@ -92,18 +92,18 @@ export default function Home() {
                 />
               </div>
               <div>
-                <p className="text-primary font-semibold uppercase mb-2">
+                <p className="text-ink font-semibold uppercase mb-2">
                   Yakında
                 </p>
                 <h2 className="text-4xl font-bold mb-4">
                   {upcomingMarket.name}
                 </h2>
-                <p className="text-lg text-neutral-600 mb-8">
+                <p className="text-lg text-ink mb-8">
                   {upcomingMarket.description}
                 </p>
                 <div className="space-y-4 mb-8">
                   <div>
-                    <p className="text-sm font-semibold text-neutral-500 uppercase">
+                    <p className="text-sm font-semibold text-ink uppercase">
                       Tarih
                     </p>
                     <p className="text-lg font-bold">
@@ -111,7 +111,7 @@ export default function Home() {
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-neutral-500 uppercase">
+                    <p className="text-sm font-semibold text-ink uppercase">
                       Konum
                     </p>
                     <p className="text-lg font-bold">
@@ -128,24 +128,24 @@ export default function Home() {
         </section>
 
         {/* Stats Section */}
-        <section className="bg-primary text-white py-16">
+        <section className="bg-ink text-white py-16">
           <div className="container mx-auto px-4">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
               <div>
                 <p className="text-4xl font-bold mb-2">5</p>
-                <p className="text-primary-100">Yıllık Pazarlar</p>
+                <p className="text-canvas">Yıllık Pazarlar</p>
               </div>
               <div>
                 <p className="text-4xl font-bold mb-2">500+</p>
-                <p className="text-primary-100">Tasarımcı & Sanatçı</p>
+                <p className="text-canvas">Tasarımcı & Sanatçı</p>
               </div>
               <div>
                 <p className="text-4xl font-bold mb-2">50K+</p>
-                <p className="text-primary-100">Yıllık Ziyaretçi</p>
+                <p className="text-canvas">Yıllık Ziyaretçi</p>
               </div>
               <div>
                 <p className="text-4xl font-bold mb-2">1000+</p>
-                <p className="text-primary-100">Tasarım Ürünü</p>
+                <p className="text-canvas">Tasarım Ürünü</p>
               </div>
             </div>
           </div>
@@ -155,7 +155,7 @@ export default function Home() {
         <section className="py-20">
           <div className="container mx-auto px-4 text-center">
             <h2 className="text-3xl font-bold mb-4">Tüm Pazarları Görmek İster Misin?</h2>
-            <p className="text-neutral-600 mb-8 max-w-2xl mx-auto">
+            <p className="text-ink mb-8 max-w-2xl mx-auto">
               5 pazarı, onların hikayelerini, galerilerini ve özel etkinliklerini keşfet.
             </p>
             <Link href="/pazarlar">

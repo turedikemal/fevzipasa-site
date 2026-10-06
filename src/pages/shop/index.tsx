@@ -53,10 +53,10 @@ export default function ShopPage() {
 
       <main>
         {/* Hero */}
-        <section className="bg-gradient-to-r from-primary/10 to-secondary/10 py-16">
+        <section className="bg-linen py-16">
           <div className="container mx-auto px-4 text-center">
             <h1 className="text-4xl font-bold mb-4">Shop</h1>
-            <p className="text-lg text-neutral-600">
+            <p className="text-lg text-ink">
               Fevzipaşa tasarımcılarının eşsiz ve özel ürünlerini keşfet
             </p>
           </div>
@@ -83,9 +83,9 @@ export default function ShopPage() {
               {mockProducts.map((product) => (
                 <div
                   key={product.id}
-                  className="group cursor-pointer hover:shadow-lg transition-shadow rounded-lg overflow-hidden"
+                  className="group cursor-pointer overflow-hidden"
                 >
-                  <div className="relative h-64 overflow-hidden bg-neutral-100">
+                  <div className="relative h-64 overflow-hidden bg-linen">
                     <Image
                       src={product.image}
                       alt={product.title}
@@ -94,10 +94,10 @@ export default function ShopPage() {
                     />
                   </div>
                   <div className="p-4">
-                    <p className="text-xs font-semibold text-primary uppercase mb-2">
+                    <p className="text-xs font-semibold text-ink uppercase mb-2">
                       {product.category}
                     </p>
-                    <h3 className="text-lg font-bold mb-2 group-hover:text-primary transition-colors">
+                    <h3 className="text-lg font-bold mb-2 group-hover:underline transition-colors">
                       {product.title}
                     </h3>
                     <div className="flex items-center justify-between">
@@ -114,7 +114,7 @@ export default function ShopPage() {
         </section>
 
         {/* Newsletter CTA */}
-        <section className="bg-primary text-white py-16">
+        <section className="bg-ink text-white py-16">
           <div className="container mx-auto px-4 text-center">
             <h2 className="text-3xl font-bold mb-4">Yeni Ürünler Hakkında Bilgi Al</h2>
             <p className="mb-8">Pazarlardan yeni ürünler eklendiğinde haberdar ol</p>
@@ -122,9 +122,9 @@ export default function ShopPage() {
               <input
                 type="email"
                 placeholder="E-posta adresini gir"
-                className="flex-1 px-4 py-3 rounded-lg text-neutral-900 focus:outline-none focus:ring-2 focus:ring-secondary"
+                className="flex-1 px-4 py-3 text-ink focus:outline-none focus:ring-2 focus:ring-canvas"
               />
-              <button className="bg-secondary text-white px-6 py-3 rounded-lg font-semibold hover:bg-secondary/90 transition-colors">
+              <button className="bg-ink text-white px-6 py-3 font-semibold hover:bg-ink/80 transition-colors">
                 Abone Ol
               </button>
             </div>

@@ -73,9 +73,9 @@ export const Carousel: React.FC<CarouselProps> = ({
               className="flex-shrink-0 w-80 snap-center group cursor-pointer"
             >
               {/* Card */}
-              <div className="bg-white rounded-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+              <div className="bg-white overflow-hidden duration-300">
                 {/* Image Container */}
-                <div className="relative h-96 overflow-hidden bg-neutral-100">
+                <div className="relative h-96 overflow-hidden bg-linen">
                   <Image
                     src={item.image}
                     alt={item.title}
@@ -86,7 +86,7 @@ export const Carousel: React.FC<CarouselProps> = ({
                   {/* Tag */}
                   {item.tag && (
                     <div className="absolute top-4 left-4">
-                      <span className="bg-primary text-white px-3 py-1 text-xs font-bold uppercase">
+                      <span className="bg-ink text-white px-3 py-1 text-xs font-bold uppercase">
                         {item.tag}
                       </span>
                     </div>
@@ -95,11 +95,11 @@ export const Carousel: React.FC<CarouselProps> = ({
 
                 {/* Content */}
                 <div className="p-4">
-                  <h3 className="text-lg font-semibold mb-2 group-hover:text-primary transition-colors">
+                  <h3 className="text-lg font-semibold mb-2 group-hover:underline transition-colors">
                     {item.title}
                   </h3>
                   {showPrice && item.price && (
-                    <p className="text-primary font-bold text-lg">{item.price}</p>
+                    <p className="text-ink font-bold text-lg">{item.price}</p>
                   )}
                 </div>
               </div>
@@ -110,7 +110,7 @@ export const Carousel: React.FC<CarouselProps> = ({
         {/* Navigation Arrows */}
         <button
           onClick={() => scroll('left')}
-          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-primary hover:text-white text-primary p-3 rounded-full shadow-lg transition-all duration-300"
+          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-ink hover:text-white text-ink p-3 transition-all duration-300"
         >
           <svg
             className="w-6 h-6"
@@ -129,7 +129,7 @@ export const Carousel: React.FC<CarouselProps> = ({
 
         <button
           onClick={() => scroll('right')}
-          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-primary hover:text-white text-primary p-3 rounded-full shadow-lg transition-all duration-300"
+          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-ink hover:text-white text-ink p-3 transition-all duration-300"
         >
           <svg
             className="w-6 h-6"

@@ -64,16 +64,16 @@ export default function MarketDetail() {
           <Gallery images={market.gallery} title="Pazardan Görüntüler" />
 
           {/* CTA Section */}
-          <div className="mt-16 py-12 bg-gradient-to-r from-primary/10 to-secondary/10 rounded-lg border border-primary/20 text-center">
+          <div className="mt-16 py-12 bg-linen border border-ink text-center">
             <h2 className="text-3xl font-bold mb-4">
               {market.name}\'a Katılmak İster Misin?
             </h2>
-            <p className="text-neutral-600 mb-8">
+            <p className="text-ink mb-8">
               Tasarım pazarında yer almak ve ürünlerini sergilemek için bize
               ulaş.
             </p>
             <Link href="/contact">
-              <button className="bg-primary text-white px-8 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors">
+              <button className="bg-ink text-white px-8 py-3 font-semibold hover:bg-ink/80 transition-colors">
                 İletişime Geç
               </button>
             </Link>
