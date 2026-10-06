@@ -1,32 +1,323 @@
-const reduced = matchMedia('(prefers-reduced-motion: reduce)');
-const mobile = matchMedia('(max-width: 640px)');
-const menu = document.querySelector('.menu'), nav = document.querySelector('nav');
-menu.addEventListener('click', () => {const open=menu.getAttribute('aria-expanded')!=='true';menu.setAttribute('aria-expanded',String(open));nav.classList.toggle('open',open);menu.textContent=open?'Kapat ×':'Menü +'});
-nav.querySelectorAll('a').forEach(a=>{if(new URL(a.href).pathname===location.pathname)a.setAttribute('aria-current','page')});
-addEventListener('keydown',e=>{if(e.key==='Escape'){nav.classList.remove('open');menu.setAttribute('aria-expanded','false');menu.textContent='Menü +'}});
-if(!reduced.matches){document.body.classList.add('motion');const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('visible');observer.unobserve(entry.target)}}),{threshold:.08});document.querySelectorAll('.reveal').forEach((el,i)=>{el.style.transitionDelay=`${el.classList.contains('brand-card')?(i%4)*70:0}ms`;observer.observe(el)})}
-let navigating=false;
-document.addEventListener('click',e=>{const a=e.target.closest('a');if(!a||a.target||a.hasAttribute('download')||e.ctrlKey||e.metaKey||e.shiftKey||e.altKey||e.button!==0)return;const url=new URL(a.href);if(url.origin!==location.origin||url.pathname===location.pathname||reduced.matches)return;e.preventDefault();if(navigating)return;navigating=true;document.querySelector('.route-curtain').classList.add('active');setTimeout(()=>location.assign(a.href),320)});
-addEventListener('pageshow',()=>{navigating=false;document.querySelector('.route-curtain').classList.remove('active')});
-let ticking=false;
-const stacks=[...document.querySelectorAll('[data-stack]')], rails=[...document.querySelectorAll('[data-horizontal]')], editorial=[...document.querySelectorAll('.editorial-image')];
-function clamp(n,min=0,max=1){return Math.max(min,Math.min(max,n))}
-function updateScroll(){ticking=false;const vh=innerHeight;const progress=scrollY/Math.max(1,document.documentElement.scrollHeight-vh);document.querySelector('.progress').style.transform=`scaleX(${progress})`;if(reduced.matches)return;
- for(const el of stacks){const rect=el.getBoundingClientRect();if(rect.bottom<0||rect.top>vh)continue;const top=mobile.matches?72:90,p=clamp((top-rect.top)/(el.offsetHeight-vh+top));const a=el.querySelector('.stack-one'),b=el.querySelector('.stack-two'),c=el.querySelector('.stack-three');a.style.transform=`translateY(${-p*35}px) rotate(${-7+p*10}deg) scale(${1-p*.08})`;b.style.transform=`translateY(${(1-clamp(p*2.5))*130}%) rotate(${7-p*9}deg)`;c.style.transform=`translateY(${(1-clamp((p-.5)*2))*150}%) rotate(${-3+p*5}deg)`;const i=p<.33?0:p<.7?1:2;el.querySelector('.step-number').textContent=`0${i+1}`;el.querySelector('.step-label').textContent=['BİÇİM & DOKU','RENK & DESEN','IŞIK & YAŞAM'][i];el.querySelector('.step-line i').style.transform=`scaleX(${p})`}
- for(const el of rails){const track=el.querySelector('.gallery-track');if(mobile.matches){track.style.transform='';continue}const rect=el.getBoundingClientRect();const p=clamp((90-rect.top)/(el.offsetHeight-vh+90));const overflow=Math.max(0,track.scrollWidth-innerWidth);track.style.transform=`translateX(${-p*overflow}px)`}
- for(const el of editorial){const rect=el.getBoundingClientRect();if(rect.bottom<0||rect.top>vh)continue;const p=clamp((vh-rect.top)/(vh+rect.height));el.querySelector('img').style.transform=`translateY(${(p-.5)*35}px) scale(1.1)`}
+// Header nav
+const header = document.querySelector('.site-header');
+const toggle = document.querySelector('.menu-toggle');
+const nav = document.getElementById('nav');
+let lastScroll = 0;
+
+function updateHeader() {
+  const scroll = window.scrollY;
+  if (scroll > lastScroll && scroll > 80) header.classList.add('is-hidden');
+  else header.classList.remove('is-hidden');
+  lastScroll = scroll;
 }
-addEventListener('scroll',()=>{if(!ticking){ticking=true;requestAnimationFrame(updateScroll)}},{passive:true});addEventListener('resize',updateScroll);reduced.addEventListener('change',()=>location.reload());updateScroll();
-const viewer=document.getElementById('viewer'),content=viewer.querySelector('.dialog-content');
-function show(contentNodes){content.replaceChildren(...contentNodes);viewer.showModal()}
-function paragraph(text,className){const p=document.createElement('p');p.textContent=text;if(className)p.className=className;return p}
-function photo(src,alt){const img=document.createElement('img');img.src=src;img.alt=alt;return img}
+
+toggle.addEventListener('click', () => {
+  toggle.setAttribute('aria-expanded', toggle.getAttribute('aria-expanded') === 'false' ? 'true' : 'false');
+  nav.classList.toggle('open');
+});
+
+nav.querySelectorAll('a:not(.btn-blue)').forEach(link => {
+  link.addEventListener('click', () => {
+    nav.classList.remove('open');
+    toggle.setAttribute('aria-expanded', 'false');
+  });
+});
+
+window.addEventListener('scroll', updateHeader, { passive: true });
+
+// Progress bar
+const progress = document.querySelector('.progress');
+function updateProgress() {
+  const scroll = window.scrollY;
+  const height = document.documentElement.scrollHeight - window.innerHeight;
+  progress.style.transform = `scaleX(${height ? scroll / height : 0})`;
+}
+window.addEventListener('scroll', updateProgress, { passive: true });
+
+// Reveal on scroll
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('in');
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: .1 });
+
+document.querySelectorAll('.reveal, .split-line, .pop').forEach(el => observer.observe(el));
+
+// Manifesto scroll fill
+const manifesto = document.getElementById('manifesto');
+if (manifesto) {
+  const text = manifesto.querySelector('.manifesto-text');
+  const words = text.querySelectorAll('.w');
+  const manifest_io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const rect = entry.target.getBoundingClientRect();
+        const top = -rect.top;
+        const height = rect.height - window.innerHeight;
+        const progress_val = Math.max(0, Math.min(1, top / height));
+        words.forEach((w, i) => {
+          const start = parseFloat(w.dataset.from || 0) / 100;
+          const width = (1 / words.length) * .98;
+          if (progress_val >= start && progress_val < start + width) w.classList.add('on');
+          else w.classList.remove('on');
+        });
+      }
+    });
+  }, { threshold: 0 });
+  manifest_io.observe(manifesto);
+}
+
+// Zoom circle
+const zoom = document.querySelector('.zoom');
+if (zoom) {
+  const zoom_io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const rect = entry.target.getBoundingClientRect();
+        const top = -rect.top;
+        const height = rect.height - window.innerHeight;
+        const p = Math.max(0, Math.min(1, top / height));
+        const circle = entry.target.querySelector('.zoom-circle');
+        circle.style.setProperty('--r', `${9 + p * 40}vmin`);
+        circle.style.setProperty('--s', `${1 - p * .7}`);
+        circle.style.setProperty('--o', p);
+      }
+    });
+  }, { threshold: 0 });
+  zoom_io.observe(zoom);
+}
+
+// Horizontal scroll
+const hscroll = document.getElementById('hscroll');
+if (hscroll) {
+  const track = hscroll.querySelector('.hscroll-track');
+
+  function updateHScroll() {
+    const rect = hscroll.getBoundingClientRect();
+    const progress_val = Math.max(0, Math.min(1, (-rect.top) / (rect.height - window.innerHeight)));
+    const offset = progress_val * (track.scrollWidth - window.innerWidth);
+    track.style.transform = `translateX(${-offset}px)`;
+  }
+
+  const hscroll_io = new IntersectionObserver(([entry]) => {
+    if (entry.isIntersecting) {
+      window.addEventListener('scroll', updateHScroll, { passive: true });
+      hscroll_io.unobserve(hscroll);
+    }
+  }, { threshold: .1 });
+  hscroll_io.observe(hscroll);
+}
+
+// Cursor
+const cursor = document.getElementById('cursor');
+if (cursor && !window.matchMedia('(hover: none)').matches) {
+  document.addEventListener('mousemove', (e) => {
+    cursor.style.left = e.clientX + 'px';
+    cursor.style.top = e.clientY + 'px';
+    cursor.classList.add('on');
+  });
+  document.addEventListener('mouseleave', () => cursor.classList.remove('on'));
+
+  document.querySelectorAll('button, a, .strip-name').forEach(el => {
+    el.addEventListener('mouseenter', () => cursor.classList.add('big'));
+    el.addEventListener('mouseleave', () => cursor.classList.remove('big'));
+  });
+}
+
+// Hero animation
+window.addEventListener('load', () => {
+  document.getElementById('hero')?.classList.add('ready');
+});
+
+// Fetch brands
 let brandsPromise;
-async function getBrands(){brandsPromise??=fetch('/brands.json').then(r=>{if(!r.ok)throw new Error('Katılımcılar yüklenemedi');return r.json()});return brandsPromise}
-document.querySelectorAll('[data-photo]').forEach(button=>button.addEventListener('click',()=>show([photo(button.dataset.photo,button.dataset.caption),paragraph(button.dataset.caption,'dialog-caption')])));
-document.querySelectorAll('[data-brand]').forEach(button=>button.addEventListener('click',async()=>{try{const brands=await getBrands(),b=brands[Number(button.dataset.brand)];const wrap=document.createElement('div');wrap.className='brand-detail';const info=document.createElement('div'),h=document.createElement('h2');h.textContent=b.name;info.append(paragraph(b.category,'eyebrow'),h,paragraph(b.description));if(b.url){const link=document.createElement('a');link.href=b.url;link.textContent='Web sitesine git ↗';link.className='text-link';link.target='_blank';link.rel='noopener noreferrer';info.append(link)}info.append(paragraph('Ürün fotoğrafı temsilidir. Gerçek marka görselleri eklenecektir.','asset-note'));wrap.append(photo(b.image,b.category+' temsili görsel'),info);show([wrap])}catch{show([paragraph('Katılımcı bilgisi yüklenemedi. Lütfen tekrar dene.','dialog-caption')])}}));
-viewer.querySelector('.dialog-close').addEventListener('click',()=>viewer.close());viewer.addEventListener('click',e=>{if(e.target===viewer){const rect=viewer.getBoundingClientRect();if(e.clientX<rect.left||e.clientX>rect.right||e.clientY<rect.top||e.clientY>rect.bottom)viewer.close()}});
-document.querySelectorAll('[data-filter]').forEach(button=>button.addEventListener('click',()=>{document.querySelectorAll('[data-filter]').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));document.querySelectorAll('.participant-list .brand-card').forEach(card=>{card.hidden=button.dataset.filter!=='all'&&card.dataset.category!==button.dataset.filter;card.classList.add('visible');if(!card.hidden&&!reduced.matches)card.animate([{opacity:0,transform:'translateY(15px)'},{opacity:1,transform:'translateY(0)'}],{duration:240,easing:'ease-out'})})}));
-const calendar=document.getElementById('calendar');calendar?.addEventListener('click',()=>{const lines=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Fevzipasa//Tasarim Pazari//TR','CALSCALE:GREGORIAN'];for(let day=9;day<=11;day++){const date='202610'+String(day).padStart(2,'0');lines.push('BEGIN:VEVENT',`UID:fevzipasa-2026-${day}@fevzipasa.local`,'DTSTAMP:20261006T200000Z','DTSTART:'+date+'T080000Z','DTEND:'+date+'T180000Z','SUMMARY:Fevzipaşa Tasarım Pazarı','LOCATION:Fevzipaşa Mahallesi\\, Çanakkale','END:VEVENT')}lines.push('END:VCALENDAR');const url=URL.createObjectURL(new Blob([lines.join('\r\n')+'\r\n'],{type:'text/calendar;charset=utf-8'})),a=document.createElement('a');a.href=url;a.download='fevzipasa-tasarim-pazari.ics';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);document.getElementById('status').textContent='Takvim dosyası indirildi. Takvim uygulamanda açabilirsin.'});
-// Yerel geliştirmede dosyalar değişince sayfayı yenile.
-if(['127.0.0.1','localhost'].includes(location.hostname)){let previous;let checking=false;setInterval(async()=>{if(checking||document.hidden||viewer.open)return;checking=true;try{const response=await fetch('/__version',{cache:'no-store'});const current=(await response.json()).version;if(previous&&current!==previous){const key='fevzipasa-scroll:'+location.pathname;sessionStorage.setItem(key,String(scrollY));location.reload()}previous=current}catch{}finally{checking=false}},1500);const key='fevzipasa-scroll:'+location.pathname,saved=sessionStorage.getItem(key);if(saved!==null){sessionStorage.removeItem(key);requestAnimationFrame(()=>scrollTo(0,Number(saved)))}}
+async function getBrands() {
+  if (!brandsPromise) {
+    brandsPromise = fetch('/brands.json').then(r => {
+      if (!r.ok) throw new Error('Katılımcılar yüklenemedi');
+      return r.json();
+    });
+  }
+  return brandsPromise;
+}
+
+// Strip buttons
+document.querySelectorAll('.strip-name').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const idx = parseInt(btn.dataset.idx);
+    window.location.href = '/katilimcilar#' + idx;
+  });
+});
+
+// Calendar
+const calBtn = document.getElementById('calendar');
+if (calBtn) {
+  calBtn.addEventListener('click', () => {
+    const lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Fevzipasa//Tasarim Pazari//TR', 'CALSCALE:GREGORIAN'];
+    for (let day = 9; day <= 11; day++) {
+      const date = '202610' + String(day).padStart(2, '0');
+      lines.push(
+        'BEGIN:VEVENT',
+        `UID:${date}@fevzipasa.local`,
+        'DTSTAMP:202610061T200000Z',
+        `DTSTART:${date}T110000`,
+        `DTEND:${date}T210000`,
+        'SUMMARY:Fevzipaşa Tasarım Pazarı 5. Edisyon',
+        'DESCRIPTION:Yerel tasarımcılar ve esnaflar Çanakkale\'de buluşuyor',
+        'LOCATION:Fevzipaşa Mahallesi, Çanakkale',
+        'END:VEVENT'
+      );
+    }
+    lines.push('END:VCALENDAR');
+    const blob = new Blob([lines.join('\r\n')], { type: 'text/calendar' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'fevzipasa.ics';
+    a.click();
+    URL.revokeObjectURL(url);
+    document.getElementById('status').textContent = 'Takvim dosyası indirildi.';
+  });
+}
+
+// Page transitions
+const curtain = document.getElementById('curtain');
+if (curtain) {
+  document.addEventListener('click', (e) => {
+    const link = e.target.closest('a[href^="/"]');
+    if (link && !link.hasAttribute('download') && link.hostname === location.hostname) {
+      e.preventDefault();
+      curtain.classList.remove('out', 'in-from-below');
+      setTimeout(() => {
+        window.location.href = link.href;
+      }, 400);
+    }
+  });
+
+  if (document.readyState === 'loading') {
+    curtain.classList.add('in-from-below');
+    addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => curtain.classList.add('out'), 100);
+    });
+  } else {
+    setTimeout(() => curtain.classList.add('out'), 100);
+  }
+}
+
+// Local dev sync
+if (['127.0.0.1', 'localhost'].includes(location.hostname)) {
+  let previous;
+  let checking = false;
+  setInterval(async () => {
+    if (checking || document.hidden) return;
+    checking = true;
+    try {
+      const response = await fetch('/__version', { cache: 'no-store' });
+      const current = (await response.json()).version;
+      if (previous && current !== previous) {
+        const key = 'fevzipasa-scroll:' + location.pathname;
+        sessionStorage.setItem(key, String(scrollY));
+        location.reload();
+      }
+      previous = current;
+    } catch {} finally {
+      checking = false;
+    }
+  }, 1500);
+
+  const key = 'fevzipasa-scroll:' + location.pathname;
+  const saved = sessionStorage.getItem(key);
+  if (saved !== null) {
+    sessionStorage.removeItem(key);
+    requestAnimationFrame(() => scrollTo(0, Number(saved)));
+  }
+}
+
+// Participants page
+const filtersContainer = document.getElementById('filters');
+const makersList = document.getElementById('makers');
+const hoverImg = document.querySelector('.hover-img img');
+const dialog = document.getElementById('brand-detail');
+
+if (filtersContainer && makersList) {
+  let currentFilter = 'all';
+  let brands = [];
+
+  async function loadAndRenderBrands() {
+    brands = await getBrands();
+    renderRows();
+    handleHashParameter();
+  }
+
+  function renderRows() {
+    const rows = makersList.querySelectorAll('.p-row');
+    rows.forEach((row, idx) => {
+      const category = row.dataset.category;
+      const show = currentFilter === 'all' || currentFilter === category;
+      row.style.display = show ? '' : 'none';
+    });
+  }
+
+  function handleHashParameter() {
+    const idx = parseInt(location.hash.slice(1));
+    if (!isNaN(idx) && idx >= 0 && idx < brands.length) {
+      openBrandDialog(idx);
+    }
+  }
+
+  function openBrandDialog(idx) {
+    const brand = brands[idx];
+    if (!brand) return;
+    const dlgImg = dialog.querySelector('img');
+    const dlgH2 = dialog.querySelector('h2');
+    const dlgP = dialog.querySelector('p');
+    dlgImg.src = brand.image;
+    dlgImg.alt = brand.name;
+    dlgH2.textContent = brand.name;
+    dlgP.textContent = brand.description;
+    dialog.showModal();
+  }
+
+  // Filter buttons
+  filtersContainer.querySelectorAll('.filter').forEach(btn => {
+    btn.addEventListener('click', () => {
+      filtersContainer.querySelectorAll('.filter').forEach(b => b.setAttribute('aria-pressed', 'false'));
+      btn.setAttribute('aria-pressed', 'true');
+      currentFilter = btn.dataset.category;
+      renderRows();
+    });
+  });
+
+  // Participant rows
+  makersList.querySelectorAll('.p-row button').forEach((btn, idx) => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      openBrandDialog(idx);
+    });
+  });
+
+  // Participant rows hover image
+  makersList.querySelectorAll('.p-row').forEach((row, idx) => {
+    row.addEventListener('mouseenter', () => {
+      if (hoverImg) {
+        hoverImg.src = row.dataset.image;
+        hoverImg.alt = row.querySelector('.name').textContent;
+      }
+    });
+  });
+
+  // Dialog close button
+  if (dialog) {
+    dialog.querySelector('.dlg-close').addEventListener('click', () => {
+      dialog.close();
+    });
+    dialog.addEventListener('click', (e) => {
+      if (e.target === dialog) dialog.close();
+    });
+  }
+
+  loadAndRenderBrands();
+}
