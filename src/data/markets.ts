@@ -96,10 +96,6 @@ export const markets: Market[] = [
       'Uluslararası katılım',
       'Workshop ve seminerler',
     ],
-    color: {
-      primary: '#FF6B6B',
-      secondary: '#FFD93D',
-    },
   },
   {
     id: '2',
@@ -161,10 +157,6 @@ export const markets: Market[] = [
       'Soğuk havada sıcak çay',
       'Workshop etkinlikleri',
     ],
-    color: {
-      primary: '#4ECDC4',
-      secondary: '#44A08D',
-    },
   },
   {
     id: '3',
@@ -209,10 +201,6 @@ export const markets: Market[] = [
       '3 günlük etkinlik',
       'Açık hava aktiviteleri',
     ],
-    color: {
-      primary: '#F5A623',
-      secondary: '#7ED321',
-    },
   },
   {
     id: '4',
@@ -257,10 +245,6 @@ export const markets: Market[] = [
       'Yaz koleksiyonları',
       'Sosyal etkinlikler',
     ],
-    color: {
-      primary: '#FF6B9D',
-      secondary: '#FFA502',
-    },
   },
   {
     id: '5',
@@ -305,9 +289,5 @@ export const markets: Market[] = [
       'Networking etkinlikleri',
       'Gözde tasarım şirketleri',
     ],
-    color: {
-      primary: '#6C5CE7',
-      secondary: '#A29BFE',
-    },
   },
 ];

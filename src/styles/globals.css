@@ -13,8 +13,9 @@ html {
 }
 
 body {
-  font-family: system-ui, -apple-system, sans-serif;
-  line-height: 1.6;
+  @apply bg-canvas text-ink font-sans;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
 }
 
 /* Scrollbar styling */
@@ -24,16 +25,15 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: #eee5da;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 4px;
+  background: #9c978a;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #000000;
 }
 
 /* Focus styles for accessibility */
@@ -42,7 +42,7 @@ a:focus-visible,
 input:focus-visible,
 textarea:focus-visible,
 select:focus-visible {
-  outline: 2px solid #6366f1;
+  outline: 1px solid #000000;
   outline-offset: 2px;
 }
 

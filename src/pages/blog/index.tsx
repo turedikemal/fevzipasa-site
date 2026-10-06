@@ -61,10 +61,10 @@ export default function BlogPage() {
 
       <main>
         {/* Hero */}
-        <section className="bg-gradient-to-r from-primary/10 to-secondary/10 py-16">
+        <section className="bg-linen py-16">
           <div className="container mx-auto px-4 text-center">
             <h1 className="text-4xl font-bold mb-4">Blog</h1>
-            <p className="text-lg text-neutral-600">
+            <p className="text-lg text-ink">
               Tasarım, sanat ve Fevzipaşa pazarları hakkında yazılar
             </p>
           </div>
@@ -72,11 +72,11 @@ export default function BlogPage() {
 
         {/* Featured Post */}
         {blogPosts.length > 0 && (
-          <section className="py-16 border-b border-neutral-200">
+          <section className="py-16 border-b border-ink">
             <div className="container mx-auto px-4">
               <h2 className="text-2xl font-bold mb-8">Son Yazı</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-                <div className="relative h-96 rounded-lg overflow-hidden">
+                <div className="relative h-96 overflow-hidden">
                   <img
                     src={blogPosts[0].image}
                     alt={blogPosts[0].title}
@@ -84,23 +84,23 @@ export default function BlogPage() {
                   />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-primary uppercase mb-2">
+                  <p className="text-sm font-semibold text-ink uppercase mb-2">
                     {blogPosts[0].category}
                   </p>
                   <h3 className="text-3xl font-bold mb-4">
                     {blogPosts[0].title}
                   </h3>
-                  <p className="text-neutral-600 mb-4">{blogPosts[0].excerpt}</p>
+                  <p className="text-ink mb-4">{blogPosts[0].excerpt}</p>
                   <div className="flex items-center gap-4 mb-6">
-                    <span className="text-sm text-neutral-500">
+                    <span className="text-sm text-ink">
                       {blogPosts[0].date}
                     </span>
-                    <span className="text-sm text-neutral-500">
+                    <span className="text-sm text-ink">
                       {blogPosts[0].author}
                     </span>
                   </div>
                   <Link href={`/blog/${blogPosts[0].slug}`}>
-                    <button className="text-primary font-semibold hover:text-primary/80 transition-colors">
+                    <button className="text-ink font-semibold hover:underline transition-colors">
                       Yazıyı Oku →
                     </button>
                   </Link>
@@ -123,7 +123,7 @@ export default function BlogPage() {
         </section>
 
         {/* Newsletter */}
-        <section className="bg-primary text-white py-16">
+        <section className="bg-ink text-white py-16">
           <div className="container mx-auto px-4 text-center">
             <h2 className="text-3xl font-bold mb-4">Yeni Yazılara Abone Ol</h2>
             <p className="mb-8">Tasarım ve Fevzipaşa pazarları hakkında yazıları doğrudan e-posta ile al</p>
@@ -131,9 +131,9 @@ export default function BlogPage() {
               <input
                 type="email"
                 placeholder="E-posta adresini gir"
-                className="flex-1 px-4 py-3 rounded-lg text-neutral-900 focus:outline-none focus:ring-2 focus:ring-secondary"
+                className="flex-1 px-4 py-3 text-ink focus:outline-none focus:ring-2 focus:ring-canvas"
               />
-              <button className="bg-secondary text-white px-6 py-3 rounded-lg font-semibold hover:bg-secondary/90 transition-colors">
+              <button className="bg-ink text-white px-6 py-3 font-semibold hover:bg-ink/80 transition-colors">
                 Abone Ol
               </button>
             </div>

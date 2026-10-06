@@ -53,10 +53,10 @@ export const Gallery: React.FC<GalleryProps> = ({ images, title }) => {
                 setSelectedCategory(cat);
                 setSelectedImage(null);
               }}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              className={`px-4 py-2 font-medium transition-colors ${
                 selectedCategory === cat
-                  ? 'bg-primary text-white'
-                  : 'bg-neutral-200 text-neutral-700 hover:bg-neutral-300'
+                  ? 'bg-ink text-white'
+                  : 'bg-driftwood text-ink hover:bg-pebble'
               }`}
             >
               {cat.charAt(0).toUpperCase() + cat.slice(1)}
@@ -69,10 +69,10 @@ export const Gallery: React.FC<GalleryProps> = ({ images, title }) => {
           {filteredImages.map((image) => (
             <div
               key={image.id}
-              className="break-inside-avoid cursor-pointer group overflow-hidden rounded-lg"
+              className="break-inside-avoid cursor-pointer group overflow-hidden"
               onClick={() => setSelectedImage(image)}
             >
-              <div className="relative h-64 overflow-hidden bg-neutral-200 rounded-lg">
+              <div className="relative h-64 overflow-hidden bg-driftwood">
                 <Image
                   src={image.src}
                   alt={image.alt}
@@ -102,7 +102,7 @@ export const Gallery: React.FC<GalleryProps> = ({ images, title }) => {
             {/* Close Button */}
             <button
               onClick={() => setSelectedImage(null)}
-              className="absolute top-4 right-4 text-white hover:text-primary z-10"
+              className="absolute top-4 right-4 text-white hover:underline z-10"
             >
               <svg
                 className="w-8 h-8"
@@ -131,7 +131,7 @@ export const Gallery: React.FC<GalleryProps> = ({ images, title }) => {
             </div>
 
             {/* Info & Navigation */}
-            <div className="bg-neutral-900 p-4 flex items-center justify-between">
+            <div className="bg-ink p-4 flex items-center justify-between">
               <div className="flex-1">
                 {selectedImage.title && (
                   <h3 className="text-white font-semibold">
@@ -139,7 +139,7 @@ export const Gallery: React.FC<GalleryProps> = ({ images, title }) => {
                   </h3>
                 )}
                 {selectedImage.description && (
-                  <p className="text-neutral-400 text-sm mt-1">
+                  <p className="text-canvas text-sm mt-1">
                     {selectedImage.description}
                   </p>
                 )}
@@ -149,7 +149,7 @@ export const Gallery: React.FC<GalleryProps> = ({ images, title }) => {
               <div className="flex gap-4 ml-4">
                 <button
                   onClick={handlePrev}
-                  className="text-white hover:text-primary transition-colors"
+                  className="text-white hover:underline transition-colors"
                 >
                   <svg
                     className="w-6 h-6"
@@ -167,7 +167,7 @@ export const Gallery: React.FC<GalleryProps> = ({ images, title }) => {
                 </button>
                 <button
                   onClick={handleNext}
-                  className="text-white hover:text-primary transition-colors"
+                  className="text-white hover:underline transition-colors"
                 >
                   <svg
                     className="w-6 h-6"

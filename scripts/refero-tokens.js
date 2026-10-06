@@ -14,40 +14,29 @@ async function extractReferoTokens() {
 
     // Placeholder - to be replaced with actual Refero MCP call
     const referoTokens = {
+      // Atelier Deux-Cé (https://styles.refero.design/style/d531f0ec-ea94-4a40-b568-3073ff2bd8ed)
       colors: {
-        primary: '#6366f1',
-        secondary: '#8b5cf6',
-        accent: '#ec4899',
-        neutral: '#64748b',
-        success: '#10b981',
-        warning: '#f59e0b',
-        error: '#ef4444',
+        ink: '#000000',
+        canvas: '#ffffff',
+        linen: '#eee5da',
+        sage: '#d8ddc6',
+        driftwood: '#d8d0c5',
+        olive: '#afb371',
+        taupe: '#9c978a',
+        pebble: '#aaaaa4',
+        garden: '#259558',
       },
-      spacing: {
-        xs: '0.25rem',
-        sm: '0.5rem',
-        md: '1rem',
-        lg: '1.5rem',
-        xl: '2rem',
-        '2xl': '3rem',
-      },
+      spacing: ['8px', '12px', '18px', '24px', '40px', '48px'],
       typography: {
         fontSize: {
-          xs: '0.75rem',
-          sm: '0.875rem',
-          base: '1rem',
-          lg: '1.125rem',
-          xl: '1.25rem',
-          '2xl': '1.5rem',
-          '3xl': '1.875rem',
-          '4xl': '2.25rem',
+          caption: '16px',
+          body: '17px',
+          subheading: '20px',
+          heading: '24px',
         },
         fontWeight: {
-          light: 300,
           normal: 400,
-          medium: 500,
           semibold: 600,
-          bold: 700,
         },
       },
     };

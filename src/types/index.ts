@@ -20,10 +20,6 @@ export interface Market {
   gallery: GalleryImage[];
   highlights: string[];
   nextEvent?: string;
-  color: {
-    primary: string;
-    secondary: string;
-  };
 }
 
 export interface StorySection {
