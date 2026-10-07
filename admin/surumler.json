@@ -1,0 +1,43 @@
+[
+ {
+  "v": "1.4.0",
+  "date": "2026-10-07",
+  "notes": [
+   "Katılımcılar, ödemeler ve başvurular Excel (.xlsx) ve CSV olarak dışa aktarılıyor.",
+   "Katılımcılar ve ödemeler Excel ya da CSV dosyasından içe aktarılıyor.",
+   "Sürüm notları: sol alttaki sürüm yazısına tıklayınca açılıyor.",
+   "Sitenin ve panelin en altına THEGOATZSTUDIO 2026 imzası eklendi."
+  ]
+ },
+ {
+  "v": "1.3.0",
+  "date": "2026-10-07",
+  "notes": [
+   "Her katılımcının pazar başına ücreti, ödenen tutarı, yöntemi ve tarihi kaydediliyor.",
+   "Yeni Ödemeler sayfası: toplam, tahsil edilen, kalan ve rapor.",
+   "Pazara varsayılan katılım ücreti girilebiliyor; kabul edilen katılımcıya otomatik atanıyor."
+  ]
+ },
+ {
+  "v": "1.2.0",
+  "date": "2026-10-07",
+  "notes": [
+   "Panel sitenin tasarım diline taşındı: üst menü, renk blokları, büyük başlıklar."
+  ]
+ },
+ {
+  "v": "1.1.0",
+  "date": "2026-10-07",
+  "notes": [
+   "Giriş ekranındaki başlık ana sayfadaki animasyonla aynı.",
+   "Giriş formu yeniden tasarlandı."
+  ]
+ },
+ {
+  "v": "1.0.0",
+  "date": "2026-10-06",
+  "notes": [
+   "Yönetim paneli: pazarlar, başvuru formları, başvurular, katılımcılar, görsel deposu, yöneticiler."
+  ]
+ }
+]

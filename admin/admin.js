@@ -2,7 +2,7 @@
 const $=s=>document.querySelector(s);
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const store={get(k,d){try{return localStorage.getItem(k)??d}catch{return d}},set(k,v){try{localStorage.setItem(k,v)}catch{}}};
-const S={d:null,market:store.get('fp-market','all'),draft:null,openField:null,modalSubmit:null,searchHits:[]};
+const S={versions:null,d:null,market:store.get('fp-market','all'),draft:null,openField:null,modalSubmit:null,searchHits:[]};
 
 const L={
   app:{yeni:'Yeni',inceleniyor:'İnceleniyor',kabul:'Kabul',yedek:'Yedek',red:'Red'},
@@ -10,6 +10,8 @@ const L={
   market:{planlama:'Planlama',basvuru:'Başvuru dönemi',aktif:'Aktif',tamamlandi:'Tamamlandı'},
   role:{sahip:'Sahip',editor:'Editör',izleyici:'İzleyici'},
   type:{text:'Kısa yazı',textarea:'Uzun yazı',email:'E-posta',phone:'Telefon',url:'Bağlantı',number:'Sayı',date:'Tarih',select:'Tek seçim',checkboxes:'Çoklu seçim',file:'Görsel yükleme',consent:'Onay kutusu',heading:'Bölüm başlığı'},
+  fee:{bekliyor:'Bekliyor',kismi:'Kısmi ödendi',odendi:'Ödendi',ucretsiz:'Ücretsiz',tanimsiz:'Ücret girilmedi'},
+  method:{nakit:'Nakit',havale:'Havale / EFT',kart:'Kredi kartı',diger:'Diğer'},
   pf:{brandName:'Marka adı',contactName:'İletişim kişisi',email:'E-posta',phone:'Telefon',instagram:'Instagram',website:'Web sitesi',category:'Kategori',description:'Açıklama'}
 };
 
@@ -29,6 +31,13 @@ const avatar=p=>{const c=cover(p);return `<span class="avatar">${c?`<img src="/m
 const missing=p=>['email','phone'].filter(k=>!p[k]).map(k=>L.pf[k]);
 const stars=(n,act)=>`<span class="stars">${[1,2,3,4,5].map(i=>act?`<button type="button" data-act="${act}" data-v="${i}" class="${i<=n?'on':''}" aria-label="${i} yıldız">★</button>`:`<span style="color:${i<=n?'var(--orange)':'#ddd'}">★</span>`).join('')}</span>`;
 const publicLink=f=>`${location.origin}/basvuru/${f.id}`;
+// Ücretler: katılımcının her pazar için kaydı; kayıt yoksa pazarın varsayılan katılım ücreti beklenir.
+const money=n=>(Number(n)||0).toLocaleString('tr-TR',{maximumFractionDigits:2})+' ₺';
+const feeOf=(p,m)=>({amount:m.fee||0,paid:0,method:'',date:'',note:'',...(p.fees?.[m.id]||{}),set:!!p.fees?.[m.id]});
+const feeState=f=>!f.set&&!f.amount?'tanimsiz':f.amount<=0&&f.paid<=0?'ucretsiz':f.paid>=f.amount?'odendi':f.paid>0?'kismi':'bekliyor';
+const feeRows=scope=>S.d.participants.flatMap(p=>p.markets.map(mk).filter(m=>m&&(scope==='all'||m.id===scope)).map(m=>({p,m,f:feeOf(p,m)})));
+const feeSum=rows=>{const due=rows.reduce((s,r)=>s+(r.f.amount||0),0),paid=rows.reduce((s,r)=>s+(r.f.paid||0),0);return {due,paid,rest:Math.max(0,due-paid),open:rows.filter(r=>['bekliyor','kismi'].includes(feeState(r.f))).length,unset:rows.filter(r=>feeState(r.f)==='tanimsiz').length}};
+const exportBtns=(kind,qs)=>`<span class="xport"><span class="mono">DIŞA AKTAR</span><a class="btn sm" href="/api/export/${kind}.xlsx?${qs}" download>Excel ↓</a><a class="btn sm" href="/api/export/${kind}.csv?${qs}" download>CSV ↓</a></span>`;
 const thumb=m=>m.mime.startsWith('image/')?`<img src="/media/${m.id}" alt="${esc(m.title)}" loading="lazy">`:'<span class="mono">PDF</span>';
 
 // --- Sunucu ---
@@ -56,22 +65,58 @@ const marketOpts=(sel,empty)=>opts(S.d.markets.map(m=>[m.id,m.name]),sel,empty);
 
 // --- Giriş ---
 async function start(){
+  if(!S.versions)S.versions=await fetch('/admin/surumler.json',{cache:'no-store'}).then(r=>r.json()).catch(()=>[]);
   try{const st=await call('GET','/api/auth/state');if(st.me){await refresh();render();return}authScreen(st.needsSetup)}
   catch(e){$('#app').innerHTML=`<p class="boot">${esc(e.message)}</p>`}
 }
 function authScreen(setup){
-  $('#app').innerHTML=`<div class="auth"><div class="auth-brand"><span class="mono">YÖNETİM PANELİ</span><h1>FEVZİPAŞA<br>TASARIM<br>PAZARI</h1><span class="mono">Başvurular · Katılımcılar · Görseller</span></div><div class="auth-form"><form id="auth">
-  <h2>${setup?'Paneli kur':'Giriş yap'}</h2><p class="muted" style="margin:0">${setup?'İlk yönetici hesabını oluştur. Bu hesap “Sahip” yetkisiyle açılır.':'Yönetici hesabınla giriş yap.'}</p>
-  ${setup?field('Ad soyad','<input name="name" required autocomplete="name">'):''}
-  ${field('E-posta','<input name="email" type="email" required autocomplete="email">')}
-  ${field('Şifre',`<input name="password" type="password" required minlength="${setup?8:1}" autocomplete="${setup?'new-password':'current-password'}">`,setup?'en az 8 karakter':'')}
-  <p class="err" id="auth-err"></p><button class="btn primary">${setup?'Kur ve başla':'Giriş yap'} →</button></form></div></div>`;
-  $('#auth').addEventListener('submit',async e=>{e.preventDefault();try{await call('POST',setup?'/api/auth/setup':'/api/auth/login',formData(e.target));await refresh();location.hash='#/';render()}catch(err){$('#auth-err').textContent=err.message}});
+  $('#app').innerHTML=`<div class="auth"><div class="auth-brand"><span class="mono">YÖNETİM PANELİ</span><h1 class="auth-title" aria-label="Fevzipaşa Tasarım Pazarı"><span><i>FEVZİPAŞA</i></span><span><i>TASARIM</i></span><span><i>PAZARI</i></span></h1><div class="auth-foot"><span class="mono">Başvurular · Katılımcılar · Görseller</span><a class="credit" href="https://www.thegoatstudio.com" target="_blank" rel="noopener">THEGOATZSTUDIO 2026</a></div></div>
+  <div class="auth-side"><form id="auth" class="auth-card" novalidate>
+  <span class="mono auth-eyebrow">${setup?'İLK KURULUM':'GİRİŞ'}</span>
+  <h2>${setup?'Paneli kuralım.':'Tekrar hoş geldin.'}</h2>
+  <p class="auth-lead">${setup?'İlk yönetici hesabını oluştur. Bu hesap tüm yetkilere sahip “Sahip” olarak açılır.':'Başvuruları, katılımcıları ve görselleri yönetmek için giriş yap.'}</p>
+  ${setup?`<label class="auth-field"><span>Ad soyad</span><input name="name" required autocomplete="name" placeholder="Kemal Türedi"></label>`:''}
+  <label class="auth-field"><span>E-posta</span><input name="email" type="email" required autocomplete="email" placeholder="ornek@fevzipasa.com"></label>
+  <label class="auth-field"><span>Şifre${setup?' <small>en az 8 karakter</small>':''}</span><span class="pass"><input name="password" type="password" required minlength="${setup?8:1}" autocomplete="${setup?'new-password':'current-password'}" placeholder="••••••••"><button type="button" class="pass-toggle" data-act="pass-toggle" aria-label="Şifreyi göster">Göster</button></span></label>
+  <p class="auth-err" id="auth-err" role="alert"></p>
+  <button class="auth-submit"><span>${setup?'Kur ve başla':'Giriş yap'}</span><span aria-hidden="true">→</span></button>
+  <a class="auth-back" href="/">← Siteye dön</a><span class="ver">${verLabel()}</span></form></div></div>`;
+  $('#auth').addEventListener('submit',async e=>{
+    e.preventDefault();const f=e.target,err=$('#auth-err'),btn=f.querySelector('.auth-submit');
+    const d=formData(f);
+    if(setup&&!d.name)return err.textContent='Adını yaz.';
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(d.email))return err.textContent='Geçerli bir e-posta yaz.';
+    if(setup&&d.password.length<8)return err.textContent='Şifre en az 8 karakter olmalı.';
+    if(!d.password)return err.textContent='Şifreni yaz.';
+    err.textContent='';btn.disabled=true;
+    try{await call('POST',setup?'/api/auth/setup':'/api/auth/login',d);await refresh();location.hash='#/';render()}
+    catch(e2){err.textContent=e2.message;btn.disabled=false}
+  });
+  $('#auth input').focus();
+  titleCycle([...document.querySelectorAll('.auth-title i')]);
+}
+// Ana sayfadaki başlık döngüsünün aynısı: FEVZİPAŞA / TASARIM / PAZARI ↔ KEŞFET / TANIŞ / DESTEKLE.
+async function titleCycle(lines){
+  if(lines.length!==3)return;
+  const reduced=matchMedia('(prefers-reduced-motion: reduce)');
+  const sets=[['FEVZİPAŞA','TASARIM','PAZARI'],['KEŞFET','TANIŞ','DESTEKLE']];
+  const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+  const exitAll=(duration,stagger=0)=>Promise.all(lines.map((el,i)=>el.animate([{transform:'translateY(0)'},{transform:'translateY(-115%)'}],{duration:stagger?duration+i*150:duration,delay:i*stagger,easing:'cubic-bezier(.55,0,1,.45)',fill:'forwards'}).finished));
+  const enter=stagger=>Promise.all(lines.map((el,i)=>el.animate(stagger?[{transform:'translateY(115%)',easing:'cubic-bezier(.2,.7,.4,1)'},{transform:'translateY(10%)',offset:.3,easing:'cubic-bezier(.1,.6,.2,1)'},{transform:'translateY(0)'}]:[{transform:'translateY(115%)'},{transform:'translateY(0)'}],{duration:stagger?520+i*200:1100,delay:i*stagger,easing:stagger?'linear':'cubic-bezier(.16,1,.3,1)',fill:'both'}).finished));
+  let index=0;await wait(1000);
+  while(document.body.contains(lines[0])){
+    await wait(index===0?1100:2600);if(reduced.matches)continue;
+    await exitAll(index===0?320:700,index===0?0:150);
+    index=(index+1)%sets.length;
+    lines.forEach((el,i)=>{el.style.animation='none';el.textContent=sets[index][i]});
+    await enter(index===1?290:0);
+  }
 }
 
 // --- Yönlendirme ---
 function route(){const [path,q]=location.hash.slice(2).split('?');const [view='',id]=path.split('/');return {view:view||'genel',id,q:new URLSearchParams(q||'')}}
-const nav=[['genel','Genel bakış'],['pazarlar','Pazarlar'],['formlar','Başvuru formları'],['basvurular','Başvurular'],['katilimcilar','Katılımcılar'],['gorseller','Görsel deposu'],['yoneticiler','Yöneticiler']];
+const verLabel=()=>S.versions?.[0]?`sürüm ${S.versions[0].v} · ${date(S.versions[0].date).toLocaleLowerCase('tr')}`:'';
+const nav=[['genel','Genel bakış'],['pazarlar','Pazarlar'],['formlar','Formlar'],['basvurular','Başvurular'],['katilimcilar','Katılımcılar'],['odemeler','Ödemeler'],['gorseller','Görseller'],['yoneticiler','Yöneticiler']];
 const pages={};
 
 function render(){
@@ -79,13 +124,16 @@ function render(){
   const r=route(),page=(pages[r.view]||pages.genel)(r);
   const newCount=S.d.applications.filter(a=>a.status==='yeni'&&inScope(a.marketId)).length;
   const scrollY=window.scrollY,focusId=document.activeElement?.id;
-  $('#app').innerHTML=`<div class="shell"><aside class="side" id="side"><div class="logo">FEVZİPAŞA<br>TASARIM PAZARI<span>YÖNETİM PANELİ</span></div>
-  ${nav.map(([k,t])=>`<a href="#/${k}" class="${r.view===k||(r.view==='genel'&&k==='genel')?'on':''}">${t}${k==='basvurular'&&newCount?`<b>${newCount}</b>`:''}</a>`).join('')}
-  <div class="foot">${esc(S.d.me.name)} · ${L.role[S.d.me.role]}<br><a href="#/hesap" style="padding:0;display:inline;color:#aaa">Hesabım</a> · <a href="/" target="_blank" style="padding:0;display:inline;color:#aaa">Siteyi aç ↗</a><br><button data-act="logout">Çıkış yap</button></div></aside>
-  <div class="main"><div class="top"><button class="btn sm menu-btn" data-act="menu">Menü</button>
-  <div class="search"><input id="q" placeholder="Ara: marka, kişi, form, görsel…  ( / )" autocomplete="off" value="${esc(S.q||'')}"><div id="results"></div></div>
+  const ni=nav.findIndex(([k])=>k===r.view),eyebrow=!r.id&&ni>=0?`<p class="eyebrow">${String(ni+1).padStart(2,'0')} / ${nav[ni][1].toLocaleUpperCase('tr')}</p>`:'';
+  $('#app').innerHTML=`<header class="bar"><a class="wordmark" href="#/">FEVZİPAŞA<br>TASARIM PAZARI<span>YÖNETİM PANELİ</span></a>
+  <nav id="side">${nav.map(([k,t])=>`<a href="#/${k}" class="${r.view===k?'on':''}">${t}${k==='basvurular'&&newCount?`<b>${newCount}</b>`:''}</a>`).join('')}
+  <a class="nav-pill" href="/" target="_blank">Siteyi aç <span>↗</span></a></nav>
+  <div class="who"><span>${esc(S.d.me.name)} · ${L.role[S.d.me.role]}</span><a href="#/hesap">Hesabım</a><button data-act="logout">Çıkış</button></div>
+  <button class="menu-btn" data-act="menu">Menü</button></header>
+  <div class="tools"><div class="search"><input id="q" placeholder="Ara: marka, kişi, form, görsel…  ( / )" autocomplete="off" value="${esc(S.q||'')}"><div id="results"></div></div>
   <label class="market-pick"><span class="mono hide-sm">PAZAR</span><select id="market-pick">${opts([['all','Tüm pazarlar'],...S.d.markets.map(m=>[m.id,m.name])],S.market)}</select></label></div>
-  <div class="page">${page}</div></div></div>`;
+  <main class="page">${eyebrow}${page}</main>
+  <footer class="admin-foot"><div class="foot-who"><span>${esc(S.d.me.name)} · ${L.role[S.d.me.role].toLocaleLowerCase('tr')}</span><span><a href="#/hesap">hesabım</a> · <button data-act="logout">çıkış yap</button></span><button class="ver" data-act="versions">${verLabel()}</button></div><a class="credit" href="https://www.thegoatstudio.com" target="_blank" rel="noopener">THEGOATZSTUDIO 2026</a></footer>`;
   if(focusId==='q'){const q=$('#q');q.focus();q.setSelectionRange(q.value.length,q.value.length);showResults()}
   if(render.last===location.hash)window.scrollTo(0,scrollY);else window.scrollTo(0,0);
   render.last=location.hash;
@@ -118,43 +166,46 @@ pages.genel=()=>{
   const catMax=Math.max(1,...Object.values(cats));
   const next=S.d.markets.filter(m=>m.endDate>=today||m.startDate>=today).sort((a,b)=>a.startDate.localeCompare(b.startDate))[0];
   const days=next?Math.ceil((new Date(next.startDate+'T00:00')-new Date(today+'T00:00'))/864e5):null;
+  const fs=feeSum(feeRows(S.market));
+  if(fs.open)tips.push([`${fs.open} katılımcının ödemesi tamamlanmadı, ${money(fs.rest)} bekleniyor.`,'#/odemeler?durum=acik','Ödemeler']);
+  if(fs.unset)tips.push([`${fs.unset} katılımcıya henüz ücret girilmedi.`,'#/odemeler?durum=tanimsiz','Ücret gir']);
   return `<div class="head"><div><h1>Merhaba ${esc(S.d.me.name.split(' ')[0])}.</h1><p>${S.market==='all'?'Tüm pazarların özeti':esc(mk(S.market)?.name)+' özeti'}</p></div>
-  ${canEdit()?`<div class="row"><a class="btn" href="#/formlar">Formlar</a><a class="btn primary" href="#/gorseller">Görsel yükle</a></div>`:''}</div>
-  <div class="grid g4"><a class="card stat o" href="#/basvurular" style="text-decoration:none"><strong>${apps.length}</strong><span>Başvuru · ${fresh} yeni</span></a>
-  <div class="card stat y"><strong>${accepted}${capacity?`<small style="font-size:16px">/${capacity}</small>`:''}</strong><span>Kabul edilen${capacity?' / kapasite':''}</span>${capacity?`<div class="bar"><i style="width:${Math.min(100,accepted/capacity*100)}%"></i></div>`:''}</div>
-  <a class="card stat p" href="#/katilimcilar" style="text-decoration:none"><strong>${parts.length}</strong><span>Katılımcı</span></a>
-  <a class="card stat b" href="#/gorseller" style="text-decoration:none"><strong>${media.length}</strong><span>Görsel ve dosya</span></a></div>
-  <div class="grid g3" style="margin-top:16px;grid-template-columns:minmax(0,2fr) minmax(0,1fr)">
+  ${canEdit()?`<div class="row"><a class="btn" href="#/formlar">Formlar</a><a class="btn primary" href="#/gorseller">Görsel yükle <span>↗</span></a></div>`:''}</div>
+  <div class="grid g4"><a class="stat o" href="#/basvurular"><strong>${apps.length}</strong><span>Başvuru · ${fresh} yeni</span></a>
+  <div class="stat y"><strong>${accepted}${capacity?`<small>/${capacity}</small>`:''}</strong><span>Kabul edilen${capacity?' / kapasite':''}${capacity?`<div class="bar-meter"><i style="width:${Math.min(100,accepted/capacity*100)}%"></i></div>`:''}</span></div>
+  <a class="stat p" href="#/katilimcilar"><strong>${parts.length}</strong><span>Katılımcı · ${media.length} görsel</span></a>
+  <a class="stat b money" href="#/odemeler"><strong>${money(fs.paid)}</strong><span>Tahsil edilen${fs.due?` · ${money(fs.rest)} kaldı<div class="bar-meter"><i style="width:${Math.min(100,fs.paid/fs.due*100)}%"></i></div>`:''}</span></a></div>
+  <div class="grid split" style="margin-top:40px">
   <div class="card"><h3>Yapılacaklar <span class="mono muted">AKILLI UYARILAR</span></h3>${tips.length?`<div class="tips">${tips.map(([t,h,b,w])=>`<div class="tip ${w||''}"><span>${esc(t)}</span><a class="btn sm" href="${h}">${b}</a></div>`).join('')}</div>`:'<div class="empty">Her şey yolunda. Bekleyen iş yok.</div>'}</div>
-  <div class="card">${next?`<h3>Sıradaki pazar</h3><a href="#/pazarlar/${next.id}" style="text-decoration:none"><strong style="font-size:22px;letter-spacing:-.03em">${esc(next.name)}</strong><p class="muted" style="margin:6px 0">${marketRange(next)} · ${esc(next.hours)}<br>${esc(next.location)}</p></a><p style="font-size:40px;font-weight:800;letter-spacing:-.05em;margin:10px 0 0;color:var(--orange)">${days>0?days+' gün':days===0?'Bugün':'Devam ediyor'}</p>${days>0?'<span class="muted">kaldı</span>':''}`:'<h3>Sıradaki pazar</h3><div class="empty">Planlanmış pazar yok.</div>'}</div></div>
-  <div class="grid g3" style="margin-top:16px">
+  ${next?`<a class="next" href="#/pazarlar/${next.id}"><span class="mono">SIRADAKİ PAZAR</span><strong>${esc(next.name)}</strong><span>${marketRange(next)} · ${esc(next.hours)}<br>${esc(next.location)}</span><span class="disc">${days>0?days:days===0?'BUGÜN':'ŞİMDİ'}<span>${days>0?'GÜN KALDI':days===0?'PAZAR GÜNÜ':'DEVAM EDİYOR'}</span></span></a>`:'<div class="next"><span class="mono">SIRADAKİ PAZAR</span><strong>Planlanmış pazar yok.</strong></div>'}</div>
+  <div class="grid g3" style="margin-top:40px">
   <div class="card"><h3>Son başvurular <a class="btn sm ghost" href="#/basvurular">Tümü →</a></h3><div class="list">${apps.slice(0,6).map(a=>`<a class="item" href="#/basvurular/${a.id}"><span><b>${esc(appName(a))}</b><br><small class="muted">${esc(profile(a).category||'')} · ${ago(a.createdAt)}</small></span>${pill('app',a.status)}</a>`).join('')||'<div class="empty">Henüz başvuru yok.</div>'}</div></div>
-  <div class="card"><h3>Kategori dağılımı</h3>${Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(([c,n])=>`<div style="margin-bottom:10px"><div class="row" style="justify-content:space-between"><span>${esc(c)}</span><b>${n}</b></div><div class="bar"><i style="width:${n/catMax*100}%;background:var(--orange)"></i></div></div>`).join('')||'<div class="empty">Katılımcı yok.</div>'}</div>
+  <div class="card cats"><h3>Kategoriler</h3>${Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(([c,n])=>`<div class="c"><div><span>${esc(c)}</span><b>${n}</b></div><div class="bar-meter"><i style="width:${n/catMax*100}%"></i></div></div>`).join('')||'<div class="empty">Katılımcı yok.</div>'}</div>
   <div class="card"><h3>Son hareketler</h3><ul class="feed">${S.d.activity.slice(0,8).map(x=>`<li>${esc(x.text)}<br><small class="muted">${ago(x.at)}${x.adminId?' · '+esc(S.d.admins.find(a=>a.id===x.adminId)?.name||''):''}</small></li>`).join('')||'<li class="muted">Henüz hareket yok.</li>'}</ul></div></div>
-  <div class="card" style="margin-top:16px"><h3>Yayındaki formlar</h3>${openForms.length?openForms.map(f=>`<div class="linkbox" style="margin-bottom:8px"><span style="flex:1">${esc(f.title)} — ${esc(publicLink(f))}</span><button class="btn sm" data-act="copy" data-v="${esc(publicLink(f))}">Kopyala</button></div>`).join(''):'<p class="muted" style="margin:0">Şu an yayında form yok.</p>'}</div>`;
+  <div class="card" style="margin-top:40px"><h3>Yayındaki formlar</h3>${openForms.length?openForms.map(f=>`<div class="linkbox" style="margin-bottom:8px"><span style="flex:1">${esc(f.title)} — ${esc(publicLink(f))}</span><button class="btn sm" data-act="copy" data-v="${esc(publicLink(f))}">Kopyala</button></div>`).join(''):'<p class="muted" style="margin:0">Şu an yayında form yok.</p>'}</div>`;
 };
 
 // --- Pazarlar ---
 const marketStats=m=>{const apps=S.d.applications.filter(a=>a.marketId===m.id);return {forms:S.d.forms.filter(f=>f.marketId===m.id),apps,acc:apps.filter(a=>a.status==='kabul').length,parts:S.d.participants.filter(p=>p.markets.includes(m.id)),media:S.d.media.filter(x=>x.marketId===m.id)}};
 pages.pazarlar=()=>`<div class="head"><div><h1>Pazarlar</h1><p>Her pazarın kendi formları, başvuruları, katılımcıları ve görsel klasörü var.</p></div>${canEdit()?'<button class="btn primary" data-act="market-new">+ Yeni pazar</button>':''}</div>
   <div class="grid g3">${[...S.d.markets].sort((a,b)=>(b.startDate||'').localeCompare(a.startDate||'')).map(m=>{const s=marketStats(m);return `<a class="card" href="#/pazarlar/${m.id}" style="text-decoration:none;display:grid;gap:10px"><div class="row" style="justify-content:space-between"><span class="mono">${m.edition?m.edition+'. EDİSYON':''}</span>${pill('market',m.status)}</div><strong style="font-size:22px;letter-spacing:-.04em;line-height:1.1">${esc(m.name)}</strong><span class="muted">${marketRange(m)}<br>${esc(m.location)}</span>
-  <div class="row mono" style="gap:14px"><span>${s.forms.length} FORM</span><span>${s.apps.length} BAŞVURU</span><span>${s.parts.length} KATILIMCI</span><span>${s.media.length} DOSYA</span></div>${m.capacity?`<div><small class="muted">Kabul ${s.acc}/${m.capacity}</small><div class="bar"><i style="width:${Math.min(100,s.acc/m.capacity*100)}%;background:var(--orange)"></i></div></div>`:''}</a>`}).join('')||'<div class="empty">Henüz pazar yok.</div>'}</div>`;
+  <div class="row mono" style="gap:14px"><span>${s.forms.length} FORM</span><span>${s.apps.length} BAŞVURU</span><span>${s.parts.length} KATILIMCI</span><span>${s.media.length} DOSYA</span></div>${m.capacity?`<div><small class="muted">Kabul ${s.acc}/${m.capacity}</small><div class="bar-meter"><i style="width:${Math.min(100,s.acc/m.capacity*100)}%;background:var(--orange)"></i></div></div>`:''}</a>`}).join('')||'<div class="empty">Henüz pazar yok.</div>'}</div>`;
 
 pages.pazar=pages.pazarlar;
 const marketPage=r=>{
   const m=mk(r.id);if(!m)return '<div class="empty">Pazar bulunamadı.</div>';
   const s=marketStats(m),byStatus=k=>s.apps.filter(a=>a.status===k).length;
-  const cats=S.d.mediaCategories.map(c=>[c,s.media.filter(x=>x.category===c).length]).filter(([,n])=>n);
+  const cats=S.d.mediaCategories.map(c=>[c,s.media.filter(x=>x.category===c).length]).filter(([,n])=>n),fs=feeSum(feeRows(m.id));
   return `<div class="crumb"><a href="#/pazarlar">PAZARLAR</a> /</div><div class="head"><div><h1>${esc(m.name)}</h1><p>${marketRange(m)} · ${esc(m.hours)} · ${esc(m.location)} ${pill('market',m.status)}</p></div>
   <div class="row">${S.market!==m.id?`<button class="btn" data-act="scope" data-v="${m.id}">Paneli bu pazara odakla</button>`:''}${canEdit()?`<button class="btn" data-act="market-edit" data-v="${m.id}">Düzenle</button>`:''}${isOwner()?`<button class="btn danger" data-act="market-del" data-v="${m.id}">Sil</button>`:''}</div></div>
-  <div class="grid g4"><div class="card stat o"><strong>${s.apps.length}</strong><span>${byStatus('yeni')} yeni · ${byStatus('inceleniyor')} inceleniyor</span></div><div class="card stat y"><strong>${s.acc}${m.capacity?'/'+m.capacity:''}</strong><span>Kabul / kapasite</span></div><div class="card stat p"><strong>${s.parts.length}</strong><span>Katılımcı</span></div><div class="card stat b"><strong>${s.media.length}</strong><span>Dosya</span></div></div>
-  <div class="grid g2" style="margin-top:16px">
+  <div class="grid g4"><a class="stat o" href="#/basvurular?pazar=${m.id}"><strong>${s.apps.length}</strong><span>Başvuru · ${byStatus('yeni')} yeni · ${byStatus('inceleniyor')} inceleniyor</span></a><div class="stat y"><strong>${s.acc}${m.capacity?`<small>/${m.capacity}</small>`:''}</strong><span>Kabul / kapasite</span></div><a class="stat p" href="#/katilimcilar?pazar=${m.id}"><strong>${s.parts.length}</strong><span>Katılımcı · ${s.media.length} dosya</span></a><a class="stat b money" href="#/odemeler?pazar=${m.id}"><strong>${money(fs.paid)}</strong><span>Tahsil edilen · ${money(fs.rest)} kaldı${fs.due?`<div class="bar-meter"><i style="width:${Math.min(100,fs.paid/fs.due*100)}%"></i></div>`:''}</span></a></div>
+  <div class="grid g2" style="margin-top:40px">
   <div class="card"><h3>Başvuru formları ${canEdit()?`<span class="row"><button class="btn sm" data-act="form-copy-into" data-v="${m.id}">Önceki formu kopyala</button><button class="btn sm primary" data-act="form-new" data-v="${m.id}">+ Form</button></span>`:''}</h3>
   <div class="list">${s.forms.map(f=>`<a class="item" href="#/formlar/${f.id}"><span><b>${esc(f.title)}</b><br><small class="muted">${S.d.applications.filter(a=>a.formId===f.id).length} başvuru · son tarih ${date(f.deadline)}</small></span>${pill('form',f.status)}</a>`).join('')||'<div class="empty">Bu pazar için form yok.</div>'}</div></div>
   <div class="card"><h3>Son başvurular <a class="btn sm ghost" href="#/basvurular?pazar=${m.id}">Tümü →</a></h3><div class="list">${s.apps.slice(0,6).map(a=>`<a class="item" href="#/basvurular/${a.id}"><span><b>${esc(appName(a))}</b><br><small class="muted">${ago(a.createdAt)}</small></span>${pill('app',a.status)}</a>`).join('')||'<div class="empty">Başvuru yok.</div>'}</div></div>
-  <div class="card"><h3>Katılımcılar <a class="btn sm ghost" href="#/katilimcilar?pazar=${m.id}">Tümü →</a></h3><div class="grid g2">${s.parts.slice(0,10).map(p=>`<a class="pcard" href="#/katilimcilar/${p.id}">${avatar(p)}<span><b>${esc(p.brandName)}</b><br><small class="muted">${esc(p.category)}</small></span></a>`).join('')||'<div class="empty">Katılımcı yok.</div>'}</div></div>
+  <div class="card"><h3>Katılımcılar <a class="btn sm ghost" href="#/katilimcilar?pazar=${m.id}">Tümü →</a></h3><div class="list">${s.parts.slice(0,8).map(p=>{const f=feeOf(p,m);return `<a class="item" href="#/katilimcilar/${p.id}"><span class="pcard">${avatar(p)}<span><b>${esc(p.brandName)}</b><br><small class="muted">${esc(p.category)}</small></span></span>${pill('fee',feeState(f))}</a>`}).join('')||'<div class="empty">Katılımcı yok.</div>'}</div></div>
   <div class="card"><h3>Görsel klasörü <a class="btn sm ghost" href="#/gorseller?m=${m.id}">Klasörü aç →</a></h3><div class="list">${cats.map(([c,n])=>`<a class="item" href="#/gorseller?m=${m.id}&c=${encodeURIComponent(c)}"><span>📁 ${esc(c)}</span><b>${n}</b></a>`).join('')||'<div class="empty">Bu pazarın klasörü boş.</div>'}</div></div></div>
-  ${m.notes?`<div class="card" style="margin-top:16px"><h3>Notlar</h3><p style="white-space:pre-wrap;margin:0">${esc(m.notes)}</p></div>`:''}`;
+  ${m.notes?`<div class="card" style="margin-top:40px"><h3>Notlar</h3><p style="white-space:pre-wrap;margin:0">${esc(m.notes)}</p></div>`:''}`;
 };
 {const list=pages.pazarlar;pages.pazarlar=r=>r.id?marketPage(r):list(r)}
 
@@ -163,7 +214,7 @@ function marketModal(m){
   modal(`<h2>${m.id?'Pazarı düzenle':'Yeni pazar'}</h2>${field('Pazar adı',`<input name="name" required value="${esc(m.name||(m.edition?m.edition+'. Fevzipaşa Tasarım Pazarı':''))}">`)}
   <div class="grid g2">${field('Edisyon no',`<input name="edition" type="number" min="1" value="${esc(m.edition||'')}">`)}${field('Durum',`<select name="status">${opts(Object.entries(L.market),m.status)}</select>`)}
   ${field('Başlangıç',`<input name="startDate" type="date" value="${esc(m.startDate||'')}">`)}${field('Bitiş',`<input name="endDate" type="date" value="${esc(m.endDate||'')}">`)}
-  ${field('Saatler',`<input name="hours" value="${esc(m.hours||'11.00–21.00')}">`)}${field('Kapasite',`<input name="capacity" type="number" min="0" value="${esc(m.capacity||'')}">`,'stant sayısı')}</div>
+  ${field('Saatler',`<input name="hours" value="${esc(m.hours||'11.00–21.00')}">`)}${field('Kapasite',`<input name="capacity" type="number" min="0" value="${esc(m.capacity||'')}">`,'stant sayısı')}${field('Katılım ücreti (₺)',`<input name="fee" type="number" min="0" step="any" value="${esc(m.fee||'')}">`,'katılımcı başına varsayılan')}</div>
   ${field('Konum',`<input name="location" value="${esc(m.location||'Fevzipaşa / Çanakkale')}">`)}${field('Notlar',`<textarea name="notes">${esc(m.notes||'')}</textarea>`)}
   <div class="actions"><button type="button" class="btn ghost" data-act="close">Vazgeç</button><button class="btn primary">Kaydet</button></div>`,
   async d=>{const r=await call(m.id?'PUT':'POST',m.id?`/api/markets/${m.id}`:'/api/markets',d);await refresh();closeModal();toast('Pazar kaydedildi');location.hash=`#/pazarlar/${r.id}`;render()});
@@ -174,7 +225,7 @@ pages.formlar=r=>{
   if(r.id)return formBuilder(r.id);
   const forms=S.d.forms.filter(f=>inScope(f.marketId));
   return `<div class="head"><div><h1>Başvuru formları</h1><p>Her pazar için ayrı form oluştur, yayınla, bağlantısını paylaş.</p></div>${canEdit()?`<div class="row"><button class="btn" data-act="form-copy-into" data-v="${S.market==='all'?'':S.market}">Önceki formdan kopyala</button><button class="btn primary" data-act="form-new" data-v="${S.market==='all'?'':S.market}">+ Yeni form</button></div>`:''}</div>
-  ${forms.length?`<div class="card" style="padding:6px 8px"><table><thead><tr><th>FORM</th><th class="hide-sm">PAZAR</th><th>DURUM</th><th class="hide-sm">SON TARİH</th><th>BAŞVURU</th><th></th></tr></thead><tbody>${forms.map(f=>{const n=S.d.applications.filter(a=>a.formId===f.id);return `<tr class="click" data-href="#/formlar/${f.id}"><td><b>${esc(f.title)}</b><br><small class="muted">${f.fields.length} soru</small></td><td class="hide-sm">${esc(mk(f.marketId)?.name)}</td><td>${pill('form',f.status)}</td><td class="hide-sm">${date(f.deadline)}</td><td><a href="#/basvurular?form=${f.id}">${n.length}</a>${n.filter(a=>a.status==='yeni').length?` <span class="pill s-yeni">${n.filter(a=>a.status==='yeni').length} yeni</span>`:''}</td><td style="text-align:right">${f.status==='acik'?`<button class="btn sm" data-act="copy" data-v="${esc(publicLink(f))}">Bağlantı</button>`:''}</td></tr>`}).join('')}</tbody></table></div>`:'<div class="empty">Bu kapsamda form yok.</div>'}`;
+  ${forms.length?`<div class="table-wrap"><table><thead><tr><th>FORM</th><th class="hide-sm">PAZAR</th><th>DURUM</th><th class="hide-sm">SON TARİH</th><th>BAŞVURU</th><th></th></tr></thead><tbody>${forms.map(f=>{const n=S.d.applications.filter(a=>a.formId===f.id);return `<tr class="click" data-href="#/formlar/${f.id}"><td><b>${esc(f.title)}</b><br><small class="muted">${f.fields.length} soru</small></td><td class="hide-sm">${esc(mk(f.marketId)?.name)}</td><td>${pill('form',f.status)}</td><td class="hide-sm">${date(f.deadline)}</td><td><a href="#/basvurular?form=${f.id}">${n.length}</a>${n.filter(a=>a.status==='yeni').length?` <span class="pill s-yeni">${n.filter(a=>a.status==='yeni').length} yeni</span>`:''}</td><td style="text-align:right">${f.status==='acik'?`<button class="btn sm" data-act="copy" data-v="${esc(publicLink(f))}">Bağlantı</button>`:''}</td></tr>`}).join('')}</tbody></table></div>`:'<div class="empty">Bu kapsamda form yok.</div>'}`;
 };
 
 function newFormModal(marketId){
@@ -200,7 +251,7 @@ function formBuilder(id){
   const dirty=JSON.stringify(d)!==JSON.stringify(form);
   return `<div class="crumb"><a href="#/formlar">FORMLAR</a> / <a href="#/pazarlar/${form.marketId}">${esc(mk(form.marketId)?.name)}</a></div>
   <div class="head"><div><h1>${esc(d.title)}</h1><p>${pill('form',form.status)} · ${apps.length} başvuru · <a href="#/basvurular?form=${id}">başvuruları gör</a></p></div>
-  <div class="row"><a class="btn" href="/api/forms/${id}/export.csv">Excel'e aktar (CSV)</a>${ro?'':`<button class="btn" data-act="form-copy-into" data-v="" data-form="${id}">Başka pazara kopyala</button>${!apps.length?`<button class="btn danger" data-act="form-del" data-v="${id}">Sil</button>`:''}<button class="btn primary" data-act="form-save" ${dirty?'':'disabled'}>${dirty?'Değişiklikleri kaydet':'Kaydedildi'}</button>`}</div></div>
+  <div class="row">${exportBtns('basvurular','form='+id)}${ro?'':`<button class="btn" data-act="form-copy-into" data-v="" data-form="${id}">Başka pazara kopyala</button>${!apps.length?`<button class="btn danger" data-act="form-del" data-v="${id}">Sil</button>`:''}<button class="btn primary" data-act="form-save" ${dirty?'':'disabled'}>${dirty?'Değişiklikleri kaydet':'Kaydedildi'}</button>`}</div></div>
   <div class="builder"><div>
   <div class="card" style="margin-bottom:16px;display:grid;gap:12px"><h3 style="margin:0">Form ayarları</h3>
   ${field('Başlık',`<input data-bind="title" value="${esc(d.title)}" ${ro?'disabled':''}>`)}
@@ -244,11 +295,11 @@ const withQ=(q,k,v)=>{const n=new URLSearchParams(q);v?n.set(k,v):n.delete(k);re
 pages.basvurular=r=>{
   if(r.id)return appPage(r.id);
   const q=r.q,base=appFilter(new URLSearchParams([...q].filter(([k])=>k!=='durum'))),list=appFilter(q),form=q.get('form');
-  return `<div class="head"><div><h1>Başvurular</h1><p>${form?esc(fm(form)?.title):'Tüm formlar'} · ${list.length} başvuru</p></div>${form?`<a class="btn" href="/api/forms/${form}/export.csv">Excel'e aktar (CSV)</a>`:''}</div>
+  return `<div class="head"><div><h1>Başvurular</h1><p>${form?esc(fm(form)?.title):'Tüm formlar'} · ${list.length} başvuru</p></div>${form?exportBtns('basvurular','form='+form):''}</div>
   <div class="filters"><select data-nav="form">${opts(S.d.forms.filter(f=>inScope(f.marketId)).map(f=>[f.id,f.title]),form,'Tüm formlar')}</select>
   <input data-nav="ara" placeholder="Başvurularda ara" value="${esc(q.get('ara')||'')}"><select data-nav="sira">${opts([['','En yeni'],['puan','En yüksek puan']],q.get('sira')||'')}</select></div>
   <div class="chips" style="margin-bottom:16px"><a class="chip ${!q.get('durum')?'on':''}" href="${withQ(q,'durum','')}">Tümü ${base.length}</a>${Object.entries(L.app).map(([k,t])=>`<a class="chip ${q.get('durum')===k?'on':''}" href="${withQ(q,'durum',k)}" style="text-decoration:none">${t} ${base.filter(a=>a.status===k).length}</a>`).join('')}</div>
-  ${list.length?`<div class="card" style="padding:6px 8px"><table><thead><tr><th>MARKA</th><th class="hide-sm">KATEGORİ</th><th class="hide-sm">FORM</th><th>TARİH</th><th class="hide-sm">PUAN</th><th>DURUM</th></tr></thead><tbody>${list.map(a=>{const p=profile(a);return `<tr class="click" data-href="#/basvurular/${a.id}"><td><b>${esc(appName(a))}</b>${a.matchedParticipantId&&!a.participantId?' <span class="pill" style="background:#d7e6ff">Tanıdık</span>':''}<br><small class="muted">${esc(p.contactName||'')}</small></td><td class="hide-sm">${esc(p.category||'')}</td><td class="hide-sm"><small>${esc(fm(a.formId)?.title||'')}</small></td><td><small>${ago(a.createdAt)}</small></td><td class="hide-sm">${stars(a.rating||0)}</td><td>${pill('app',a.status)}</td></tr>`}).join('')}</tbody></table></div>`:'<div class="empty">Bu filtreye uyan başvuru yok.</div>'}`;
+  ${list.length?`<div class="table-wrap"><table><thead><tr><th>MARKA</th><th class="hide-sm">KATEGORİ</th><th class="hide-sm">FORM</th><th>TARİH</th><th class="hide-sm">PUAN</th><th>DURUM</th></tr></thead><tbody>${list.map(a=>{const p=profile(a);return `<tr class="click" data-href="#/basvurular/${a.id}"><td><b>${esc(appName(a))}</b>${a.matchedParticipantId&&!a.participantId?' <span class="pill" style="background:#d7e6ff">Tanıdık</span>':''}<br><small class="muted">${esc(p.contactName||'')}</small></td><td class="hide-sm">${esc(p.category||'')}</td><td class="hide-sm"><small>${esc(fm(a.formId)?.title||'')}</small></td><td><small>${ago(a.createdAt)}</small></td><td class="hide-sm">${stars(a.rating||0)}</td><td>${pill('app',a.status)}</td></tr>`}).join('')}</tbody></table></div>`:'<div class="empty">Bu filtreye uyan başvuru yok.</div>'}`;
 };
 function appPage(id){
   const a=S.d.applications.find(x=>x.id===id);if(!a)return '<div class="empty">Başvuru bulunamadı.</div>';
@@ -279,10 +330,10 @@ pages.katilimcilar=r=>{
   if(gap==='iletisim')list=list.filter(p=>missing(p).length);
   if(s)list=list.filter(p=>[p.brandName,p.contactName,p.email,p.instagram,p.category,...p.tags].join(' ').toLocaleLowerCase('tr').includes(s));
   const link=(k,v)=>{const n=new URLSearchParams(q);v?n.set(k,v):n.delete(k);return '#/katilimcilar?'+n};
-  return `<div class="head"><div><h1>Katılımcılar</h1><p>${list.length} marka · tüm pazarlardaki katılım geçmişiyle</p></div>${canEdit()?'<button class="btn primary" data-act="part-new">+ Katılımcı ekle</button>':''}</div>
+  return `<div class="head"><div><h1>Katılımcılar</h1><p>${list.length} marka · tüm pazarlardaki katılım geçmişiyle</p></div><div class="row">${exportBtns('katilimcilar','pazar='+encodeURIComponent(market))}${canEdit()?'<button class="btn sm" data-act="import" data-v="katilimcilar">İçe aktar ↑</button><button class="btn primary" data-act="part-new">+ Katılımcı ekle</button>':''}</div></div>
   <div class="filters"><input data-nav-p="ara" placeholder="Marka, kişi, etiket ara" value="${esc(q.get('ara')||'')}"><select data-nav-p="eksik">${opts([['','Tüm kayıtlar'],['gorsel','Görseli olmayanlar'],['iletisim','İletişimi eksik olanlar']],gap||'')}</select></div>
   <div class="chips" style="margin-bottom:16px"><a class="chip ${!cat?'on':''}" href="${link('kategori','')}" style="text-decoration:none">Tümü</a>${cats.map(c=>`<a class="chip ${cat===c?'on':''}" href="${link('kategori',c)}" style="text-decoration:none">${esc(c)}</a>`).join('')}</div>
-  <div class="grid g3">${list.map(p=>{const gaps=[...missing(p),...(pMedia(p).length?[]:['Görsel'])];return `<a class="card" href="#/katilimcilar/${p.id}" style="text-decoration:none;display:grid;gap:10px"><div class="pcard">${avatar(p)}<span><b style="font-size:16px">${esc(p.brandName)}</b><br><small class="muted">${esc(p.category||'Kategori yok')}</small></span></div>
+  <div class="grid g4">${list.map(p=>{const gaps=[...missing(p),...(pMedia(p).length?[]:['Görsel'])],c=cover(p);return `<a class="pcard-tile" href="#/katilimcilar/${p.id}"><span class="img">${c?`<img src="/media/${c.id}" alt="" loading="lazy">`:`<span>${esc((p.brandName||'?')[0])}</span>`}</span><span class="mono">${esc((p.category||'Kategori yok').toLocaleUpperCase('tr'))}</span><strong>${esc(p.brandName)}</strong>
   <div class="row mono" style="gap:12px"><span>${p.markets.length} PAZAR</span><span>${pMedia(p).length} GÖRSEL</span><span>${S.d.applications.filter(a=>a.participantId===p.id).length} BAŞVURU</span></div>${gaps.length?`<small style="color:var(--red)">Eksik: ${gaps.join(', ')}</small>`:''}</a>`}).join('')||'<div class="empty">Kayıt yok.</div>'}</div>`;
 };
 function participantForm(p){
@@ -297,14 +348,69 @@ function participantPage(id){
   return `<div class="crumb"><a href="#/katilimcilar">KATILIMCILAR</a> /</div><div class="head"><div class="pcard">${avatar(p)}<div><h1>${esc(p.brandName)}</h1><p>${esc(p.category)}${p.instagram?' · '+esc(p.instagram):''}</p></div></div>${isOwner()?`<button class="btn danger" data-act="part-del" data-v="${id}">Sil</button>`:''}</div>
   <div class="drawer-grid"><form class="card" id="part-form" style="display:grid;gap:12px"><h3 style="margin:0">Bilgiler</h3>${participantForm(p)}${canEdit()?'<button class="btn primary" style="justify-self:start">Kaydet</button>':''}</form>
   <div style="display:grid;gap:16px"><div class="card"><h3>Katılım geçmişi</h3><div class="list">${p.markets.map(mk).filter(Boolean).sort((a,b)=>(b.startDate||'').localeCompare(a.startDate||'')).map(m=>`<a class="item" href="#/pazarlar/${m.id}"><span>${esc(m.name)}</span><small class="muted">${marketRange(m)}</small></a>`).join('')||'<div class="empty">Henüz pazar yok.</div>'}</div></div>
+  <div class="card"><h3>Ücretler <span class="mono muted">${money(feeSum(feeRows('all').filter(r=>r.p.id===id)).paid)} ÖDENDİ</span></h3><div class="list">${p.markets.map(mk).filter(Boolean).map(m=>{const f=feeOf(p,m);return `<div class="item fee-item"><span><b>${esc(m.name)}</b><br><small class="muted">${f.set||f.amount?`${money(f.paid)} / ${money(f.amount)}${f.method?' · '+esc(L.method[f.method]||f.method):''}${f.date?' · '+date(f.date):''}`:'Ücret girilmedi'}</small></span><span class="row">${pill('fee',feeState(f))}${canEdit()?`<button class="btn sm" data-act="fee-edit" data-p="${id}" data-m="${m.id}">Düzenle</button>`:''}</span></div>`}).join('')||'<div class="empty">Bir pazara eklenince ücret girilebilir.</div>'}</div></div>
   <div class="card"><h3>Başvurular</h3><div class="list">${apps.map(a=>`<a class="item" href="#/basvurular/${a.id}"><span>${esc(fm(a.formId)?.title||'')}<br><small class="muted">${date(a.createdAt)}</small></span>${pill('app',a.status)}</a>`).join('')||'<div class="empty">Başvuru kaydı yok.</div>'}</div></div>
   ${p.email||p.phone?`<div class="card"><h3>Hızlı iletişim</h3><div class="row">${p.email?`<a class="btn sm" href="mailto:${esc(p.email)}">E-posta</a>`:''}${p.phone?`<a class="btn sm" href="tel:${esc(p.phone.replace(/\s/g,''))}">Ara</a><a class="btn sm" target="_blank" rel="noopener" href="https://wa.me/${esc(p.phone.replace(/\D/g,'').replace(/^0/,'90'))}">WhatsApp</a>`:''}</div></div>`:''}</div></div>
-  <div class="card" style="margin-top:16px"><h3>Görseller <span class="row">${canEdit()?`<button class="btn sm primary" data-act="upload" data-participant="${id}" data-market="${p.markets[p.markets.length-1]||''}" data-cat="Katılımcı ürünleri">+ Görsel yükle</button>`:''}<a class="btn sm ghost" href="#/gorseller?k=${id}">Depoda gör →</a></span></h3>
+  <div class="card" style="margin-top:40px"><h3>Görseller <span class="row">${canEdit()?`<button class="btn sm primary" data-act="upload" data-participant="${id}" data-market="${p.markets[p.markets.length-1]||''}" data-cat="Katılımcı ürünleri">+ Görsel yükle</button>`:''}<a class="btn sm ghost" href="#/gorseller?k=${id}">Depoda gör →</a></span></h3>
   ${media.length?`<div class="thumbs">${media.map(mediaThumb).join('')}</div>`:'<div class="empty">Bu katılımcının görseli yok.</div>'}</div>`;
 }
 function newParticipantModal(){
   modal(`<h2>Yeni katılımcı</h2>${participantForm({markets:S.market==='all'?[]:[S.market]})}<div class="actions"><button type="button" class="btn ghost" data-act="close">Vazgeç</button><button class="btn primary">Ekle</button></div>`,
   async d=>{const p=await call('POST','/api/participants',d);await refresh();closeModal();location.hash=`#/katilimcilar/${p.id}`});
+}
+
+// --- Ödemeler ---
+pages.odemeler=r=>{
+  const q=r.q,scope=q.get('pazar')||S.market,st=q.get('durum'),find=(q.get('ara')||'').toLocaleLowerCase('tr');
+  const all=feeRows(scope).sort((a,b)=>(b.m.startDate||'').localeCompare(a.m.startDate||'')||a.p.brandName.localeCompare(b.p.brandName,'tr'));
+  let rows=all;
+  if(st)rows=rows.filter(x=>st==='acik'?['bekliyor','kismi'].includes(feeState(x.f)):feeState(x.f)===st);
+  if(find)rows=rows.filter(x=>[x.p.brandName,x.p.contactName,x.f.note].join(' ').toLocaleLowerCase('tr').includes(find));
+  const sum=feeSum(all),shown=feeSum(rows),paidCount=all.filter(x=>feeState(x.f)==='odendi').length;
+  const link=(k,v)=>{const n=new URLSearchParams(q);v?n.set(k,v):n.delete(k);return '#/odemeler?'+n};
+  const markets=S.d.markets.filter(m=>scope==='all'||m.id===scope);
+  return `<div class="head"><div><h1>Ödemeler</h1><p>Her katılımcının pazar başına katılım ücreti ve tahsilatı. ${scope==='all'?'Tüm pazarlar':esc(mk(scope)?.name||'')}</p></div>
+  <div class="row"><select class="pill-select" data-nav-o="pazar">${opts([['all','Tüm pazarlar'],...S.d.markets.map(m=>[m.id,m.name])],scope)}</select>${exportBtns('odemeler','pazar='+encodeURIComponent(scope))}${canEdit()?'<button class="btn sm" data-act="import" data-v="odemeler">İçe aktar ↑</button>':''}</div></div>
+  <div class="grid g4"><div class="stat y money"><strong>${money(sum.due)}</strong><span>Toplam ücret</span></div><div class="stat o money"><strong>${money(sum.paid)}</strong><span>Tahsil edilen${sum.due?`<div class="bar-meter"><i style="width:${Math.min(100,sum.paid/sum.due*100)}%"></i></div>`:''}</span></div><div class="stat p money"><strong>${money(sum.rest)}</strong><span>Kalan · ${sum.open} katılımcı</span></div><div class="stat b"><strong>${paidCount}<small>/${all.length}</small></strong><span>Ödemesi tamam</span></div></div>
+  ${scope==='all'&&markets.length>1?`<div class="card" style="margin-top:40px"><h3>Pazar bazında</h3><div class="table-wrap"><table><thead><tr><th>PAZAR</th><th>KATILIMCI</th><th>TOPLAM</th><th>TAHSİL</th><th>KALAN</th><th></th></tr></thead><tbody>${markets.map(m=>{const x=feeSum(feeRows(m.id));return `<tr class="click" data-href="#/odemeler?pazar=${m.id}"><td><b>${esc(m.name)}</b></td><td>${feeRows(m.id).length}</td><td>${money(x.due)}</td><td>${money(x.paid)}</td><td>${money(x.rest)}</td><td style="text-align:right"><a class="btn sm" href="/api/export/odemeler.xlsx?pazar=${m.id}" download>Excel</a> <a class="btn sm" href="/api/export/odemeler.csv?pazar=${m.id}" download>CSV</a></td></tr>`}).join('')}</tbody></table></div></div>`:''}
+  <div style="margin-top:40px"><div class="filters"><input data-nav-o="ara" placeholder="Marka, kişi, not ara" value="${esc(q.get('ara')||'')}"></div>
+  <div class="chips" style="margin-bottom:16px"><a class="chip ${!st?'on':''}" href="${link('durum','')}">Tümü ${all.length}</a><a class="chip ${st==='acik'?'on':''}" href="${link('durum','acik')}">Ödemesi açık ${sum.open}</a>${Object.entries(L.fee).map(([k,t])=>{const n=all.filter(x=>feeState(x.f)===k).length;return n?`<a class="chip ${st===k?'on':''}" href="${link('durum',k)}">${t} ${n}</a>`:''}).join('')}</div>
+  ${rows.length?`<div class="table-wrap"><table><thead><tr><th>MARKA</th>${scope==='all'?'<th class="hide-sm">PAZAR</th>':''}<th>ÜCRET</th><th>ÖDENEN</th><th class="hide-sm">KALAN</th><th class="hide-sm">YÖNTEM / TARİH</th><th>DURUM</th><th></th></tr></thead><tbody>${rows.map(({p,m,f})=>`<tr class="click" data-href="#/katilimcilar/${p.id}"><td><b>${esc(p.brandName)}</b>${f.note?`<br><small class="muted">${esc(f.note)}</small>`:''}</td>${scope==='all'?`<td class="hide-sm"><small>${esc(m.name)}</small></td>`:''}<td>${money(f.amount)}</td><td><b>${money(f.paid)}</b></td><td class="hide-sm">${money(Math.max(0,f.amount-f.paid))}</td><td class="hide-sm"><small>${esc(L.method[f.method]||'—')}${f.date?' · '+date(f.date):''}</small></td><td>${pill('fee',feeState(f))}</td><td style="text-align:right;white-space:nowrap">${canEdit()?`${['bekliyor','kismi'].includes(feeState(f))?`<button class="btn sm primary" data-act="fee-paid" data-p="${p.id}" data-m="${m.id}">Ödendi ✓</button> `:''}<button class="btn sm" data-act="fee-edit" data-p="${p.id}" data-m="${m.id}">Düzenle</button>`:''}</td></tr>`).join('')}</tbody>
+  <tfoot><tr><td><b>TOPLAM</b></td>${scope==='all'?'<td class="hide-sm"></td>':''}<td><b>${money(shown.due)}</b></td><td><b>${money(shown.paid)}</b></td><td class="hide-sm"><b>${money(shown.rest)}</b></td><td class="hide-sm"></td><td></td><td></td></tr></tfoot></table></div>`:'<div class="empty">Bu filtreye uyan kayıt yok. Katılımcılar bir pazara eklenince burada görünür.</div>'}</div>`;
+};
+function feeModal(pid,mid){
+  const p=pt(pid),m=mk(mid);if(!p||!m)return;const f=feeOf(p,m);
+  modal(`<span class="mono">${esc(m.name.toLocaleUpperCase('tr'))}</span><h2>${esc(p.brandName)}</h2>
+  <div class="grid g2">${field('Katılım ücreti (₺)',`<input name="amount" type="number" min="0" step="any" value="${f.amount||''}" placeholder="0">`,m.fee?`pazar varsayılanı ${money(m.fee)}`:'')}${field('Ödenen (₺)',`<input name="paid" type="number" min="0" step="any" value="${f.paid||''}" placeholder="0">`)}
+  ${field('Ödeme yöntemi',`<select name="method">${opts(Object.entries(L.method),f.method,'— seç —')}</select>`)}${field('Ödeme tarihi',`<input name="date" type="date" value="${esc(f.date)}">`)}</div>
+  ${field('Not',`<input name="note" value="${esc(f.note)}" placeholder="Örn. stant indirimi, 2 taksit">`)}
+  <div class="actions" style="justify-content:space-between"><button type="button" class="btn sm" data-act="fee-fill">Tamamı ödendi</button><span class="row"><button type="button" class="btn ghost" data-act="close">Vazgeç</button><button class="btn primary">Kaydet</button></span></div>`,
+  async d=>{await call('PUT',`/api/participants/${pid}/fees/${mid}`,d);await refresh();closeModal();toast('Ücret kaydedildi');render()});
+}
+
+// --- İçe aktarma ---
+const importInfo={
+  katilimcilar:['Katılımcıları içe aktar','Sütunlar: Marka adı (zorunlu), İletişim kişisi, E-posta, Telefon, Instagram, Web sitesi, Kategori, Açıklama, Etiketler, Pazarlar, Ekip notu. Aynı e-posta ya da marka adı varsa kart güncellenir, yoksa yeni kart açılır.'],
+  odemeler:['Ödemeleri içe aktar','Sütunlar: Pazar, Marka (zorunlu), Ücret, Ödenen, Ödeme yöntemi, Ödeme tarihi, Not. Marka, katılımcılardaki adla eşleşir. Pazar sütunu boşsa aşağıda seçtiğin pazar kullanılır.']
+};
+function importModal(kind){
+  const [title,help]=importInfo[kind];
+  modal(`<h2>${title}</h2><p class="muted" style="margin:0">${help}</p><p class="mono" style="margin:0">EN KOLAYI: ÖNCE “DIŞA AKTAR” İLE İNDİR, DÜZENLE, GERİ YÜKLE.</p>
+  ${field('Dosya','<input type="file" name="file" accept=".xlsx,.csv,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" required>','Excel (.xlsx) ya da CSV')}
+  ${field(kind==='odemeler'?'Pazar (dosyada yoksa)':'Bu pazara da ekle',`<select name="marketId">${marketOpts(S.market==='all'?'':S.market,kind==='odemeler'?'— dosyadaki pazar —':'— ekleme —')}</select>`)}
+  <div id="import-out"></div>
+  <div class="actions"><button type="button" class="btn ghost" data-act="close">Kapat</button><button class="btn primary">İçe aktar ↑</button></div>`,
+  async(d,form)=>{
+    const file=form.querySelector('[name=file]').files[0];if(!file)throw new Error('Dosya seç');
+    const btn=form.querySelector('.btn.primary');btn.textContent='Aktarılıyor…';btn.disabled=true;
+    try{
+      const [data]=await readFiles([file]);
+      const r=await call('POST',`/api/import/${kind}`,{filename:file.name,data:data.data,marketId:d.marketId});
+      await refresh();render();
+      $('#import-out').innerHTML=`<div class="import-result"><b>${r.created} yeni · ${r.updated} güncellendi${r.skipped?` · ${r.skipped} atlandı`:''}</b>${r.errors.length?`<ul>${r.errors.slice(0,12).map(e=>`<li>${esc(e)}</li>`).join('')}</ul>${r.errors.length>12?`<small>+${r.errors.length-12} satır daha</small>`:''}`:''}</div>`;
+      toast('İçe aktarıldı');
+    }finally{btn.textContent='İçe aktar ↑';btn.disabled=false}
+  });
 }
 
 // --- Görsel deposu ---
@@ -350,7 +456,7 @@ function mediaModal(id){
 
 // --- Yöneticiler ve hesap ---
 pages.yoneticiler=()=>`<div class="head"><div><h1>Yöneticiler</h1><p>Sahip her şeyi yönetir. Editör içerik ekler ve başvuruları değerlendirir. İzleyici sadece görür.</p></div>${isOwner()?'<button class="btn primary" data-act="admin-new">+ Yönetici ekle</button>':''}</div>
-  <div class="card" style="padding:6px 8px"><table><thead><tr><th>AD</th><th>E-POSTA</th><th>YETKİ</th><th class="hide-sm">SON GİRİŞ</th><th></th></tr></thead><tbody>${S.d.admins.map(a=>`<tr><td><b>${esc(a.name)}</b>${a.id===S.d.me.id?' <span class="pill">sen</span>':''}${a.active===false?' <span class="pill s-red">pasif</span>':''}</td><td>${esc(a.email)}</td>
+  <div class="table-wrap"><table><thead><tr><th>AD</th><th>E-POSTA</th><th>YETKİ</th><th class="hide-sm">SON GİRİŞ</th><th></th></tr></thead><tbody>${S.d.admins.map(a=>`<tr><td><b>${esc(a.name)}</b>${a.id===S.d.me.id?' <span class="pill">sen</span>':''}${a.active===false?' <span class="pill s-red">pasif</span>':''}</td><td>${esc(a.email)}</td>
   <td>${isOwner()&&a.id!==S.d.me.id?`<select class="inp" style="width:auto" data-admin-role="${a.id}">${opts(Object.entries(L.role),a.role)}</select>`:L.role[a.role]}</td><td class="hide-sm"><small>${a.lastLoginAt?ago(a.lastLoginAt):'—'}</small></td>
   <td style="text-align:right">${isOwner()&&a.id!==S.d.me.id?`<button class="btn sm" data-act="admin-pass" data-v="${a.id}">Şifre</button> <button class="btn sm" data-act="admin-toggle" data-v="${a.id}">${a.active===false?'Etkinleştir':'Pasifleştir'}</button>`:''}</td></tr>`).join('')}</tbody></table></div>`;
 pages.hesap=()=>`<div class="head"><div><h1>Hesabım</h1><p>${esc(S.d.me.email)} · ${L.role[S.d.me.role]}</p></div></div>
@@ -375,8 +481,10 @@ function showResults(){
 
 // --- Olaylar ---
 const actions={
+  'pass-toggle':el=>{const i=el.previousElementSibling,show=i.type==='password';i.type=show?'text':'password';el.textContent=show?'Gizle':'Göster';el.setAttribute('aria-label',show?'Şifreyi gizle':'Şifreyi göster')},
+  versions:()=>modal(`<span class="mono">SÜRÜM NOTLARI</span><h2>Neler değişti?</h2><div class="versions">${(S.versions||[]).map((x,i)=>`<section class="${i?'':'now'}"><div><b>${esc(x.v)}</b><small>${date(x.date).toLocaleLowerCase('tr')}${i?'':' · kullandığın sürüm'}</small></div><ul>${x.notes.map(n=>`<li>${esc(n)}</li>`).join('')}</ul></section>`).join('')||'<div class="empty">Sürüm bilgisi yok.</div>'}</div><div class="actions"><button type="button" class="btn primary" data-act="close">Tamam</button></div>`,()=>closeModal()),
   logout:async()=>{await call('POST','/api/auth/logout');S.d=null;start()},
-  menu:()=>$('#side').classList.toggle('open'),
+  menu:el=>{const o=$('#side').classList.toggle('open');el.textContent=o?'Kapat':'Menü'},
   close:()=>closeModal(),
   copy:async el=>{try{await navigator.clipboard.writeText(el.dataset.v);toast('Bağlantı kopyalandı')}catch{prompt('Bağlantıyı kopyala:',el.dataset.v)}},
   scope:el=>{S.market=el.dataset.v;store.set('fp-market',S.market);render();toast('Panel bu pazara odaklandı')},
@@ -399,6 +507,10 @@ const actions={
   'part-new':()=>newParticipantModal(),
   'part-del':el=>confirm('Katılımcı silinsin mi? Görselleri depoda kalır.')&&act(async()=>{await call('DELETE',`/api/participants/${el.dataset.v}`);location.hash='#/katilimcilar'},'Katılımcı silindi'),
   upload:el=>uploadModal(el.dataset),
+  import:el=>importModal(el.dataset.v),
+  'fee-edit':el=>feeModal(el.dataset.p,el.dataset.m),
+  'fee-fill':el=>{const f=el.form;f.paid.value=f.amount.value;if(!f.date.value)f.date.value=new Date().toISOString().slice(0,10)},
+  'fee-paid':el=>{const p=pt(el.dataset.p),m=mk(el.dataset.m),f=feeOf(p,m);act(()=>call('PUT',`/api/participants/${p.id}/fees/${m.id}`,{...f,paid:f.amount,date:f.date||new Date().toISOString().slice(0,10)}),`${p.brandName} ödendi olarak işaretlendi`)},
   'media-open':el=>mediaModal(el.dataset.v),
   'media-del':el=>confirm('Dosya kalıcı olarak silinsin mi?')&&act(async()=>{await call('DELETE',`/api/media/${el.dataset.v}`);closeModal()},'Dosya silindi'),
   'admin-new':()=>modal(`<h2>Yönetici ekle</h2>${field('Ad soyad','<input name="name" required>')}${field('E-posta','<input name="email" type="email" required>')}${field('Yetki',`<select name="role">${opts(Object.entries(L.role),'editor')}</select>`)}${field('Geçici şifre','<input name="password" required minlength="8">','kişiye ilet, sonra kendisi değiştirsin')}<div class="actions"><button type="button" class="btn ghost" data-act="close">Vazgeç</button><button class="btn primary">Ekle</button></div>`,async d=>{await call('POST','/api/admins',d);await refresh();closeModal();toast('Yönetici eklendi');render()}),
@@ -437,14 +549,14 @@ document.addEventListener('change',e=>{
   if(el.dataset.bind==='marketId'||el.dataset.bind==='status'){afterDraftEdit();return}
   if(el.dataset.adminRole)act(()=>call('PUT',`/api/admins/${el.dataset.adminRole}`,{role:el.value}),'Yetki güncellendi');
   if(el.id==='app-notes')act(()=>call('PUT',`/api/applications/${route().id}`,{notes:el.value}),'Not kaydedildi');
-  const navKey=el.dataset.nav||el.dataset.navP||el.dataset.navM;
-  if(navKey){const r=route(),q=new URLSearchParams(r.q);el.value?q.set(navKey,el.value):q.delete(navKey);const view=el.dataset.nav?'basvurular':el.dataset.navP?'katilimcilar':'gorseller';location.hash=`#/${view}?${q}`}
+  const navKey=el.dataset.nav||el.dataset.navP||el.dataset.navM||el.dataset.navO;
+  if(navKey){const r=route(),q=new URLSearchParams(r.q);el.value?q.set(navKey,el.value):q.delete(navKey);const view=el.dataset.nav?'basvurular':el.dataset.navP?'katilimcilar':el.dataset.navO?'odemeler':'gorseller';location.hash=`#/${view}?${q}`}
 });
 document.addEventListener('keydown',e=>{
   if(e.key==='/'&&!e.target.closest('input,textarea,select')&&$('#q')){e.preventDefault();$('#q').focus()}
   if(e.target.id==='q'&&e.key==='Enter'&&S.searchHits[0]){location.hash=S.searchHits[0][2];S.q='';e.target.blur()}
   if(e.target.id==='q'&&e.key==='Escape'){e.target.value='';showResults();e.target.blur()}
-  if(e.target.matches('[data-nav],[data-nav-p],[data-nav-m]')&&e.key==='Enter')e.target.dispatchEvent(new Event('change',{bubbles:true}));
+  if(e.target.matches('[data-nav],[data-nav-p],[data-nav-m],[data-nav-o]')&&e.key==='Enter')e.target.dispatchEvent(new Event('change',{bubbles:true}));
 });
 // Sürükle bırak yükleme
 document.addEventListener('dragover',e=>{const d=e.target.closest('#drop');if(d){e.preventDefault();d.classList.add('over')}});
