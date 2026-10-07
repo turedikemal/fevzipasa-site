@@ -43,12 +43,13 @@ async function addFiles(id,files){
 async function init(){
   const r=await fetch('/api/public/forms/'+formId);
   if(!r.ok){root.innerHTML='<div class="closed"><h1>Form bulunamadı.</h1><p>Bağlantıyı kontrol et ya da <a href="/">ana sayfaya</a> dön.</p></div>';return}
-  const {open,form,market}=await r.json();
+  const {open,preview,reason,form,market}=await r.json();
   document.title=form.title+' | Fevzipaşa Tasarım Pazarı';
   const meta=market?`<div class="meta"><span>${esc(market.name)}</span>${market.startDate?`<span>${fmt(market.startDate)}${market.endDate&&market.endDate!==market.startDate?' – '+fmt(market.endDate):''}</span>`:''}${market.hours?`<span>${esc(market.hours)}</span>`:''}${form.deadline?`<span>Son başvuru: ${fmt(form.deadline)}</span>`:''}</div>`:'';
   root.innerHTML=`<span class="mono">KATILIMCI BAŞVURUSU</span><h1>${esc(form.title)}</h1><p class="intro">${esc(form.intro)}</p>${meta}
-  ${open?`<form id="f" novalidate>${form.fields.map(question).join('')}<p class="err" id="err" role="alert"></p><button class="send">Başvuruyu gönder →</button></form>`:'<div class="closed"><b>Bu form şu an başvuru kabul etmiyor.</b><p>Başvuru dönemi henüz açılmamış ya da sona ermiş olabilir. Duyurular için bizi takip et.</p></div>'}`;
-  if(!open)return;
+  ${preview?`<div class="preview"><b>Önizleme · bu formu yalnızca sen görüyorsun.</b><p>${{taslak:'Form taslakta.',kapali:'Form kapalı.',suresi:'Son başvuru tarihi geçti.'}[reason]||''} Herkesin doldurabilmesi için panelde Formlar sayfasından durumunu <b>Yayında</b> yap${reason==='suresi'?' ve son başvuru tarihini ileri al':''}.</p></div>`:''}
+  ${open||preview?`<form id="f" novalidate>${form.fields.map(question).join('')}<p class="err" id="err" role="alert"></p><button class="send" ${preview?'disabled title="Önizlemede gönderilemez"':''}>Başvuruyu gönder →</button></form>`:'<div class="closed"><b>Bu form şu an başvuru kabul etmiyor.</b><p>Başvuru dönemi henüz açılmamış ya da sona ermiş olabilir. Duyurular için bizi takip et.</p></div>'}`;
+  if(!open&&!preview)return;
   const f=document.getElementById('f');
   f.addEventListener('click',e=>{const d=e.target.closest('.drop');if(d)d.querySelector('input').click();const rm=e.target.closest('[data-remove]');if(rm){const [id,i]=rm.dataset.remove.split(':');picked[id].splice(+i,1);addFiles(id,[])}});
   f.addEventListener('keydown',e=>{const d=e.target.closest('.drop');if(d&&(e.key==='Enter'||e.key===' ')){e.preventDefault();d.querySelector('input').click()}});

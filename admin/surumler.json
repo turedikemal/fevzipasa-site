@@ -1,5 +1,19 @@
 [
  {
+  "v": "2.2.0",
+  "date": "2026-10-08",
+  "notes": [
+   "Yeni roller: ana yönetici, yönetici, organizatör, editör, katılımcı. Kullanıcılar sayfası rol ve yetkiler tablosu ile kurallar listesiyle yenilendi; liste role göre gruplu.",
+   "Katılımcı paneli: marka sahibi aynı girişten girer, yalnızca kendi markasını görür; bilgilerini günceller (organizatör onayıyla yayımlanır), logo ve görsel ekler, başvurularını ve katılım durumunu görür.",
+   "Katılımcı sayfasında onay bekleyen değişiklikler eski/yeni karşılaştırmasıyla; Onayla ya da Reddet.",
+   "Üst menü ortada, büyük, siyah çerçeveli kutular; üzerine gelince renk değiştiriyor.",
+   "Her sayfada ← Geri tuşu.",
+   "Kasa: Gelirler − Masraflar = Kasada akışı; ayrı Masraflar ve Gelirler ekranları, kategori ve ödeme şekli dağılımı.",
+   "Taslak formlar: listede Önizle ve Yayınla butonları; panele girişliyken taslak form önizleme olarak açılıyor.",
+   "Örnek verileri yükle şeridi artık her sayfada."
+  ]
+ },
+ {
   "v": "2.1.0",
   "date": "2026-10-08",
   "notes": [
