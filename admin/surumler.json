@@ -1,5 +1,13 @@
 [
  {
+  "v": "1.5.0",
+  "date": "2026-10-07",
+  "notes": [
+   "Pazarlar sıra numarasına göre otomatik sıralanıyor (en yeni üstte), tüm listelerde aynı sıra.",
+   "Yeni pazara sıra no otomatik veriliyor; kullanılan ya da silinen bir pazarın numarası tekrar kullanılamıyor."
+  ]
+ },
+ {
   "v": "1.4.2",
   "date": "2026-10-07",
   "notes": [
