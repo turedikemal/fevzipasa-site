@@ -1,5 +1,14 @@
 [
  {
+  "v": "2.1.0",
+  "date": "2026-10-08",
+  "notes": [
+   "Örnek veriler: Genel bakıştan tek tıkla geçmiş ve yaklaşan pazarlar, 16 örnek marka (logolarıyla), ödemeler, workshoplar, kasa hareketleri, örnek yöneticiler ve iz kayıtları yüklenir; tek tıkla silinir, gerçek kayıtlara dokunmaz.",
+   "Üst menüye Hesabım sekmesi eklendi.",
+   "Yöneticiler sayfası: roller ve yetkileri tablosu, liste role göre gruplandı (ana yönetici ve yöneticiler en üstte)."
+  ]
+ },
+ {
   "v": "2.0.0",
   "date": "2026-10-07",
   "notes": [

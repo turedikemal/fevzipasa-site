@@ -244,3 +244,8 @@ td.in{color:var(--green);font-weight:800}td.out{color:var(--red);font-weight:800
 @media(max-width:900px){.how{grid-template-columns:1fr 1fr}.bulkbar{border-radius:14px}}
 div.item{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:12px 0;border-bottom:1px dashed #888}div.item>span:first-child{color:var(--muted)}
 .bulkbar .ghost{border-color:transparent;border-bottom-color:#fff}.bulkbar .ghost:hover{background:none;color:var(--yellow)}
+.demobar{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;background:var(--pink);color:var(--ink);padding:14px 18px;margin:-20px 0 30px;font-size:13px}.demobar.off{background:var(--yellow);border-left:6px solid var(--orange)}.demobar b{font-size:14px}
+.pill.demo{color:var(--pink);border-color:var(--pink)}
+table.admins tr.group td{padding:26px 0 10px;border-bottom:1px solid var(--ink);background:none}table.admins tr.group b{font-size:22px;letter-spacing:-.04em;color:var(--orange);margin-right:10px}
+table.admins tbody:first-of-type tr.group td{padding-top:6px}
+.roles td{padding-top:14px;padding-bottom:14px}

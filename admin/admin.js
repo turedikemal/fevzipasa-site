@@ -149,9 +149,11 @@ async function titleCycle(lines){
 // --- Yönlendirme ---
 function route(){const [path,q]=location.hash.slice(2).split('?');const [view='',id]=path.split('/');return {view:view||'genel',id,q:new URLSearchParams(q||'')}}
 const verLabel=()=>S.versions?.[0]?`sürüm ${S.versions[0].v} · ${date(S.versions[0].date).toLocaleLowerCase('tr')}`:'';
-const navAll=[['genel','Genel bakış'],['pazarlar','Pazarlar'],['formlar','Formlar'],['basvurular','Başvurular'],['katilimcilar','Katılımcılar'],['workshoplar','Workshoplar'],['kasa','Kasa','ledgerRead'],['gorseller','Görseller'],['yoneticiler','Yöneticiler']];
+const navAll=[['genel','Genel bakış'],['pazarlar','Pazarlar'],['formlar','Formlar'],['basvurular','Başvurular'],['katilimcilar','Katılımcılar'],['workshoplar','Workshoplar'],['kasa','Kasa','ledgerRead'],['gorseller','Görseller'],['yoneticiler','Yöneticiler'],['hesap','Hesabım']];
 const nav=()=>navAll.filter(([,,perm])=>!perm||P(perm));
 const pages={};
+const demoBar=r=>!P('users')?'':S.d.demo?`<div class="demobar"><span><b>Örnek verileri görüyorsun.</b> Pazarlar, katılımcılar, ödemeler, workshoplar, kasa ve yöneticilerde “örnek” işaretli kayıtlar var. Gerçek kayıtlarına dokunulmadı.</span><button class="btn sm dark" data-act="demo-all-del">Örnekleri sil</button></div>`
+  :r.view==='genel'?`<div class="demobar off"><span><b>Paneli örneklerle tanı.</b> Geçmiş ve yaklaşan pazarlar, katılımcılar, ödemeler, workshoplar, kasa hareketleri ve örnek yöneticiler eklenir. Tek tıkla silinir, gerçek kayıtlarına dokunmaz.</span><button class="btn sm primary" data-act="demo-all">Örnek verileri yükle</button></div>`:'';
 
 function render(){
   if(!S.d)return;
@@ -163,12 +165,11 @@ function render(){
   $('#app').innerHTML=`<header class="bar"><a class="wordmark" href="#/">FEVZİPAŞA<br>TASARIM PAZARI<span>YÖNETİM PANELİ</span></a>
   <nav id="side">${N.map(([k,t])=>`<a href="#/${k}" class="${r.view===k?'on':''}">${t}${k==='basvurular'&&newCount?`<b>${newCount}</b>`:''}</a>`).join('')}
   <a class="nav-pill" href="/" target="_blank">Site <span>↗</span></a></nav>
-  <div class="who"><a href="#/hesap" title="Benim panelim">${esc(S.d.me.name.split(' ')[0])} · ${esc(S.d.roles[S.d.me.role])}</a></div>
   <button class="menu-btn" data-act="menu">Menü</button></header>
   <div class="tools"><div class="search"><input id="q" placeholder="Ara: marka, kişi, form, workshop, görsel…  ( / )" autocomplete="off" value="${esc(S.q||'')}"><div id="results"></div></div>
   <label class="market-pick"><span class="mono hide-sm">PAZAR</span><select id="market-pick">${opts([['all','Tüm pazarlar'],...S.d.markets.map(m=>[m.id,m.name])],S.market)}</select></label></div>
-  <main class="page">${eyebrow}${page}</main>
-  <footer class="admin-foot"><div class="foot-who"><span>${esc(S.d.me.name)} · ${esc(S.d.roles[S.d.me.role]).toLocaleLowerCase('tr')}</span><span><a href="#/hesap">benim panelim</a> · <button data-act="logout">çıkış yap</button></span><button class="ver" data-act="versions">${verLabel()}</button></div><a class="credit" href="https://www.thegoatstudio.com" target="_blank" rel="noopener">The Goatz Studio 2026</a></footer>`;
+  <main class="page">${demoBar(r)}${eyebrow}${page}</main>
+  <footer class="admin-foot"><div class="foot-who"><span>${esc(S.d.me.name)} · ${esc(S.d.roles[S.d.me.role]).toLocaleLowerCase('tr')}</span><span><a href="#/hesap">hesabım</a> · <button data-act="logout">çıkış yap</button></span><button class="ver" data-act="versions">${verLabel()}</button></div><a class="credit" href="https://www.thegoatstudio.com" target="_blank" rel="noopener">The Goatz Studio 2026</a></footer>`;
   if(focusId==='q'){const q=$('#q');q.focus();q.setSelectionRange(q.value.length,q.value.length);showResults()}
   if(render.last===location.hash)window.scrollTo(0,scrollY);else window.scrollTo(0,0);
   render.last=location.hash;
@@ -654,14 +655,16 @@ const permTable=[
   ['Başvuru değerlendirme (durum, puan)','yardimci'],['Katılımcı ekleme ve kendi girdiğini düzenleme','yardimci'],['Ödeme ve masraf girme, kasayı görme','yardimci'],['Workshop ekleme','yardimci'],
   ['Başvurulara not yazma, görsel yükleme','stajyer'],['Paneli görüntüleme (kasa hariç)','stajyer']
 ];
+const roleDesc={ana:'Her şeyi görür ve değiştirir; kullanıcı ekler, rol verir, herkesin iz haritasını izler.',yonetici:'Pazarları, formları ve başvuru kabullerini yönetir; toplu işlem ve içe aktarma yapar.',yardimci:'Başvuruları değerlendirir; katılımcı, ödeme, masraf ve workshop girer.',stajyer:'Paneli görür, not alır, görsel yükler; kasayı görmez.'};
 pages.yoneticiler=r=>{
   if(r.id)return trailPage(r.id);
   const order=['ana','yonetici','yardimci','stajyer'];
   const week=a=>S.d.activity.filter(x=>x.adminId===a.id&&Date.now()-new Date(x.at)<7*864e5).length;
   return `<div class="head"><div><h1>Yöneticiler</h1><p>Ana yönetici her şeyin üzerindedir: tüm kayıtları görür, değiştirir ve herkesin iz haritasını izler. Diğer yöneticiler yalnızca kendi girdikleri kayıtları değiştirebilir.</p></div>${P('users')?'<button class="btn primary" data-act="admin-new">+ Yönetici ekle</button>':''}</div>
-  <div class="table-wrap"><table><thead><tr><th>AD</th><th class="hide-sm">E-POSTA</th><th>ROL</th><th class="hide-sm">SON GİRİŞ</th>${isAna()?'<th class="hide-sm">7 GÜN</th>':''}<th></th></tr></thead><tbody>${[...S.d.admins].sort((a,b)=>order.indexOf(a.role)-order.indexOf(b.role)).map(a=>`<tr${isAna()?` class="click" data-href="#/yoneticiler/${a.id}"`:''}><td><b>${esc(a.name)}</b>${a.id===S.d.me.id?' <span class="pill">sen</span>':''}${a.active===false?' <span class="pill s-red">pasif</span>':''}</td><td class="hide-sm">${esc(a.email)}</td>
+  <div class="table-wrap roles"><table><thead><tr><th>ROL</th><th>YETKİLERİ</th><th class="c">KİŞİ</th></tr></thead><tbody>${order.map(k=>`<tr><td><span class="pill r-${k}">${esc(S.d.roles[k])}</span></td><td>${roleDesc[k]}</td><td class="c"><b>${S.d.admins.filter(a=>a.role===k).length}</b></td></tr>`).join('')}</tbody></table></div>
+  <div class="table-wrap" style="margin-top:40px"><table class="admins"><thead><tr><th>AD</th><th class="hide-sm">E-POSTA</th><th>ROL</th><th class="hide-sm">SON GİRİŞ</th>${isAna()?'<th class="hide-sm">7 GÜN</th>':''}<th></th></tr></thead>${order.map(k=>{const list=S.d.admins.filter(a=>a.role===k).sort((a,b)=>(a.active===false)-(b.active===false)||a.name.localeCompare(b.name,'tr'));return list.length?`<tbody><tr class="group"><td colspan="${isAna()?6:5}"><b>${esc(S.d.roles[k])}</b> <span class="mono muted">${list.length} KİŞİ · ${roleDesc[k].toLocaleUpperCase('tr')}</span></td></tr>${list.map(a=>`<tr${isAna()?` class="click" data-href="#/yoneticiler/${a.id}"`:''}><td><b>${esc(a.name)}</b>${a.id===S.d.me.id?' <span class="pill">sen</span>':''}${a.active===false?' <span class="pill s-red">pasif</span>':''}</td><td class="hide-sm">${esc(a.email)}</td>
   <td>${P('users')&&a.role!=='ana'?`<select class="inp" style="width:auto" data-admin-role="${a.id}">${opts(order.slice(1).map(k=>[k,S.d.roles[k]]),a.role)}</select>`:`<span class="pill r-${a.role}">${esc(S.d.roles[a.role])}</span>`}</td><td class="hide-sm"><small>${a.lastLoginAt?ago(a.lastLoginAt):'—'}</small></td>${isAna()?`<td class="hide-sm"><small>${week(a)} işlem</small></td>`:''}
-  <td style="text-align:right;white-space:nowrap">${isAna()?`<a class="btn sm" href="#/yoneticiler/${a.id}">İz haritası</a> `:''}${P('users')&&a.role!=='ana'?`<button class="btn sm" data-act="admin-pass" data-v="${a.id}">Şifre</button> <button class="btn sm" data-act="admin-toggle" data-v="${a.id}">${a.active===false?'Etkinleştir':'Pasifleştir'}</button>`:''}</td></tr>`).join('')}</tbody></table></div>
+  <td style="text-align:right;white-space:nowrap">${isAna()?`<a class="btn sm" href="#/yoneticiler/${a.id}">İz haritası</a> `:''}${P('users')&&a.role!=='ana'?`<button class="btn sm" data-act="admin-pass" data-v="${a.id}">Şifre</button> <button class="btn sm" data-act="admin-toggle" data-v="${a.id}">${a.active===false?'Etkinleştir':'Pasifleştir'}</button>`:''}</td></tr>`).join('')}</tbody>`:''}).join('')}</table></div>
   <div class="card" style="margin-top:40px"><h3>Kim ne yapabilir?</h3><div class="table-wrap"><table class="perm"><thead><tr><th>YETKİ</th>${order.map(k=>`<th class="c">${esc(S.d.roles[k]).toLocaleUpperCase('tr')}</th>`).join('')}</tr></thead><tbody>${permTable.map(([t,min])=>`<tr><td>${t}</td>${order.map(k=>`<td class="c">${LV[k]>=LV[min]?'<span class="dot on">✓</span>':'<span class="dot">–</span>'}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
   <p class="muted">Neye göre verilir: <b>Yönetici</b> pazarın sorumlusu, formları ve kabulleri yönetir. <b>Yönetici yardımcısı</b> başvuruları değerlendirir, katılımcı, ödeme ve masraf girer. <b>Stajyer</b> görür, not alır, görsel yükler; kasayı görmez. Yeni hesaplar varsayılan olarak stajyer açılır.</p></div>`;
 };
@@ -687,7 +690,7 @@ function trailPage(id){
 pages.hesap=()=>{
   const me=S.d.me,own=k=>S.d[k].filter(x=>x.createdBy===me.id).length;
   const my=S.d.activity.filter(a=>a.adminId===me.id);
-  return `<div class="head"><div><h1>Benim panelim</h1><p>${esc(me.email)} · <span class="pill r-${me.role}">${esc(S.d.roles[me.role])}</span></p></div></div>
+  return `<div class="head"><div><h1>Hesabım</h1><p>${esc(me.email)} · <span class="pill r-${me.role}">${esc(S.d.roles[me.role])}</span></p></div></div>
   <div class="grid g4"><a class="stat o" href="#/katilimcilar"><strong>${own('participants')}</strong><span>Girdiğin katılımcı</span></a><a class="stat y" href="#/workshoplar"><strong>${own('workshops')}</strong><span>Girdiğin workshop</span></a>${P('ledgerRead')?`<a class="stat p" href="#/kasa?sekme=hareketler"><strong>${own('ledger')}</strong><span>Girdiğin kasa kaydı</span></a>`:`<div class="stat p"><strong>${S.d.media.filter(m=>m.uploadedBy===me.id).length}</strong><span>Yüklediğin görsel</span></div>`}<div class="stat b"><strong>${my.length}</strong><span>Son işlemlerin</span></div></div>
   <div class="grid split" style="margin-top:40px"><div class="card"><h3>Son işlemlerin</h3><ul class="feed">${my.slice(0,20).map(x=>`<li>${esc(x.text)}<br><small class="muted">${ago(x.at)}</small></li>`).join('')||'<li class="muted">Henüz işlem yok.</li>'}</ul></div>
   <form class="card" id="me-form" style="display:grid;gap:12px;align-content:start"><h3 style="margin:0">Hesap</h3>${field('Ad soyad',`<input name="name" value="${esc(me.name)}">`)}${field('Yeni şifre','<input name="password" type="password" minlength="8" autocomplete="new-password">','değiştirmeyeceksen boş bırak')}<button class="btn primary" style="justify-self:start">Kaydet</button></form></div>`;
@@ -740,6 +743,8 @@ const actions={
   'app-accept':()=>act(async()=>{const r=await call('POST',`/api/applications/${route().id}/accept`);location.hash=`#/katilimcilar/${r.participant.id}`},'Kabul edildi, katılımcı kartı hazır'),
   'app-del':()=>confirm('Başvuru ve ona ait görseller silinsin mi?')&&act(async()=>{await call('DELETE',`/api/applications/${route().id}`);location.hash='#/basvurular'},'Başvuru silindi'),
   'demo-add':()=>act(()=>call('POST','/api/demo/applications',{marketId:S.market==='all'?'':S.market}),'4 örnek başvuru eklendi'),
+  'demo-all':()=>act(()=>call('POST','/api/demo/all'),'Örnek veriler yüklendi'),
+  'demo-all-del':()=>confirm('Tüm örnek veriler silinsin mi? Gerçek kayıtların kalır.')&&act(()=>call('DELETE','/api/demo/all'),'Örnek veriler silindi'),
   'demo-del':()=>confirm('Örnek başvurular silinsin mi?')&&act(()=>call('DELETE','/api/demo/applications'),'Örnek başvurular silindi'),
   'part-new':()=>newParticipantModal(),
   'part-del':el=>confirm('Katılımcı silinsin mi? Görselleri depoda kalır.')&&act(async()=>{await call('DELETE',`/api/participants/${el.dataset.v}`);location.hash='#/katilimcilar'},'Katılımcı silindi'),
