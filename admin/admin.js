@@ -79,7 +79,7 @@ function authScreen(setup){
   <label class="auth-field"><span>E-posta</span><input name="email" type="email" required autocomplete="email" placeholder="ornek@fevzipasa.com"></label>
   <label class="auth-field"><span>Şifre${setup?' <small>en az 8 karakter</small>':''}</span><span class="pass"><input name="password" type="password" required minlength="${setup?8:1}" autocomplete="${setup?'new-password':'current-password'}" placeholder="••••••••"><button type="button" class="pass-toggle" data-act="pass-toggle" aria-label="Şifreyi göster">Göster</button></span></label>
   <p class="auth-err" id="auth-err" role="alert"></p>
-  <button class="auth-submit"><span>${setup?'Kur ve başla':'Giriş yap'}</span><span aria-hidden="true">→</span></button>
+  <button class="auth-submit"><span>${setup?'Kur ve başla':'Giriş yap'}</span><span aria-hidden="true">↗</span></button>
   <a class="auth-back" href="/">← Siteye dön</a><span class="ver">${verLabel()}</span></form></div></div>`;
   $('#auth').addEventListener('submit',async e=>{
     e.preventDefault();const f=e.target,err=$('#auth-err'),btn=f.querySelector('.auth-submit');

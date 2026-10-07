@@ -1,5 +1,13 @@
 [
  {
+  "v": "1.4.2",
+  "date": "2026-10-07",
+  "notes": [
+   "Giriş ekranında tarayıcının otomatik doldurma gri/mavi zemini kaldırıldı.",
+   "Giriş butonu yeniden tasarlandı: tam genişlik siyah blok, üzerine gelince turuncu dolgu."
+  ]
+ },
+ {
   "v": "1.4.1",
   "date": "2026-10-07",
   "notes": [
