@@ -115,7 +115,7 @@ function authScreen(setup){
   ${up?`<label class="auth-field"><span>Marka adı</span><input name="brandName" required placeholder="Örn. Kil & Ateş Seramik"></label>`:''}
   ${setup||up?`<label class="auth-field"><span>Ad soyad</span><input name="name" required autocomplete="name" placeholder="${up?'Adın ve soyadın':'Kemal Türedi'}"></label>`:''}
   <label class="auth-field"><span>E-posta</span><input name="email" type="email" required autocomplete="email" placeholder="ornek@eposta.com"></label>
-  ${up?`<label class="auth-field"><span>Instagram <small>isteğe bağlı</small></span><input name="instagram" placeholder="@markan"></label>`:''}
+  ${up?`<label class="auth-field"><span>Instagram <small>isteğe bağlı</small></span><span class="auth-ig"><b>@</b><input name="instagram" placeholder="markan" autocapitalize="off" autocomplete="off"></span></label>`:''}
   <label class="auth-field"><span>Şifre${setup||up?' <small>en az 8 karakter</small>':''}</span><span class="pass"><input name="password" type="password" required minlength="${setup||up?8:1}" autocomplete="${setup||up?'new-password':'current-password'}" placeholder="••••••••"><button type="button" class="pass-toggle" data-act="pass-toggle" aria-label="Şifreyi göster">Göster</button></span></label>
   <p class="auth-err" id="auth-err" role="alert"></p>
   <button class="auth-submit"><span>${setup?'Kur ve başla':up?'Kayıt ol':'Giriş yap'}</span><span aria-hidden="true">↗</span></button>
@@ -750,12 +750,15 @@ function trailPage(id){
   <div class="card cats"><h3>Ne üzerinde çalışmış</h3>${Object.entries(types).sort((a,b)=>b[1]-a[1]).map(([t,n])=>`<div class="c"><div><span>${esc(tName[t]||t)}</span><b>${n}</b></div><div class="bar-meter"><i style="width:${n/list.length*100}%"></i></div></div>`).join('')}</div></div>`;
 }
 pages.hesap=()=>{
-  const me=S.d.me,own=k=>S.d[k].filter(x=>x.createdBy===me.id).length;
-  const my=S.d.activity.filter(a=>a.adminId===me.id);
-  return `<div class="head"><div><h1>Hesabım</h1><p>${esc(me.email)} · <span class="pill r-${me.role}">${esc(S.d.roles[me.role])}</span></p></div></div>
-  <div class="grid g4"><a class="stat o" href="#/katilimcilar"><strong>${own('participants')}</strong><span>Girdiğin katılımcı</span></a><a class="stat y" href="#/workshoplar"><strong>${own('workshops')}</strong><span>Girdiğin workshop</span></a>${P('ledgerRead')?`<a class="stat p" href="#/kasa?sekme=hareketler"><strong>${own('ledger')}</strong><span>Girdiğin kasa kaydı</span></a>`:`<div class="stat p"><strong>${S.d.media.filter(m=>m.uploadedBy===me.id).length}</strong><span>Yüklediğin görsel</span></div>`}<div class="stat b"><strong>${my.length}</strong><span>Son işlemlerin</span></div></div>
-  <div class="grid split" style="margin-top:40px"><div class="card"><h3>Son işlemlerin</h3><ul class="feed">${my.slice(0,20).map(x=>`<li>${esc(x.text)}<br><small class="muted">${ago(x.at)}</small></li>`).join('')||'<li class="muted">Henüz işlem yok.</li>'}</ul></div>
-  <form class="card" id="me-form" style="display:grid;gap:12px;align-content:start"><h3 style="margin:0">Hesap</h3>${field('Ad soyad',`<input name="name" value="${esc(me.name)}">`)}${field('Yeni şifre','<input name="password" type="password" minlength="8" autocomplete="new-password">','değiştirmeyeceksen boş bırak')}<button class="btn primary" style="justify-self:start">Kaydet</button></form></div>`;
+  const me=S.d.me,dt=x=>x?new Date(x).toLocaleString('tr-TR',{day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'}):'—';
+  return `<div class="head"><div><h1>Hesabım</h1><p>${esc(me.name)} · <span class="pill r-${me.role}">${esc(S.d.roles[me.role])}</span></p></div></div>
+  <div class="grid split"><div class="card"><h3>Hesap bilgileri</h3><div class="list">
+  <div class="item"><span>E-posta</span><b>${esc(me.email)}</b></div>
+  <div class="item"><span>Rol</span><b>${esc(S.d.roles[me.role])}</b></div>
+  <div class="item"><span>Hesap açılışı</span><b>${dt(me.createdAt)}</b></div>
+  <div class="item"><span>Son giriş</span><b>${dt(me.lastLoginAt)}</b></div></div>
+  <p class="muted" style="margin-top:18px"><b>Bu rolde neler yapabilirsin:</b> ${esc(roleDesc[me.role]||'')}</p></div>
+  <form class="card" id="me-form" style="display:grid;gap:12px;align-content:start"><h3 style="margin:0">Bilgilerini güncelle</h3>${field('Ad soyad',`<input name="name" value="${esc(me.name)}">`)}${field('Yeni şifre','<input name="password" type="password" minlength="8" autocomplete="new-password">','değiştirmeyeceksen boş bırak · en az 8 karakter')}<button class="btn primary" style="justify-self:start">Kaydet</button><small class="muted">E-posta ya da rol değişikliği için ana yöneticiye yaz.</small></form></div>`;
 };
 
 // --- Katılımcı paneli: marka sahibi kendi sayfasını görür ---

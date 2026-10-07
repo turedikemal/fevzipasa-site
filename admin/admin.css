@@ -308,3 +308,6 @@ figure.thumb{margin:0}
 .past{display:flex;flex-wrap:wrap;gap:4px}
 .credit{display:inline;white-space:nowrap}.credit img{vertical-align:-2px;margin-left:6px}
 .auth-foot .foot-right{align-items:flex-start}
+.auth-card h2{font-size:clamp(30px,2.6vw,40px);letter-spacing:-.04em}
+.auth-ig{display:flex;align-items:baseline;gap:4px;border-bottom:1px solid var(--ink)}.auth-ig:focus-within{border-color:var(--orange)}.auth-ig b{font-size:20px;font-weight:800}.auth-ig input{flex:1;border:0!important;outline:0}
+.auth-ig{align-items:center;border-bottom-width:2px}
