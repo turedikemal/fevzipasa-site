@@ -765,15 +765,26 @@ pages.hesap=()=>{
 const appStatusText={yeni:'Başvurun alındı, incelenecek',inceleniyor:'İnceleniyor',kabul:'Kabul edildi',yedek:'Yedek listedesin',red:'Bu sefer olmadı'};
 const regText={bekliyor:'Kaydın alındı, onay bekliyor',onay:'Yerin ayrıldı',red:'Kayıt onaylanmadı'};
 function renderPortal(){
-  const d=S.d,p=d.participant,r=route(),v=['basvurularim','workshoplarim','markam','odeme'].includes(r.view)?r.view:'ana';
-  const tabs=[['ana','Ana sayfa'],['basvurularim','Başvurularım'],['workshoplarim','Workshoplarım'],['markam','Markam'],['odeme','Ödeme bilgileri']];
-  const pages={ana:portalHome,basvurularim:portalApps,workshoplarim:portalWs,markam:portalBrand,odeme:portalPay};
-  $('#app').innerHTML=`<header class="bar"><div class="bar-top"><a class="wordmark" href="#/">FEVZİPAŞA<br>TASARIM PAZARI<span>KATILIMCI PANELİ</span></a><div class="bar-right"><a class="acc ${v==='markam'?'on':''}" href="#/markam">${esc(p?.brandName||d.me.name)}</a><a class="nav-pill" href="/" target="_blank">Site <span>↗</span></a><button class="menu-btn" data-act="menu">Menü</button></div></div>
+  const d=S.d,p=d.participant,r=route(),v=['basvurularim','workshoplarim','markam','odeme','hesap'].includes(r.view)?r.view:'ana';
+  const tabs=[['ana','Ana sayfa'],['basvurularim','Başvurularım'],['workshoplarim','Workshoplarım'],['markam','Markam'],['odeme','Ödeme bilgileri'],['hesap','Hesabım']];
+  const pages={ana:portalHome,basvurularim:portalApps,workshoplarim:portalWs,markam:portalBrand,odeme:portalPay,hesap:portalAccount};
+  $('#app').innerHTML=`<header class="bar"><div class="bar-top"><a class="wordmark" href="#/">FEVZİPAŞA<br>TASARIM PAZARI<span>KATILIMCI PANELİ</span></a><div class="bar-right"><a class="acc ${v==='hesap'?'on':''}" href="#/hesap">Hesabım · ${esc(d.me.name.split(' ')[0])}</a><a class="nav-pill" href="/" target="_blank">Site <span>↗</span></a><button class="menu-btn" data-act="menu">Menü</button></div></div>
   <nav id="side">${tabs.map(([k,t])=>`<a href="#/${k==='ana'?'':k}" class="${v===k?'on':''}">${t}</a>`).join('')}</nav></header>
   <main class="page">${v!=='ana'?'<button class="back" data-act="back">← Geri</button>':''}
   ${d.claimPending?`<div class="warnbox"><b>Hesabın markanla eşleştirilmeyi bekliyor.</b><span>Bu e-posta kayıtlı bir markaya ait. Ekibimiz onaylayınca marka bilgilerin ve ödemelerin burada görünür. Bu sırada başvuru yapabilir, workshoplara katılabilirsin.</span></div>`:''}
   ${pages[v]()}</main>
   <footer class="admin-foot"><div class="foot-who"><span>${esc(d.me.name)} · katılımcı</span><span><button data-act="logout">çıkış yap</button></span><button class="ver" data-act="versions">${verLabel()}</button></div><span class="foot-right"><small class="copy">© 2026 Fevzipaşa Tasarım Pazarı. Tüm hakları saklıdır.</small><a class="credit" href="https://thegoatzstudio.com/" target="_blank" rel="noopener">Bu site <b>THE GOATZ STUDIO</b> tarafından yapılmıştır.<img src="https://thegoatzstudio.com/favicon.ico" alt="" onerror="this.remove()"></a></span></footer>`;
+}
+function portalAccount(){
+  const d=S.d,me=d.me,p=d.participant,dt=x=>x?new Date(x).toLocaleString('tr-TR',{day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'}):'—';
+  return `<div class="head"><div><h1>Hesabım</h1><p>${esc(me.name)} · katılımcı</p></div><button class="btn" data-act="logout">Çıkış yap</button></div>
+  <div class="grid split"><div class="card"><h3>Hesap bilgileri</h3><div class="list">
+  <div class="item"><span>E-posta</span><b>${esc(me.email)}</b></div>
+  <div class="item"><span>Marka</span>${p?`<a href="#/markam"><b>${esc(p.brandName)} →</b></a>`:'<b>Eşleştirme bekliyor</b>'}</div>
+  <div class="item"><span>Hesap açılışı</span><b>${dt(me.createdAt)}</b></div>
+  <div class="item"><span>Son giriş</span><b>${dt(me.lastLoginAt)}</b></div></div>
+  <p class="muted" style="margin-top:18px">Marka bilgilerini <a href="#/markam">Markam</a> sekmesinden, ödeme bilgilerini <a href="#/odeme">Ödeme bilgileri</a> sekmesinden görebilirsin.</p></div>
+  <form class="card" id="me-form" style="display:grid;gap:12px;align-content:start"><h3 style="margin:0">Bilgilerini güncelle</h3>${field('Ad soyad',`<input name="name" value="${esc(me.name)}">`)}${field('Yeni şifre','<input name="password" type="password" minlength="8" autocomplete="new-password">','değiştirmeyeceksen boş bırak · en az 8 karakter')}<button class="btn primary" style="justify-self:start">Kaydet</button><small class="muted">E-posta değişikliği için ekibe yaz.</small></form></div>`;
 }
 const dRange=(a,b)=>a?date(a)+(b&&b!==a?' – '+date(b):''):'Tarih yakında';
 function formCard(f){
@@ -826,7 +837,7 @@ function portalBrand(){
   <div class="row"><button class="btn primary">Onaya gönder</button></div></form>
   <div class="card"><h3>Logo <button class="btn sm" data-act="portal-upload" data-cat="Logo">${logo?'Değiştir':'+ Logo yükle'}</button></h3><div class="logo-box">${logo?`<img src="/media/${logo.id}" alt="${esc(p.brandName)} logosu">`:'<span>Logo yok</span>'}</div><p class="muted" style="font-size:12px">Kare alana sığdırılır. PNG ya da SVG önerilir.</p></div></div>
   <div class="card" style="margin-top:40px"><h3>Görsellerim <button class="btn sm primary" data-act="portal-upload" data-cat="Katılımcı ürünleri">+ Görsel ekle</button></h3>${imgs.length?`<div class="thumbs">${imgs.map(m=>`<figure class="thumb"><div class="img"><img src="/media/${m.id}" alt="" loading="lazy"></div><div class="cap"><b>${esc(m.title)}</b>${m.mine?`<button class="btn sm ghost" data-act="portal-media-del" data-v="${m.id}">Sil</button>`:''}</div></figure>`).join('')}</div>`:'<div class="empty">Henüz görsel yok. Ürün fotoğraflarını ekle.</div>'}</div>
-  <form class="card" id="me-form" style="margin-top:40px;display:grid;gap:12px;max-width:520px"><h3 style="margin:0">Hesap</h3>${field('Ad soyad',`<input name="name" value="${esc(d.me.name)}">`)}${field('Yeni şifre','<input name="password" type="password" minlength="8" autocomplete="new-password">','değiştirmeyeceksen boş bırak')}<div><button class="btn">Kaydet</button></div></form>`;
+  `;
 }
 
 // --- Genel arama ---

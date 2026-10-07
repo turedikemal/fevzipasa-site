@@ -1,5 +1,12 @@
 [
  {
+  "v": "2.4.0",
+  "date": "2026-10-08",
+  "notes": [
+   "Katılımcı panelinde “Hesabım” sekmesi ve sağ üstte “Hesabım · ad” butonu: e-posta, marka, hesap açılışı, son giriş, ad/şifre güncelleme ve çıkış."
+  ]
+ },
+ {
   "v": "2.3.3",
   "date": "2026-10-08",
   "notes": [
