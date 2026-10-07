@@ -15,6 +15,7 @@ function question(f){
   else if(f.type==='select')input=`<select ${name} ${f.required?'required':''}><option value="">Seç</option>${f.options.map(o=>`<option>${esc(o)}</option>`).join('')}</select>`;
   else if(f.type==='checkboxes')input=`<div class="opts">${f.options.map(o=>`<label><input type="checkbox" name="${f.id}" value="${esc(o)}"> ${esc(o)}</label>`).join('')}</div>`;
   else if(f.type==='file'){picked[f.id]=[];input=`<div class="drop" data-file="${f.id}" tabindex="0">Görselleri sürükle ya da <u>seç</u><br><small>JPG, PNG, WEBP · en fazla 5 görsel</small><input type="file" accept="image/jpeg,image/png,image/webp" multiple hidden></div><div class="files" id="files-${f.id}"></div>`}
+  else if(f.mapTo==='instagram')input=`<span class="ig"><span>@</span><input type="text" ${name} ${f.required?'required':''} autocomplete="off" autocapitalize="off" placeholder="kullaniciadi"></span>`;
   else input=`<input type="${inputType[f.type]||'text'}" ${name} ${f.required?'required':''} autocomplete="${{email:'email',phone:'tel'}[f.type]||'off'}">`;
   return `<div class="q"><b>${esc(f.label)}${req}</b>${help}${input}</div>`;
 }

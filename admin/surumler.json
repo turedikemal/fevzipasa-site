@@ -1,5 +1,27 @@
 [
  {
+  "v": "2.0.0",
+  "date": "2026-10-07",
+  "notes": [
+   "Kategoriler 10 genel başlığa indirildi (Giyim ve Moda, Ayakkabı ve Çanta…); eski kategoriler otomatik eşlendi.",
+   "Kategoriye tıklayınca o kategorideki markalar, katılımcı sayfasında benzer markalar görünüyor.",
+   "Görsellere Logo kategorisi eklendi; logolar kare içine sığdırılıyor.",
+   "Instagram her yerde @ ile kaydediliyor ve eşleşiyor; başvuru formunda @ hazır geliyor.",
+   "Katılımcılar: tablo görünümü, toplu seçim (pazara ekle/çıkar, kategori, etiket, sil), yeni/devam eden/geri dönen/katılmayan filtreleri, kaç pazar katıldı.",
+   "Katılımcı Excel'i pazar sütunlarıyla: kim hangi pazara katıldı tek tabloda, içe aktarınca katılımlar güncelleniyor.",
+   "Katılımcı kaydedince listeye dönülüyor.",
+   "Pencerelerde kapatma (×) butonu; pazar düzenleme bölümlere ayrıldı.",
+   "Formlar: 4 adımlı anlatım ve büyük “Yeni başvuru formu” butonu; Excel'den form oluşturma.",
+   "Başvurular: nereden geldiği ve ne içerdiği açıklaması, örnek başvuru ekle/sil.",
+   "Workshoplar menüsü: yapılan ve yapılacaklar, düzenleyen, ücretli/ücretsiz, kontenjan.",
+   "Kasa: katılımcı ödemeleri ve masraflar tek yerde; ödeme tipi (nakit, havale, kart), fatura ve fiş durumu, kim ödedi, kasadaki tutar.",
+   "Tüm içe aktarmalarda indirilebilir şablon ve uyarı; pazarlar, formlar, katılımcılar, ödemeler, workshoplar, kasa için Excel/CSV.",
+   "Yeni roller: ana yönetici, yönetici, yönetici yardımcısı, stajyer; yetki tablosu.",
+   "Herkes kendi girdiği kaydı değiştirebiliyor; ana yönetici hepsini.",
+   "İz haritası: ana yönetici her yöneticinin ne yaptığını gün gün görüyor."
+  ]
+ },
+ {
   "v": "1.5.0",
   "date": "2026-10-07",
   "notes": [
