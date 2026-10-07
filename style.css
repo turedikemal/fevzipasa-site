@@ -6,3 +6,5 @@
 
 .story-hero .hero-title{min-height:3.3em;overflow:hidden}
 .date-disc{animation:disc-spin 16s linear infinite;will-change:transform}@keyframes disc-spin{from{transform:rotate(12deg)}to{transform:rotate(372deg)}}@media(prefers-reduced-motion:reduce){.date-disc{animation:none}}
+.nav-join{background:var(--ink);border-color:var(--ink);color:#fff;gap:14px;margin-left:-16px}.nav-join:hover{background:var(--orange);border-color:var(--orange);color:#fff}.join-words{display:grid;overflow:hidden;line-height:1.3;text-align:left}.join-words b{grid-area:1/1;font-weight:700;transform:translateY(115%);transition:transform .55s var(--ease)}.join-words b.on{transform:none}.join-words b.out{transform:translateY(-115%)}.participants .nav-join{color:#fff}@media(prefers-reduced-motion:reduce){.join-words b{transition:none}}
+@media(max-width:640px){.nav-join{margin-left:0}}

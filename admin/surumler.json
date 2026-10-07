@@ -1,5 +1,19 @@
 [
  {
+  "v": "2.3.0",
+  "date": "2026-10-08",
+  "notes": [
+   "Ana sitede “Ziyaret et” yanında siyah “Kayıt ol” butonu: üzerindeki yazı Stant başvurusu / Workshop / Bilgi diye sırayla döner.",
+   "Herkes /katilim adresinden girer: yönetici de katılımcı da. Girişte “Giriş yap / Kayıt ol” sekmeleri var.",
+   "Katılımcı paneli: açılışta büyük “Pazara başvur” (turuncu) ve “Workshop'a katıl” (mavi) bölümleri; başvurularım, workshoplarım, markam, ödeme bilgileri sekmeleri.",
+   "Workshop kaydı: katılımcı yer ayırır, ekip Workshoplar ekranından onaylar ya da reddeder.",
+   "Kasa: havale/EFT bilgileri (banka, alıcı, IBAN, not) girilir; katılımcı panelinde kopyalanabilir şekilde görünür.",
+   "Üst menü: beyaz zemin, siyah çerçeveli yuvarlak butonlar; üzerine gelince siyaha döner.",
+   "Kendi kaydını açan marka, e-posta ya da Instagram eşleşirse mevcut kartıyla bağlanmak üzere onaya düşer.",
+   "Örnek verilere yayında bir örnek stant başvuru formu eklendi."
+  ]
+ },
+ {
   "v": "2.2.1",
   "date": "2026-10-08",
   "notes": [
