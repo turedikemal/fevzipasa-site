@@ -1,5 +1,15 @@
 [
  {
+  "v": "2.3.1",
+  "date": "2026-10-08",
+  "notes": [
+   "Alt imza: “Bu site THE GOATZ STUDIO tarafından yapılmıştır.” (Inter italik, büyük harf), thegoatzstudio.com bağlantısı ve küçük favicon; yanında standart telif yazısı.",
+   "Katılımcılar: kategori ve katılım çip yığınları sade açılır menülere dönüştü.",
+   "Başvurular listesinde markanın daha önce katıldığı pazarlar görünüyor; yeni markada “İlk kez başvuruyor” yazıyor.",
+   "Panel arama çubuğu küçültüldü."
+  ]
+ },
+ {
   "v": "2.3.0",
   "date": "2026-10-08",
   "notes": [
