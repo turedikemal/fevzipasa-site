@@ -1,5 +1,12 @@
 [
  {
+  "v": "2.2.1",
+  "date": "2026-10-08",
+  "notes": [
+   "Sayfa geçişlerinde ve her tıklamada içeriğin aşağıdan kayarak gelmesi kaldırıldı; sayfalar yerinde sabit açılıyor."
+  ]
+ },
+ {
   "v": "2.2.0",
   "date": "2026-10-08",
   "notes": [
