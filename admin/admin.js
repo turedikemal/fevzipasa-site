@@ -70,7 +70,7 @@ async function start(){
   catch(e){$('#app').innerHTML=`<p class="boot">${esc(e.message)}</p>`}
 }
 function authScreen(setup){
-  $('#app').innerHTML=`<div class="auth"><div class="auth-brand"><span class="mono">YÖNETİM PANELİ</span><h1 class="auth-title" aria-label="Fevzipaşa Tasarım Pazarı"><span><i>FEVZİPAŞA</i></span><span><i>TASARIM</i></span><span><i>PAZARI</i></span></h1><div class="auth-foot"><span class="mono">Başvurular · Katılımcılar · Görseller</span><a class="credit" href="https://www.thegoatstudio.com" target="_blank" rel="noopener">THEGOATZSTUDIO 2026</a></div></div>
+  $('#app').innerHTML=`<div class="auth"><div class="auth-brand"><span class="mono">YÖNETİM PANELİ</span><h1 class="auth-title" aria-label="Fevzipaşa Tasarım Pazarı"><span><i>FEVZİPAŞA</i></span><span><i>TASARIM</i></span><span><i>PAZARI</i></span></h1><div class="auth-foot"><span class="mono">Başvurular · Katılımcılar · Görseller</span><a class="credit" href="https://www.thegoatstudio.com" target="_blank" rel="noopener">The Goatz Studio 2026</a></div></div>
   <div class="auth-side"><form id="auth" class="auth-card" novalidate>
   <span class="mono auth-eyebrow">${setup?'İLK KURULUM':'GİRİŞ'}</span>
   <h2>${setup?'Paneli kuralım.':'Tekrar hoş geldin.'}</h2>
@@ -133,7 +133,7 @@ function render(){
   <div class="tools"><div class="search"><input id="q" placeholder="Ara: marka, kişi, form, görsel…  ( / )" autocomplete="off" value="${esc(S.q||'')}"><div id="results"></div></div>
   <label class="market-pick"><span class="mono hide-sm">PAZAR</span><select id="market-pick">${opts([['all','Tüm pazarlar'],...S.d.markets.map(m=>[m.id,m.name])],S.market)}</select></label></div>
   <main class="page">${eyebrow}${page}</main>
-  <footer class="admin-foot"><div class="foot-who"><span>${esc(S.d.me.name)} · ${L.role[S.d.me.role].toLocaleLowerCase('tr')}</span><span><a href="#/hesap">hesabım</a> · <button data-act="logout">çıkış yap</button></span><button class="ver" data-act="versions">${verLabel()}</button></div><a class="credit" href="https://www.thegoatstudio.com" target="_blank" rel="noopener">THEGOATZSTUDIO 2026</a></footer>`;
+  <footer class="admin-foot"><div class="foot-who"><span>${esc(S.d.me.name)} · ${L.role[S.d.me.role].toLocaleLowerCase('tr')}</span><span><a href="#/hesap">hesabım</a> · <button data-act="logout">çıkış yap</button></span><button class="ver" data-act="versions">${verLabel()}</button></div><a class="credit" href="https://www.thegoatstudio.com" target="_blank" rel="noopener">The Goatz Studio 2026</a></footer>`;
   if(focusId==='q'){const q=$('#q');q.focus();q.setSelectionRange(q.value.length,q.value.length);showResults()}
   if(render.last===location.hash)window.scrollTo(0,scrollY);else window.scrollTo(0,0);
   render.last=location.hash;

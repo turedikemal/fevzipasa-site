@@ -1,12 +1,19 @@
 [
  {
+  "v": "1.4.1",
+  "date": "2026-10-07",
+  "notes": [
+   "İmza “The Goatz Studio 2026” olarak düzeltildi."
+  ]
+ },
+ {
   "v": "1.4.0",
   "date": "2026-10-07",
   "notes": [
    "Katılımcılar, ödemeler ve başvurular Excel (.xlsx) ve CSV olarak dışa aktarılıyor.",
    "Katılımcılar ve ödemeler Excel ya da CSV dosyasından içe aktarılıyor.",
    "Sürüm notları: sol alttaki sürüm yazısına tıklayınca açılıyor.",
-   "Sitenin ve panelin en altına THEGOATZSTUDIO 2026 imzası eklendi."
+   "Sitenin ve panelin en altına The Goatz Studio 2026 imzası eklendi."
   ]
  },
  {
