@@ -1,5 +1,12 @@
 [
  {
+  "v": "2.3.3",
+  "date": "2026-10-08",
+  "notes": [
+   "Giriş ekranı sekmeleri sitenin renklerinde: seçili Giriş yap mavi, seçili Kayıt ol pembe; seçili olmayan zemine şeffaf, siyah çerçeveli."
+  ]
+ },
+ {
   "v": "2.3.2",
   "date": "2026-10-08",
   "notes": [
