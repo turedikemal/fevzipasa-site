@@ -443,6 +443,25 @@ function partList(q){
   if(s)list=list.filter(p=>[p.brandName,p.contactName,p.email,p.instagram,p.category,...p.tags].join(' ').toLocaleLowerCase('tr').includes(s));
   return {list:list.sort((a,b)=>a.brandName.localeCompare(b.brandName,'tr')),base,market,m};
 }
+// Mükerrer kayıtlar: aynı marka adı, e-posta ya da Instagram hesabı olanlar bir grupta toplanır.
+const dupKey=v=>String(v||'').toLocaleLowerCase('tr').replace(/ı/g,'i').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9@.]/g,'');
+function dupes(){
+  const ps=S.d.participants,up=ps.map((_,i)=>i),root=i=>up[i]===i?i:(up[i]=root(up[i])),seen=new Map();
+  ps.forEach((p,i)=>{for(const k of [['n',dupKey(p.brandName).replace(/[@.]/g,'')],['e',dupKey(p.email)],['i',dupKey(p.instagram).replace(/^@/,'')]]){if(!k[1])continue;const key=k.join(':');if(seen.has(key))up[root(i)]=root(seen.get(key));else seen.set(key,i)}});
+  const g=new Map();ps.forEach((p,i)=>{const r=root(i);g.set(r,[...(g.get(r)||[]),p])});
+  return [...g.values()].filter(l=>l.length>1).map(l=>l.sort((a,b)=>b.markets.length-a.markets.length||(a.createdAt||'').localeCompare(b.createdAt||'')));
+}
+function dupesModal(){
+  const gs=dupes();if(!gs.length)return toast('Mükerrer kayıt bulunamadı');
+  const row=(p,gi,j)=>`<label class="dup-row"><input type="radio" name="keep${gi}" value="${p.id}" ${j?'':'checked'}><span><b>${esc(p.brandName)}</b> <small>${esc([p.contactName,p.email,p.phone,p.instagram&&'@'+p.instagram].filter(Boolean).join(' · ')||'iletişim yok')}</small><br><small>${p.markets.length} pazar${p.markets.length?': '+esc(p.markets.map(x=>mk(x)?.name).filter(Boolean).join(', ')):''}</small></span></label>`;
+  modal(`<h2>Mükerrer kayıtlar</h2><p class="muted">${gs.length} grupta aynı marka birden fazla kez kayıtlı (aynı ad, e-posta ya da Instagram). Her grupta <b>kalacak kartı</b> seç: diğerlerinin pazarları, ödemeleri, görselleri, başvuruları ve eksik bilgileri ona taşınır, fazla kayıtlar silinir.</p>
+  <div class="dup-list">${gs.map((l,gi)=>`<fieldset class="msec"><legend><label><input type="checkbox" name="g${gi}" checked> Birleştir</label></legend>${l.map((p,j)=>row(p,gi,j)).join('')}</fieldset>`).join('')}</div>
+  ${actions2(`Seçili grupları birleştir`)}`,async d=>{
+    let n=0;
+    for(const [gi,l] of gs.entries()){if(!d['g'+gi])continue;const keepId=d['keep'+gi]||l[0].id;await call('POST','/api/participants/merge',{keepId,ids:l.map(p=>p.id).filter(x=>x!==keepId)});n++}
+    closeModal();await refresh();toast(n?`${n} grup birleştirildi`:'Hiç grup seçilmedi');render();
+  },'wide');
+}
 pages.katilimcilar=r=>{
   if(r.id)return participantPage(r.id);
   const q=r.q,{list,base,market,m}=partList(q),cat=q.get('kategori'),gap=q.get('eksik'),join=q.get('katilim'),freq=q.get('siklik');
@@ -454,8 +473,8 @@ pages.katilimcilar=r=>{
   S.listIds=list.map(p=>p.id);
   // Seçili pazar ve filtreler hatırlanır: bir markaya girip geri dönünce aynı liste açılır.
   S.partQ=new URLSearchParams(q);if(!S.partQ.get('pazar'))S.partQ.set('pazar',market);
-  return `<div class="head"><div><h1>Katılımcılar</h1><p>${list.length} marka${m?` · ${esc(m.name)}`:' · tüm pazarlar'} · katılım geçmişiyle</p></div><div class="row">${ioBar('katilimcilar','pazar='+encodeURIComponent(market))}${P('participantWrite')?'<button class="btn primary" data-act="part-new">+ Katılımcı ekle</button>':''}</div></div>
-  ${isAna()&&list.length?`<div class="anabar"><span class="mono">SADECE SEN GÖRÜYORSUN · LİSTEDEKİ ${list.length} MARKA</span><span class="row"><button class="btn sm" data-act="ana-selall">Tümünü seç</button><select id="ana-market" aria-label="Pazar">${marketOpts(m?.id||S.d.markets[0]?.id)}</select><button class="btn sm" data-act="ana-bulk" data-v="addMarket">Tümünü pazara ekle</button><button class="btn sm" data-act="ana-bulk" data-v="removeMarket">Tümünü pazardan çıkar</button><button class="btn sm danger" data-act="ana-bulk" data-v="delete">Tümünü sil</button></span></div>`:''}
+  return `<div class="head"><div><h1>Katılımcılar</h1><p>${list.length} marka${m?` · ${esc(m.name)}`:' · tüm pazarlar'} · katılım geçmişiyle</p></div><div class="row">${ioBar('katilimcilar','pazar='+encodeURIComponent(market))}${P('participantDelete')&&dupes().length?`<button class="btn" data-act="part-dupes">Mükerrerleri birleştir (${dupes().length})</button>`:''}${P('participantWrite')?'<button class="btn primary" data-act="part-new">+ Katılımcı ekle</button>':''}</div></div>
+  ${isAna()&&list.length?`<div class="anabar"><span class="mono">SADECE SEN GÖRÜYORSUN · LİSTEDEKİ ${list.length} MARKA</span><span class="row"><button class="btn sm" data-act="ana-selall">Tümünü seç</button><select id="ana-market" aria-label="Pazar">${marketOpts(m?.id||S.d.markets[0]?.id)}<option value="*">Tüm pazarlar</option></select><button class="btn sm" data-act="ana-bulk" data-v="addMarket">Tümünü pazara ekle</button><button class="btn sm" data-act="ana-bulk" data-v="removeMarket">Tümünü pazardan çıkar</button><button class="btn sm danger" data-act="ana-bulk" data-v="delete">Tümünü sil</button></span></div>`:''}
   <div class="filters"><input data-nav-p="ara" placeholder="Marka, kişi, @instagram, etiket ara" value="${esc(q.get('ara')||'')}"><select data-nav-p="eksik">${opts([['','Tüm kayıtlar'],['logo','Logosu olmayanlar'],['gorsel','Görseli olmayanlar'],['iletisim','İletişimi eksik olanlar']],gap||'')}</select>
   <select data-nav-p="pazar">${opts([['all','Tüm pazarlar'],...S.d.markets.map(x=>[x.id,x.name])],market)}</select>
   <span class="viewsw"><button class="${S.view==='grid'?'on':''}" data-act="view" data-v="grid">Kartlar</button><button class="${S.view==='table'?'on':''}" data-act="view" data-v="table">Tablo${bulk?' · toplu işlem':''}</button><button class="${S.view==='liste'?'on':''}" data-act="view" data-v="liste">Liste</button></span></div>
@@ -698,7 +717,7 @@ function importModal(kind){
   <p class="muted" style="margin:0">${help}</p>
   ${field('Dosya','<input type="file" name="file" accept=".xlsx,.csv,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" required>','Excel (.xlsx) ya da CSV')}
   ${kind==='formlar'?`<div class="grid g2">${field('Form başlığı','<input name="title" required placeholder="Örn. 6. Pazar Katılımcı Başvurusu">')}${field('Pazar',`<select name="marketId" required>${marketOpts(S.market==='all'?S.d.markets[0]?.id:S.market)}</select>`)}</div>`
-  :['katilimcilar','odemeler','workshoplar','kasa'].includes(kind)?field(kind==='katilimcilar'?'Bu pazara da ekle':'Pazar (dosyada yoksa)',`<select name="marketId">${marketOpts(S.market==='all'?'':S.market,kind==='katilimcilar'?'— ekleme —':'— dosyadaki pazar —')}</select>`):''}
+  :['katilimcilar','odemeler','workshoplar','kasa'].includes(kind)?field(kind==='katilimcilar'?'Bu pazara da ekle':'Pazar (dosyada yoksa)',`<select name="marketId">${marketOpts(S.market==='all'?'':S.market,kind==='katilimcilar'?'— ekleme —':'— dosyadaki pazar —')}${kind==='katilimcilar'?'<option value="*">Tüm pazarlar</option>':''}</select>`):''}
   ${kind==='katilimcilar'?'<label class="check"><input type="checkbox" name="strict"> Pazar sütununda boş bırakılanı “katılmadı” say (o pazardan çıkar)</label>':''}
   <div id="import-out"></div>
   <div class="actions"><span class="row" style="margin-left:auto"><button type="button" class="btn ghost" data-act="close">Kapat</button><button class="btn primary">İçe aktar ↑</button></span></div>`,
@@ -1126,6 +1145,7 @@ const actions={
   'demo-all-del':()=>confirm('Tüm örnek veriler silinsin mi? Gerçek kayıtların kalır.')&&act(()=>call('DELETE','/api/demo/all'),'Örnek veriler silindi'),
   'demo-del':()=>confirm('Örnek başvurular silinsin mi?')&&act(()=>call('DELETE','/api/demo/applications'),'Örnek başvurular silindi'),
   'part-new':()=>newParticipantModal(),
+  'part-dupes':()=>dupesModal(),
   'part-del':el=>confirm('Katılımcı silinsin mi? Görselleri depoda kalır.')&&act(async()=>{await call('DELETE',`/api/participants/${el.dataset.v}`);location.hash=partsBack()},'Katılımcı silindi'),
   'part-save-stay':()=>act(()=>call('PUT',`/api/participants/${route().id}`,formData($('#part-form'))),'Katılımcı kaydedildi'),
   'sel-all':el=>{for(const id of S.listIds||[])el.checked?S.sel.add(id):S.sel.delete(id);render()},
@@ -1140,8 +1160,8 @@ const actions={
   // Ana kullanıcının toplu araçları: filtrelenmiş listedeki markaların tümüne uygulanır.
   'ana-selall':()=>{for(const id of S.listIds||[])S.sel.add(id);S.view='table';store.set('fp-view','table');render()},
   'ana-bulk':el=>{
-    const op=el.dataset.v,ids=[...(S.listIds||[])],mid=$('#ana-market')?.value,mname=mk(mid)?.name||'';if(!ids.length)return;
-    const ask={addMarket:`Listedeki ${ids.length} marka “${mname}” pazarına eklensin mi?`,removeMarket:`Listedeki ${ids.length} marka “${mname}” pazarından çıkarılsın mı?`}[op];
+    const op=el.dataset.v,ids=[...(S.listIds||[])],mid=$('#ana-market')?.value,mname=mk(mid)?.name||'',all=mid==='*';if(!ids.length)return;
+    const ask={addMarket:`Listedeki ${ids.length} marka ${all?'tüm pazarlara':`“${mname}” pazarına`} eklensin mi?`,removeMarket:`Listedeki ${ids.length} marka ${all?'tüm pazarlardan':`“${mname}” pazarından`} çıkarılsın mı?`}[op];
     if(ask&&!confirm(ask))return;
     if(op==='delete'){const w=prompt(`Listedeki ${ids.length} marka kalıcı olarak silinecek. Görselleri depoda kalır.\nOnaylamak için SİL yaz:`);if((w||'').trim().toLocaleUpperCase('tr')!=='SİL')return toast('Silme iptal edildi',true)}
     act(async()=>{const r=await call('POST','/api/participants/bulk',{ids,op,marketId:mid});if(op==='delete')S.sel.clear();return r},op==='delete'?`${ids.length} katılımcı silindi`:`${ids.length} katılımcıya uygulandı`);
