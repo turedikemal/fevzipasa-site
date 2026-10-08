@@ -9,7 +9,7 @@ const inputType={text:'text',email:'email',phone:'tel',url:'url',number:'number'
 function question(f){
   const req=f.required?' *':'',help=f.help?`<small>${esc(f.help)}</small>`:'',name=`name="${f.id}"`;
   if(f.type==='heading')return `<h2>${esc(f.label)}</h2>`;
-  if(f.type==='consent')return `<label class="consent"><input type="checkbox" ${name} ${f.required?'required':''}> <span>${esc(f.label)}${req}</span></label>`;
+  if(f.type==='consent')return `<label class="consent"><input type="checkbox" ${name} ${f.required?'required':''}> <span>${esc(f.label)}${req} <a href="/kosullar" target="_blank">Koşulları oku ↗</a></span></label>`;
   let input;
   if(f.type==='textarea')input=`<textarea ${name} ${f.required?'required':''}></textarea>`;
   else if(f.type==='select')input=`<select ${name} ${f.required?'required':''}><option value="">Seç</option>${f.options.map(o=>`<option>${esc(o)}</option>`).join('')}</select>`;

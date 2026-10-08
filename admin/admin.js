@@ -120,6 +120,7 @@ function authScreen(setup){
   <label class="auth-field"><span>Şifre${setup||up?' <small>en az 8 karakter</small>':''}</span><span class="pass"><input name="password" type="password" required minlength="${setup||up?8:1}" autocomplete="${setup||up?'new-password':'current-password'}" placeholder="••••••••"><button type="button" class="pass-toggle" data-act="pass-toggle" aria-label="Şifreyi göster">Göster</button></span></label>
   <p class="auth-err" id="auth-err" role="alert"></p>
   <button class="auth-submit"><span>${setup?'Kur ve başla':up?'Kayıt ol':'Giriş yap'}</span><span aria-hidden="true">↗</span></button>
+  ${up?`<p class="auth-switch" style="margin-top:0">Kayıt olarak <a href="/kosullar" target="_blank">katılım koşullarını ve KVKK metnini</a> kabul etmiş olursun.</p>`:''}
   ${setup?'':`<p class="auth-switch">${up?'Zaten hesabın var mı? <button type="button" data-act="auth-mode" data-v="login">Giriş yap</button>':'Pazara katılmak mı istiyorsun? <button type="button" data-act="auth-mode" data-v="signup">Katılımcı olarak kayıt ol</button>'}</p>`}
   <a class="auth-back" href="/">← Siteye dön</a><span class="ver">${verLabel()}</span></form></div></div>`;
   $('#auth').addEventListener('submit',async e=>{
