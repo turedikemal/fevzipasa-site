@@ -1,5 +1,12 @@
 [
  {
+  "v": "2.15.2",
+  "date": "2026-10-08",
+  "notes": [
+   "Kabul edilmiş başvuruda Değerlendirme kartında artık açıkça “✓ Kabul edildi” yazıyor."
+  ]
+ },
+ {
   "v": "2.15.1",
   "date": "2026-10-08",
   "notes": [
