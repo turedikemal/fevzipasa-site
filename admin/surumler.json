@@ -1,5 +1,15 @@
 [
  {
+  "v": "2.6.0",
+  "date": "2026-10-08",
+  "notes": [
+   "Workshop sayfalarından gelenler marka formu yerine kişisel workshop kayıt formu görür: ad soyad, e-posta, telefon, şifre.",
+   "Workshop katılımcısının panelinde yalnızca workshoplar ve ödeme bilgileri var; marka ve stant başvurusu yok.",
+   "Ana hesap kurulunca örnek veriler otomatik yüklenir; mum workshopunda 3 örnek görsel var.",
+   "Windows'ta kayıt ve girişte çıkan sunucu hatası düzeltildi."
+  ]
+ },
+ {
   "v": "2.5.3",
   "date": "2026-10-08",
   "notes": [

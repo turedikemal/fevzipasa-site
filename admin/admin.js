@@ -105,17 +105,18 @@ async function start(){
 function authScreen(setup){
   const isK=location.pathname.startsWith('/katilim');
   if(S.authMode==null)S.authMode=isK&&/kayit/.test(location.search)?'signup':'login';
-  const up=!setup&&S.authMode==='signup';
+  const up=!setup&&S.authMode==='signup',wk=up&&isK&&/[?&]ws=/.test(location.search);
   $('#app').innerHTML=`<div class="auth"><div class="auth-brand"><span class="mono">${isK||up?'FEVZİPAŞA PANELİ':'YÖNETİM PANELİ'}</span><h1 class="auth-title" aria-label="Fevzipaşa Tasarım Pazarı"><span><i>FEVZİPAŞA</i></span><span><i>TASARIM</i></span><span><i>PAZARI</i></span></h1><div class="auth-foot"><span class="mono">${isK||up?'Pazara başvur · Workshoplara katıl · Markanı yönet':'Başvurular · Katılımcılar · Kasa'}</span><span class="foot-right"><small class="copy">© 2026 Fevzipaşa Tasarım Pazarı. Tüm hakları saklıdır.</small><a class="credit" href="https://thegoatzstudio.com/" target="_blank" rel="noopener">Bu site <b>THE GOATZ STUDIO</b> tarafından yapılmıştır.<img src="https://thegoatzstudio.com/favicon.ico" alt="" onerror="this.remove()"></a></span></div></div>
   <div class="auth-side"><form id="auth" class="auth-card" novalidate>
   ${setup?'':`<div class="auth-tabs" role="tablist"><button type="button" class="${up?'':'on'}" data-act="auth-mode" data-v="login">Giriş yap</button><button type="button" class="${up?'on':''}" data-act="auth-mode" data-v="signup">Kayıt ol</button></div>`}
-  <span class="mono auth-eyebrow">${setup?'İLK KURULUM':up?'KATILIMCI KAYDI':'GİRİŞ'}</span>
-  <h2>${setup?'Paneli kuralım.':up?'Aramıza katıl.':isK?'Hoş geldin.':'Tekrar hoş geldin.'}</h2>
-  <p class="auth-lead">${setup?'İlk hesabı oluştur. Bu hesap her şeyi görebilen ve yönetebilen “Ana yönetici” olarak açılır.':up?'Hesabını aç; pazara başvur, workshoplara katıl, başvurunu ve ödemeni buradan takip et.':isK?'Katılımcı da yönetici de buradan girer. Hesabın yoksa “Kayıt ol”a geç; stant başvurusu ve workshop kaydı panelinde.':'Başvuruları, katılımcıları ve kasayı yönetmek için giriş yap.'}</p>
-  ${up?`<label class="auth-field"><span>Marka adı</span><input name="brandName" required placeholder="Örn. Kil & Ateş Seramik"></label>`:''}
+  <span class="mono auth-eyebrow">${setup?'İLK KURULUM':wk?'WORKSHOP KAYDI':up?'KATILIMCI KAYDI':'GİRİŞ'}</span>
+  <h2>${setup?'Paneli kuralım.':wk?'Workshop’a katıl.':up?'Aramıza katıl.':isK?'Hoş geldin.':'Tekrar hoş geldin.'}</h2>
+  <p class="auth-lead">${setup?'İlk hesabı oluştur. Bu hesap her şeyi görebilen ve yönetebilen “Ana yönetici” olarak açılır.':wk?'Hesabını aç, workshopta yerini ayırt. Ekip onaylayınca yerin kesinleşir; kaydını buradan takip edersin.':up?'Hesabını aç; pazara başvur, workshoplara katıl, başvurunu ve ödemeni buradan takip et.':isK?'Katılımcı da yönetici de buradan girer. Hesabın yoksa “Kayıt ol”a geç; stant başvurusu ve workshop kaydı panelinde.':'Başvuruları, katılımcıları ve kasayı yönetmek için giriş yap.'}</p>
+  ${up&&!wk?`<label class="auth-field"><span>Marka adı</span><input name="brandName" required placeholder="Örn. Kil & Ateş Seramik"></label>`:''}
   ${setup||up?`<label class="auth-field"><span>Ad soyad</span><input name="name" required autocomplete="name" placeholder="${up?'Adın ve soyadın':'Kemal Türedi'}"></label>`:''}
   <label class="auth-field"><span>E-posta</span><input name="email" type="email" required autocomplete="email" placeholder="ornek@eposta.com"></label>
-  ${up?`<label class="auth-field"><span>Instagram <small>isteğe bağlı</small></span><span class="auth-ig"><b>@</b><input name="instagram" placeholder="markan" autocapitalize="off" autocomplete="off"></span></label>`:''}
+  ${wk?`<label class="auth-field"><span>Telefon</span><input name="phone" type="tel" required autocomplete="tel" placeholder="05xx xxx xx xx"></label>`:''}
+  ${up&&!wk?`<label class="auth-field"><span>Instagram <small>isteğe bağlı</small></span><span class="auth-ig"><b>@</b><input name="instagram" placeholder="markan" autocapitalize="off" autocomplete="off"></span></label>`:''}
   <label class="auth-field"><span>Şifre${setup||up?' <small>en az 8 karakter</small>':''}</span><span class="pass"><input name="password" type="password" required minlength="${setup||up?8:1}" autocomplete="${setup||up?'new-password':'current-password'}" placeholder="••••••••"><button type="button" class="pass-toggle" data-act="pass-toggle" aria-label="Şifreyi göster">Göster</button></span></label>
   <p class="auth-err" id="auth-err" role="alert"></p>
   <button class="auth-submit"><span>${setup?'Kur ve başla':up?'Kayıt ol':'Giriş yap'}</span><span aria-hidden="true">↗</span></button>
@@ -124,7 +125,9 @@ function authScreen(setup){
   $('#auth').addEventListener('submit',async e=>{
     e.preventDefault();const f=e.target,err=$('#auth-err'),btn=f.querySelector('.auth-submit');
     const d=formData(f);
-    if(up&&!d.brandName)return err.textContent='Marka adını yaz.';
+    if(up&&!wk&&!d.brandName)return err.textContent='Marka adını yaz.';
+    if(wk&&!d.phone)return err.textContent='Telefonunu yaz.';
+    if(wk)d.kind='workshop';
     if((setup||up)&&!d.name)return err.textContent='Adını yaz.';
     if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(d.email))return err.textContent='Geçerli bir e-posta yaz.';
     if((setup||up)&&d.password.length<8)return err.textContent='Şifre en az 8 karakter olmalı.';
@@ -767,8 +770,9 @@ pages.hesap=()=>{
 const appStatusText={yeni:'Başvurun alındı, incelenecek',inceleniyor:'İnceleniyor',kabul:'Kabul edildi',yedek:'Yedek listedesin',red:'Bu sefer olmadı'};
 const regText={bekliyor:'Kaydın alındı, onay bekliyor',onay:'Yerin ayrıldı',red:'Kayıt onaylanmadı'};
 function renderPortal(){
-  const d=S.d,p=d.participant,r=route(),v=['basvurularim','workshoplarim','markam','odeme','hesap'].includes(r.view)?r.view:'ana';
-  const tabs=[['ana','Ana sayfa'],['basvurularim','Başvurularım'],['workshoplarim','Workshoplarım'],['markam','Markam'],['odeme','Ödeme bilgileri']];
+  const d=S.d,p=d.participant,r=route(),v=(d.me.kind==='workshop'?['workshoplarim','odeme','hesap']:['basvurularim','workshoplarim','markam','odeme','hesap']).includes(r.view)?r.view:'ana';
+  const wkOnly=d.me.kind==='workshop';
+  const tabs=wkOnly?[['ana','Ana sayfa'],['workshoplarim','Workshoplarım'],['odeme','Ödeme bilgileri']]:[['ana','Ana sayfa'],['basvurularim','Başvurularım'],['workshoplarim','Workshoplarım'],['markam','Markam'],['odeme','Ödeme bilgileri']];
   const pages={ana:portalHome,basvurularim:portalApps,workshoplarim:portalWs,markam:portalBrand,odeme:portalPay,hesap:portalAccount};
   $('#app').innerHTML=`<header class="bar"><div class="bar-top"><a class="wordmark" href="#/">FEVZİPAŞA<br>TASARIM PAZARI<span>KATILIMCI PANELİ</span></a><div class="bar-right"><a class="acc ${v==='hesap'?'on':''}" href="#/hesap">Hesabım · ${esc(d.me.name.split(' ')[0])}</a><a class="nav-pill" href="/" target="_blank">Site <span>↗</span></a><button class="acc out" data-act="logout">Çıkış</button><button class="menu-btn" data-act="menu">Menü</button></div></div>
   <nav id="side">${tabs.map(([k,t])=>`<a href="#/${k==='ana'?'':k}" class="${v===k?'on':''}">${t}</a>`).join('')}</nav></header>
@@ -783,10 +787,10 @@ function portalAccount(){
   return `<div class="head"><div><h1>Hesabım</h1><p>${esc(me.name)} · katılımcı</p></div><button class="btn" data-act="logout">Çıkış yap</button></div>
   <div class="grid split"><div class="card"><h3>Hesap bilgileri</h3><div class="list">
   <div class="item"><span>E-posta</span><b>${esc(me.email)}</b></div>
-  <div class="item"><span>Marka</span>${p?`<a href="#/markam"><b>${esc(p.brandName)} →</b></a>`:'<b>Eşleştirme bekliyor</b>'}</div>
+  ${me.kind==='workshop'?`<div class="item"><span>Telefon</span><b>${esc(me.phone||'—')}</b></div>`:`<div class="item"><span>Marka</span>${p?`<a href="#/markam"><b>${esc(p.brandName)} →</b></a>`:'<b>Eşleştirme bekliyor</b>'}</div>`}
   <div class="item"><span>Hesap açılışı</span><b>${dt(me.createdAt)}</b></div>
   <div class="item"><span>Son giriş</span><b>${dt(me.lastLoginAt)}</b></div></div>
-  <p class="muted" style="margin-top:18px">Marka bilgilerini <a href="#/markam">Markam</a> sekmesinden, ödeme bilgilerini <a href="#/odeme">Ödeme bilgileri</a> sekmesinden görebilirsin.</p></div>
+  ${me.kind==='workshop'?'':`<p class="muted" style="margin-top:18px">Marka bilgilerini <a href="#/markam">Markam</a> sekmesinden, ödeme bilgilerini <a href="#/odeme">Ödeme bilgileri</a> sekmesinden görebilirsin.</p>`}</div>
   <form class="card" id="me-form" style="display:grid;gap:12px;align-content:start"><h3 style="margin:0">Bilgilerini güncelle</h3>${field('Ad soyad',`<input name="name" value="${esc(me.name)}">`)}${field('Yeni şifre','<input name="password" type="password" minlength="8" autocomplete="new-password">','değiştirmeyeceksen boş bırak · en az 8 karakter')}<button class="btn primary" style="justify-self:start">Kaydet</button><small class="muted">E-posta değişikliği için ekibe yaz.</small></form></div>`;
 }
 const dRange=(a,b)=>a?date(a)+(b&&b!==a?' – '+date(b):''):'Tarih yakında';
@@ -801,10 +805,10 @@ function wsCard(w){
 }
 function portalHome(){
   const d=S.d,first=d.me.name.split(' ')[0];
-  return `<div class="head"><div><h1>Merhaba ${esc(first)}.</h1><p>Pazara başvurmak ve workshoplara katılmak için aşağıdaki iki bölümü kullan. Başvurunun ve kayıtlarının durumunu da buradan takip edebilirsin.</p></div></div>
-  <div class="paths"><button class="path apply" data-act="scrollto" data-v="apply"><span class="mono">01</span><b>Pazara başvur</b><small>Stant açmak için. Markanla başvurursun, ekip değerlendirir.</small><i>${d.openForms.filter(f=>!f.applied).length} açık başvuru ↓</i></button><button class="path ws" data-act="scrollto" data-v="ws"><span class="mono">02</span><b>Workshop'a katıl</b><small>Atölyelere katılımcı olarak yer ayırt. Ücretli ya da ücretsiz.</small><i>${d.workshops.filter(w=>!w.reg).length} workshop ↓</i></button></div>
+  return `<div class="head"><div><h1>Merhaba ${esc(first)}.</h1><p>${d.me.kind==='workshop'?'Aşağıdan workshoplarda yerini ayırt, kayıtlarının durumunu buradan takip et.':'Pazara başvurmak ve workshoplara katılmak için aşağıdaki iki bölümü kullan. Başvurunun ve kayıtlarının durumunu da buradan takip edebilirsin.'}</p></div></div>
+  ${d.me.kind==='workshop'?'':`<div class="paths"><button class="path apply" data-act="scrollto" data-v="apply"><span class="mono">01</span><b>Pazara başvur</b><small>Stant açmak için. Markanla başvurursun, ekip değerlendirir.</small><i>${d.openForms.filter(f=>!f.applied).length} açık başvuru ↓</i></button><button class="path ws" data-act="scrollto" data-v="ws"><span class="mono">02</span><b>Workshop'a katıl</b><small>Atölyelere katılımcı olarak yer ayırt. Ücretli ya da ücretsiz.</small><i>${d.workshops.filter(w=>!w.reg).length} workshop ↓</i></button></div>
   <section class="zone apply" id="apply"><div class="zone-head"><span class="mono">01 · STANT BAŞVURUSU</span><h2>Pazara başvur</h2><p>Pazarda stant açmak istiyorsan başvuru formunu doldur. Bilgilerin hesabından otomatik gelir.</p></div>
-  ${d.openForms.length?d.openForms.map(formCard).join(''):'<div class="empty">Şu an açık bir başvuru dönemi yok. Yeni pazar duyurulunca burada görünecek.</div>'}</section>
+  ${d.openForms.length?d.openForms.map(formCard).join(''):'<div class="empty">Şu an açık bir başvuru dönemi yok. Yeni pazar duyurulunca burada görünecek.</div>'}</section>`}
   <section class="zone ws" id="ws"><div class="zone-head"><span class="mono">02 · WORKSHOP KATILIMI</span><h2>Workshop'a katıl</h2><p>Pazar boyunca yapılacak atölyeler. Yerini ayırt, ekip onaylayınca kesinleşir.${d.payment?.iban?' Ücretli workshoplarda ödemeyi havale/EFT ile yapabilirsin.':''}</p></div>
   ${d.workshops.length?d.workshops.map(wsCard).join(''):'<div class="empty">Yaklaşan workshop yok.</div>'}</section>`;
 }
