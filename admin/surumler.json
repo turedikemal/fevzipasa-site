@@ -1,5 +1,12 @@
 [
  {
+  "v": "2.11.1",
+  "date": "2026-10-08",
+  "notes": [
+   "Katılımcılar alanında isimler artık iki şerit halinde ters yönlere akıyor (kayan şeritler). Spot ışığı da şeritlerde çalışıyor: bir ismin üzerine gelince şeritler durur, isim sarıya döner, diğerleri soluklaşır."
+  ]
+ },
+ {
   "v": "2.11.0",
   "date": "2026-10-08",
   "notes": [
