@@ -31,7 +31,17 @@ if(box){const wid=location.pathname.split('/').filter(Boolean)[1];get('/api/publ
   <button class="ws-detail-media" ${w.images[0]?`data-photo="/media/${w.images[0]}" data-caption="${esc(w.title)}"`:''} aria-label="Görseli büyüt">${cover(w,1)}</button></section>
   ${w.description?`<section class="ws-about section"><p class="eyebrow">NE YAPACAĞIZ?</p><p class="ws-desc">${esc(w.description).replace(/\n/g,'<br>')}</p></section>`:''}
   ${w.images.length>1?`<section class="ws-gallery section"><p class="eyebrow">GÖRSELLER</p><div class="ws-gal">${w.images.slice(1).map(id=>`<button data-photo="/media/${id}" data-caption="${esc(w.title)}"><img src="/media/${id}" alt="" loading="lazy"></button>`).join('')}</div></section>`:''}
-  ${upcoming(w)?`<section class="pink-statement section"><p class="eyebrow">YERİN HAZIR MI?</p><h2>Gel.<br>Dene.<br>Üret.</h2>${join(w,'text-link')}</section>`:''}`;
+  ${upcoming(w)?`<section class="ws-come section"><div class="ws-come-copy"><p class="eyebrow">YERİN HAZIR MI?</p><h2>Gel.<br>Dene.<br>Üret.</h2>${join(w,'pill big')}</div><aside class="ws-market" data-ws-market></aside></section>`:''}`;
+  const mbox=box.querySelector('[data-ws-market]');
+  if(mbox){const m=w.market,range=m?.startDate?[short(m.startDate),m.endDate&&m.endDate!==m.startDate?short(m.endDate):''].filter(Boolean).join(' – '):'';
+    const paint=others=>{mbox.innerHTML=`<p class="eyebrow">${m?'BU WORKSHOP BİR PAZARIN PARÇASI':'FEVZİPAŞA TASARIM PAZARI'}</p>
+    <h3>${esc(m?.name||'Fevzipaşa Tasarım Pazarı')}</h3>
+    <p class="ws-market-lead">${m?`Workshop, ${m.edition?m.edition+'. ':''}Fevzipaşa Tasarım Pazarı sırasında yapılıyor. Atölyeden sonra pazarı gez, üreticilerle tanış; aynı gün birçok tasarımı yakından gör.`:'Atölyeden sonra pazarı gez, üreticilerle tanış.'}</p>
+    <dl class="ws-facts">${[['Pazar günleri',range],['Saatler',m?.hours],['Yer',m?.location]].filter(x=>x[1]).map(([k,v])=>`<div><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join('')}</dl>
+    ${others.length?`<p class="eyebrow" style="margin-top:28px">BU PAZARDAKİ DİĞER WORKSHOPLAR</p><div class="ws-others">${others.slice(0,4).map(o=>`<a href="/workshop/${o.id}"><span>${short(o.date)}${o.time?' · '+esc(o.time):''}</span><b>${esc(o.title)}</b><i>↗</i></a>`).join('')}</div>`:''}
+    <div class="ws-market-links"><a class="text-link" href="/ziyaret">Ziyaret bilgileri ↗</a><a class="text-link" href="/katilimcilar">Katılımcılar ↗</a></div>`};
+    paint([]);get('/api/public/workshops').then(all=>paint(all.filter(o=>o.id!==w.id&&upcoming(o)&&(m?o.market?.id===m.id:true)))).catch(()=>{});
+  }
   box.querySelectorAll('[data-photo]').forEach(b=>b.addEventListener('click',()=>{const d=document.getElementById('viewer');if(!d)return;d.querySelector('.dialog-content').innerHTML=`<img src="${b.dataset.photo}" alt=""><p class="dialog-caption">${esc(b.dataset.caption||'')}</p>`;d.showModal()}));
 }).catch(()=>{box.innerHTML='<section class="ws-detail-missing section"><h1>Workshop bulunamadı.</h1><a class="pill" href="/workshoplar">Tüm workshoplar <span>↗</span></a></section>'})}
 })();
