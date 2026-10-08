@@ -1,5 +1,13 @@
 [
  {
+  "v": "2.16.0",
+  "date": "2026-10-08",
+  "notes": [
+   "Başvurularda toplu işlem: her satırda seçim kutusu, başlıkta “tümünü seç”, altta çıkan çubukta “Listedekilerin tümünü seç”, “✓ Kabul et”, Yeni / İnceleniyor / Yedek / Red. Toplu kabulde her başvuru tek tek kabul edilmiş gibi katılımcılara eklenir.",
+   "Kabul listesi: bir form seçip Excel ↓ deyince tek dosyada iki sayfa iner, “Kabul edilenler” ve “Kabul edilmeyenler”. CSV tek sayfa olduğu için başta “Liste” sütunu var, kabul edilenler üstte."
+  ]
+ },
+ {
   "v": "2.15.3",
   "date": "2026-10-08",
   "notes": [

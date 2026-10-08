@@ -388,7 +388,8 @@ pages.basvurular=r=>{
   if(r.id)return appPage(r.id);
   const q=r.q,base=appFilter(new URLSearchParams([...q].filter(([k])=>k!=='durum'))),list=appFilter(q),form=q.get('form');
   const demo=S.d.applications.some(a=>a.demo);
-  return `<div class="head"><div><h1>Başvurular</h1><p>${form?esc(fm(form)?.title):'Tüm formlar'} · ${list.length} başvuru</p></div><div class="row">${form?ioBar('basvurular','form='+form,false):''}${P('demo')?(demo?'<button class="btn" data-act="demo-del">Örnek başvuruları sil</button>':'<button class="btn" data-act="demo-add">Örnek başvurular ekle</button>'):''}</div></div>
+  const sel=P('appAccept')||P('appReview');S.listIds=list.map(a=>a.id);
+  return `<div class="head"><div><h1>Başvurular</h1><p>${form?esc(fm(form)?.title):'Tüm formlar'} · ${list.length} başvuru</p></div><div class="row">${form?ioBar('basvurular','form='+form,false):'<small class="muted">Kabul listesini indirmek için bir form seç</small>'}${P('demo')?(demo?'<button class="btn" data-act="demo-del">Örnek başvuruları sil</button>':'<button class="btn" data-act="demo-add">Örnek başvurular ekle</button>'):''}</div></div>
   <details class="explain" ${S.d.applications.length?'':'open'}><summary>Başvurular nereden geliyor, ne içeriyor?</summary><div>
   <p><b>Nereden:</b> Formlar sayfasında oluşturup “Yayında” yaptığın formun bağlantısından (ör. <code>${esc(location.origin)}/basvuru/…</code>). Marka bu bağlantıyı açar, soruları doldurur, ürün görsellerini yükler ve gönderir. Gönderim anında burada “Yeni” olarak görünür.</p>
   <p><b>Ne içerir:</b> Formda hangi soruları sorduysan onların yanıtları: marka adı, ad soyad, e-posta, telefon, Instagram, kategori, açıklama, katılacağı günler, görseller. Görseller pazarın görsel klasörüne “Başvuru görselleri” olarak kaydedilir.</p>
@@ -398,7 +399,8 @@ pages.basvurular=r=>{
   <div class="filters"><select data-nav="form">${opts(S.d.forms.filter(f=>inScope(f.marketId)).map(f=>[f.id,f.title]),form,'Tüm formlar')}</select>
   <input data-nav="ara" placeholder="Başvurularda ara" value="${esc(q.get('ara')||'')}"><select data-nav="sira">${opts([['','En yeni'],['puan','En yüksek puan']],q.get('sira')||'')}</select></div>
   <div class="chips" style="margin-bottom:16px"><a class="chip ${!q.get('durum')?'on':''}" href="${withQ(q,'durum','')}">Tümü ${base.length}</a>${Object.entries(L.app).map(([k,t])=>`<a class="chip ${q.get('durum')===k?'on':''}" href="${withQ(q,'durum',k)}">${t} ${base.filter(a=>a.status===k).length}</a>`).join('')}</div>
-  ${list.length?`<div class="table-wrap"><table><thead><tr><th>MARKA</th><th>DAHA ÖNCE KATILDIĞI PAZARLAR</th><th class="hide-sm">KATEGORİ</th><th class="hide-sm">INSTAGRAM</th><th>TARİH</th><th class="hide-sm">PUAN</th><th>DURUM</th></tr></thead><tbody>${list.map(a=>{const p=profile(a);return `<tr class="click" data-href="#/basvurular/${a.id}"><td><b>${esc(appName(a))}</b>${a.demo?' <span class="pill">örnek</span>':''}${a.matchedParticipantId&&!a.participantId?' <span class="pill s-yeni">Tanıdık</span>':''}<br><small class="muted">${esc(p.contactName||'')}</small></td><td>${pastMarkets(a)}</td><td class="hide-sm">${esc(p.category||'')}</td><td class="hide-sm"><small>${esc(p.instagram||'')}</small></td><td><small>${ago(a.createdAt)}</small></td><td class="hide-sm">${stars(a.rating||0)}</td><td>${pill('app',a.status)}</td></tr>`}).join('')}</tbody></table></div>`:'<div class="empty">Bu filtreye uyan başvuru yok.</div>'}`;
+  ${list.length?`<div class="table-wrap"><table><thead><tr>${sel?`<th><input type="checkbox" data-act="sel-all" ${list.every(a=>S.sel.has(a.id))?'checked':''} aria-label="Tümünü seç"></th>`:''}<th>MARKA</th><th>DAHA ÖNCE KATILDIĞI PAZARLAR</th><th class="hide-sm">KATEGORİ</th><th class="hide-sm">INSTAGRAM</th><th>TARİH</th><th class="hide-sm">PUAN</th><th>DURUM</th></tr></thead><tbody>${list.map(a=>{const p=profile(a);return `<tr class="click" data-href="#/basvurular/${a.id}">${sel?`<td><input type="checkbox" data-sel="${a.id}" ${S.sel.has(a.id)?'checked':''} aria-label="Seç"></td>`:''}<td><b>${esc(appName(a))}</b>${a.demo?' <span class="pill">örnek</span>':''}${a.matchedParticipantId&&!a.participantId?' <span class="pill s-yeni">Tanıdık</span>':''}<br><small class="muted">${esc(p.contactName||'')}</small></td><td>${pastMarkets(a)}</td><td class="hide-sm">${esc(p.category||'')}</td><td class="hide-sm"><small>${esc(p.instagram||'')}</small></td><td><small>${ago(a.createdAt)}</small></td><td class="hide-sm">${stars(a.rating||0)}</td><td>${pill('app',a.status)}</td></tr>`}).join('')}</tbody></table></div>`:'<div class="empty">Bu filtreye uyan başvuru yok.</div>'}
+  ${sel&&list.length?`<div class="bulkbar" id="bulkbar" hidden><b id="bulk-n">0 seçili</b><button class="btn sm ghost" data-act="sel-all-list">Listedekilerin tümünü seç (${list.length})</button>${P('appAccept')?'<button class="btn sm" data-act="app-bulk" data-v="kabul">✓ Kabul et</button>':''}${P('appReview')?Object.entries(L.app).filter(([k])=>k!=='kabul').map(([k,t])=>`<button class="btn sm" data-act="app-bulk" data-v="${k}">${t}</button>`).join(''):''}<button class="btn sm ghost" data-act="bulk-clear">Seçimi kaldır</button></div>`:''}`;
 };
 // Küçük katılım şeridi: son pazarlar birer kare, katıldıkları dolu.
 function miniTl(p,skip){return `<span class="mini-tl">${marketsAsc().filter(m=>m.id!==skip).slice(-8).map(m=>`<i class="${p.markets.includes(m.id)?'on':''}" title="${esc(m.name)}">${m.edition||''}</i>`).join('')}</span>`}
@@ -1128,6 +1130,13 @@ const actions={
   'part-save-stay':()=>act(()=>call('PUT',`/api/participants/${route().id}`,formData($('#part-form'))),'Katılımcı kaydedildi'),
   'sel-all':el=>{for(const id of S.listIds||[])el.checked?S.sel.add(id):S.sel.delete(id);render()},
   'bulk-clear':()=>{S.sel.clear();render()},
+  'sel-all-list':()=>{for(const id of S.listIds||[])S.sel.add(id);render()},
+  // Başvurularda toplu işlem: seçilenleri kabul et (katılımcı kartları oluşur) ya da durumunu değiştir.
+  'app-bulk':el=>{
+    const st=el.dataset.v,ids=[...S.sel];if(!ids.length)return;
+    if(st==='kabul'&&!confirm(`${ids.length} başvuru kabul edilsin mi? Her biri katılımcılara eklenir, tanıdık markaların kartı güncellenir.`))return;
+    act(async()=>{const r=await call('POST','/api/applications/bulk',{ids,status:st});S.sel.clear();if(r.skipped)setTimeout(()=>toast(`${r.skipped} başvuru zaten kabul edilmişti, atlandı`),3300);return r},st==='kabul'?`${ids.length} başvuru kabul edildi`:`${ids.length} başvurunun durumu “${L.app[st]}” yapıldı`);
+  },
   // Ana kullanıcının toplu araçları: filtrelenmiş listedeki markaların tümüne uygulanır.
   'ana-selall':()=>{for(const id of S.listIds||[])S.sel.add(id);S.view='table';store.set('fp-view','table');render()},
   'ana-bulk':el=>{
