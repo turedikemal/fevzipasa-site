@@ -1217,6 +1217,11 @@ document.addEventListener('change',e=>{
   if(navKey){const r=route(),q=new URLSearchParams(r.q);el.value&&el.value!=='all'||navKey!=='pazar'?(el.value?q.set(navKey,el.value):q.delete(navKey)):q.set(navKey,'all');const view=el.dataset.nav?'basvurular':el.dataset.navP?'katilimcilar':el.dataset.navO?r.view:'gorseller';location.hash=`#/${view}?${q}`}
 });
 document.addEventListener('keydown',e=>{
+  // Mesajlarda Enter gönderir; Alt+Enter ya da Shift+Enter alt satıra geçer.
+  if(e.target.id==='msg-text'&&e.key==='Enter'&&!e.isComposing){
+    if(e.altKey||e.shiftKey){if(e.altKey){e.preventDefault();const t=e.target,i=t.selectionStart;t.setRangeText('\n',i,t.selectionEnd,'end');S.msgDraft=t.value}return}
+    e.preventDefault();if($('#mention-box button')){$('#mention-box button').click();return}$('#msg-form').requestSubmit();return;
+  }
   if(e.key==='/'&&!e.target.closest('input,textarea,select')&&$('#q')){e.preventDefault();$('#q').focus()}
   if(e.target.id==='q'&&e.key==='Enter'&&S.searchHits[0]){location.hash=S.searchHits[0][2];S.q='';e.target.blur()}
   if(e.target.id==='q'&&e.key==='Escape'){e.target.value='';showResults();e.target.blur()}
