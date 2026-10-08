@@ -1,5 +1,12 @@
 [
  {
+  "v": "2.18.0",
+  "date": "2026-10-08",
+  "notes": [
+   "Ana sayfa: kuşbakışı fotoğrafın üzerine gelince sokağa doğru yaklaşır, “Sokağa in” işaretine ya da fotoğrafa tıklayınca Google Haritalar’daki gibi sokağa inilir ve pazarın sokak fotoğrafları tam ekran açılır (oklar, kaydırma, Esc ile kuşbakışına dönüş)."
+  ]
+ },
+ {
   "v": "2.17.2",
   "date": "2026-10-08",
   "notes": [

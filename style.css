@@ -79,3 +79,36 @@ a.name-pill{cursor:pointer}
 @media(hover:none){.mk-float{display:none}.mk-poster-inline{display:block;width:min(220px,60vw);aspect-ratio:3/4;margin-inline:6px;border:6px solid #fff;box-shadow:0 10px 24px rgba(0,0,0,.18)}}
 @media(max-width:700px){.mk-row{grid-template-columns:40px 1fr 36px;gap:10px;padding:16px 2px}.mk-date{grid-column:2;grid-row:2;text-align:left;font-size:11px}.mk-pm{grid-column:3;grid-row:1/3;width:32px;height:32px;font-size:18px}}
 @media(prefers-reduced-motion:reduce){.mk-row::before,.mk-row>*,.mk-panel,.mk-float>.mk-poster{transition:none}}
+
+/* Sokağa in: kuşbakışından sokağa iniş ve tam ekran sokak fotoğrafları */
+.hero-media[data-dive]{cursor:zoom-in}
+.dive{position:absolute;inset:0;display:block;transform-origin:52% 64%;transition:transform 1.4s cubic-bezier(.25,.1,.25,1),filter .8s}
+.hero-media[data-dive]:hover .dive{transform:scale(1.35)}
+.hero-media.diving .dive{transform:scale(6);filter:blur(6px) brightness(1.15);transition:transform .85s cubic-bezier(.6,0,.9,.4),filter .85s}
+.hero-media.rising .dive{animation:sv-rise .9s cubic-bezier(.1,.6,.3,1) both}
+@keyframes sv-rise{from{transform:scale(4);filter:blur(5px)}to{transform:scale(1);filter:none}}
+.street-pin{position:absolute;left:52%;top:64%;transform:translate(-50%,-100%);display:flex;flex-direction:column;align-items:center;gap:8px;background:none;border:0;padding:0;cursor:zoom-in;color:var(--ink);font:inherit;transition:opacity .3s,transform .3s var(--ease)}
+.street-pin b{order:-1;background:var(--yellow);border:2px solid var(--ink);border-radius:999px;padding:7px 14px;font-size:13px;letter-spacing:.04em;white-space:nowrap;box-shadow:3px 3px 0 var(--ink);transition:transform .3s var(--ease)}
+.pin-dot{width:18px;height:18px;border-radius:50%;background:var(--orange);border:3px solid #fff;box-shadow:0 0 0 0 #df430999;animation:sv-ping 1.8s infinite}
+@keyframes sv-ping{70%{box-shadow:0 0 0 16px #df430900}100%{box-shadow:0 0 0 0 #df430900}}
+.hero-media[data-dive]:hover .street-pin b{transform:translateY(-4px) rotate(-3deg)}
+.hero-media.diving .street-pin{opacity:0;transform:translate(-50%,-100%) scale(.6)}
+.street-pin:focus-visible b{outline:3px solid var(--blue);outline-offset:3px}
+.street-view{position:fixed;inset:0;z-index:300;background:#111;color:#fff;opacity:0;visibility:hidden;transition:opacity .35s,visibility 0s .35s;touch-action:pan-y}
+.street-view.open{opacity:1;visibility:visible;transition:opacity .35s}
+.sv-lock,.sv-lock body{overflow:hidden}
+.sv-shot{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transform:scale(1.18);filter:blur(10px);transition:opacity .6s,transform 1.6s cubic-bezier(.15,.7,.2,1),filter 1s}
+.street-view.open .sv-shot.on{opacity:1;transform:scale(1);filter:none;animation:sv-drift 22s ease-in-out 1.6s infinite alternate}
+@keyframes sv-drift{to{transform:scale(1.07) translateX(-1.5%)}}
+.sv-top,.sv-bottom{position:absolute;left:0;right:0;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:22px 4vw;z-index:2}
+.sv-top{top:0;background:linear-gradient(#000a,#0000)}.sv-bottom{bottom:0;background:linear-gradient(#0000,#000b);flex-wrap:wrap}
+.sv-place{font-weight:800;letter-spacing:.08em;font-size:13px;background:var(--yellow);color:var(--ink);padding:7px 13px;border-radius:999px}
+.sv-close{width:52px;height:52px;border-radius:50%;border:0;background:#fff;color:var(--ink);font-size:30px;line-height:1;cursor:pointer}
+.sv-nav{position:absolute;top:50%;transform:translateY(-50%);z-index:2;width:58px;height:58px;border-radius:50%;border:2px solid #fff;background:#0004;color:#fff;font-size:34px;line-height:1;cursor:pointer;transition:background .2s}
+.sv-nav:hover{background:var(--orange);border-color:var(--orange)}.sv-prev{left:3vw}.sv-next{right:3vw}
+.sv-cap{margin:0;font-size:clamp(20px,3vw,38px);font-weight:800;line-height:1.1;max-width:22ch}
+.sv-dots{display:flex;gap:8px}.sv-dots button{width:34px;height:6px;border:0;border-radius:3px;background:#fff6;cursor:pointer;padding:0}.sv-dots button.on{background:var(--yellow)}
+.sv-up{border:2px solid #fff;background:none;color:#fff;border-radius:999px;padding:10px 18px;font:inherit;font-weight:700;cursor:pointer}.sv-up:hover{background:#fff;color:var(--ink)}
+@media(max-width:640px){.sv-nav{width:44px;height:44px;font-size:26px}.street-pin b{font-size:11px;padding:6px 11px}.sv-up{display:none}}
+@media(hover:none){.hero-media[data-dive]:hover .dive{transform:none}}
+@media(prefers-reduced-motion:reduce){.dive,.sv-shot{transition:none!important;animation:none!important}.hero-media.diving .dive{transform:none;filter:none}.pin-dot{animation:none}}
