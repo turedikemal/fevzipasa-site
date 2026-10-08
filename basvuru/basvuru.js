@@ -23,13 +23,15 @@ function question(f){
 // Telefonda çekilmiş büyük fotoğrafları gönderim öncesi küçültür.
 async function shrink(file){
   if(!/^image\/(jpeg|png|webp)$/.test(file.type))throw new Error('Sadece JPG, PNG veya WEBP yükleyebilirsin');
+  // Her görsel WEBP'ye çevrilir (en uzun kenar 2400 px).
   const bitmap=await createImageBitmap(file).catch(()=>null);
-  if(!bitmap||Math.max(bitmap.width,bitmap.height)<=2000&&file.size<3e6)return {name:file.name,type:file.type,blob:file};
-  const scale=2000/Math.max(bitmap.width,bitmap.height),c=document.createElement('canvas');
-  c.width=Math.round(bitmap.width*Math.min(1,scale));c.height=Math.round(bitmap.height*Math.min(1,scale));
+  if(!bitmap)return {name:file.name,type:file.type,blob:file};
+  const scale=Math.min(1,2400/Math.max(bitmap.width,bitmap.height)),c=document.createElement('canvas');
+  c.width=Math.round(bitmap.width*scale);c.height=Math.round(bitmap.height*scale);
   c.getContext('2d').drawImage(bitmap,0,0,c.width,c.height);
-  const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',.86));
-  return {name:file.name.replace(/\.\w+$/,'.jpg'),type:'image/jpeg',blob};
+  const blob=await new Promise(r=>c.toBlob(r,'image/webp',.86));
+  if(!blob||blob.type!=='image/webp')return {name:file.name,type:file.type,blob:file};
+  return {name:file.name.replace(/\.\w+$/,'')+'.webp',type:'image/webp',blob};
 }
 const b64=blob=>new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(String(r.result).split(',')[1]);r.onerror=rej;r.readAsDataURL(blob)});
 

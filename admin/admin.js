@@ -167,7 +167,7 @@ async function titleCycle(lines){
 // --- Yönlendirme ---
 function route(){const [path,q]=location.hash.slice(2).split('?');const [view='',id]=path.split('/');return {view:view||'genel',id,q:new URLSearchParams(q||'')}}
 const verLabel=()=>S.versions?.[0]?`sürüm ${S.versions[0].v} · ${date(S.versions[0].date).toLocaleLowerCase('tr')}`:'';
-const navAll=[['genel','Genel bakış'],['pazarlar','Pazarlar'],['formlar','Formlar'],['basvurular','Başvurular'],['katilimcilar','Katılımcılar'],['workshoplar','Workshoplar'],['kasa','Kasa','ledgerRead'],['gorseller','Görseller'],['gorevler','Görevler',()=>S.d.taskAccess],['puanlama','Puanlama',()=>P('rate')||isAna()],['yoneticiler','Kullanıcılar']];
+const navAll=[['genel','Genel bakış'],['pazarlar','Pazarlar'],['formlar','Formlar'],['basvurular','Başvurular'],['katilimcilar','Katılımcılar'],['workshoplar','Workshoplar'],['kasa','Kasa','ledgerRead'],['gorseller','Görseller'],['gorevler','Görevler',()=>S.d.taskAccess],['puanlama','Puanlama',()=>P('rate')||isAna()],['mesajlar','Mesajlar','chat'],['yoneticiler','Kullanıcılar']];
 const nav=()=>navAll.filter(([,,perm])=>!perm||(typeof perm==='function'?perm():P(perm)));
 const pages={};
 const demoBar=r=>!isAna()?'':S.d.demo?`<div class="demobar"><span><b>Örnek verileri görüyorsun.</b> Pazarlar, katılımcılar, ödemeler, workshoplar, kasa ve yöneticilerde “örnek” işaretli kayıtlar var. Gerçek kayıtlarına dokunulmadı.</span><button class="btn sm dark" data-act="demo-all-del">Örnekleri sil</button></div>`
@@ -183,7 +183,7 @@ function render(){
   const N=nav(),ni=N.findIndex(([k])=>k===r.view),eyebrow=!r.id&&ni>=0?`<p class="eyebrow">${String(ni+1).padStart(2,'0')} / ${N[ni][1].toLocaleUpperCase('tr')}</p>`:'';
   $('#app').innerHTML=`<header class="bar"><div class="bar-top"><a class="wordmark" href="#/">FEVZİPAŞA<br>TASARIM PAZARI<span>YÖNETİM PANELİ</span></a>
   <div class="bar-right"><a class="acc ${r.view==='hesap'?'on':''}" href="#/hesap">Hesabım · ${esc(S.d.me.name.split(' ')[0])}</a><a class="nav-pill" href="/" target="_blank">Site <span>↗</span></a><button class="acc out" data-act="logout">Çıkış</button><button class="menu-btn" data-act="menu">Menü</button></div></div>
-  <nav id="side">${N.map(([k,t])=>`<a href="#/${k}" class="${r.view===k?'on':''}">${t}${k==='basvurular'&&newCount?`<b>${newCount}</b>`:''}</a>`).join('')}</nav></header>
+  <nav id="side">${N.map(([k,t])=>`<a href="#/${k}" class="${r.view===k?'on':''}">${t}${k==='basvurular'&&newCount?`<b>${newCount}</b>`:''}${k==='mesajlar'&&unreadMsgs()?`<b>${unreadMsgs()}</b>`:''}</a>`).join('')}</nav></header>
   <div class="tools"><div class="search"><input id="q" placeholder="⌕  Ara…  ( / )" autocomplete="off" value="${esc(S.q||'')}"><div id="results"></div></div>
   <label class="market-pick"><span class="mono hide-sm">PAZAR</span><select id="market-pick">${opts([['all','Tüm pazarlar'],...S.d.markets.map(m=>[m.id,m.name])],S.market)}</select></label></div>
   <main class="page">${r.view!=='genel'||r.id?`<button class="back" data-act="back">← Geri</button>`:''}${demoBar(r)}${eyebrow}${page}</main>
@@ -272,7 +272,7 @@ pages.pazarlar=r=>{
 function marketPage(r){
   const m=mk(r.id);if(!m)return '<div class="empty">Pazar bulunamadı.</div>';
   const s=marketStats(m),byStatus=k=>s.apps.filter(a=>a.status===k).length;
-  const cats=S.d.mediaCategories.map(c=>[c,s.media.filter(x=>x.category===c).length]).filter(([,n])=>n);
+  const cats=gCats().map(c=>[c,s.media.filter(x=>x.category===c).length]).filter(([,n])=>n);
   const k=P('ledgerRead')?kasa(m.id):null,fs=k?feeSum(feeRows(m.id)):null;
   const states={};for(const p of S.d.participants){const st=joinState(p,m);if(st)states[st]=(states[st]||0)+1}
   return `<div class="crumb"><a href="#/pazarlar">PAZARLAR</a> / SIRA NO ${String(m.edition||'').padStart(2,'0')}</div><div class="head"><div><h1>${esc(m.name)}</h1><p>${marketRange(m)} · ${esc(m.hours)} · ${esc(m.location)} ${pill('market',m.status)}${m.fee?` · katılım ücreti ${money(m.fee)}`:''}</p></div>
@@ -401,7 +401,7 @@ function appPage(id){
   const queue=S.d.applications.filter(x=>x.status==='yeni'&&x.id!==id&&inScope(x.marketId));
   const knownMarkets=known?known.markets.map(mk).filter(Boolean):[];
   return `<div class="crumb"><a href="#/basvurular">BAŞVURULAR</a> / <a href="#/basvurular?form=${a.formId}">${esc(form?.title||'')}</a></div>
-  <div class="head"><div><h1>${esc(appName(a))}</h1><p>${pill('app',a.status)}${a.demo?' <span class="pill">örnek başvuru</span>':''} · ${date(a.createdAt)} · ${esc(mk(a.marketId)?.name||'')}${a.reviewedBy?` · son işlem: ${esc(ad(a.reviewedBy)?.name||'')}`:''}</p></div>${queue.length?`<a class="btn" href="#/basvurular/${queue[0].id}">Sıradaki yeni başvuru →</a>`:''}</div>
+  <div class="head"><div><h1>${esc(appName(a))}</h1><p>${pill('app',a.status)}${a.demo?' <span class="pill">örnek başvuru</span>':''} · ${date(a.createdAt)} · ${esc(mk(a.marketId)?.name||'')}${a.reviewedBy?` · son işlem: ${esc(ad(a.reviewedBy)?.name||'')}`:''}</p></div><div class="head-side">${brandSummary(known)}<span class="row">${P('chat')?`<a class="btn sm" href="#/mesajlar?ref=application:${a.id}">Ekibe sor · oylama aç</a>`:''}${queue.length?`<a class="btn sm" href="#/basvurular/${queue[0].id}">Sıradaki yeni başvuru →</a>`:''}</span></div></div>
   <div class="drawer-grid"><div class="card"><h3>Yanıtlar</h3><dl class="answers">${(form?.fields||[]).filter(f=>f.type!=='heading').map(f=>{const v=a.answers[f.id];return `<dt>${esc(f.label).toLocaleUpperCase('tr')}</dt><dd>${f.type==='file'?`<div class="thumbs" style="grid-template-columns:repeat(auto-fill,minmax(110px,1fr))">${(v||[]).map(md).filter(Boolean).map(m=>`<button class="thumb" data-act="media-open" data-v="${m.id}"><span class="img">${thumb(m)}</span></button>`).join('')||'—'}</div>`:f.type==='consent'?(v?'✓ Onaylandı':'—'):Array.isArray(v)?esc(v.join(', '))||'—':f.type==='email'&&v?`<a href="mailto:${esc(v)}">${esc(v)}</a>`:f.mapTo==='instagram'&&v?igLink(v):f.type==='url'&&v?`<a href="${esc(/^https?:/.test(v)?v:'https://'+v)}" target="_blank" rel="noopener">${esc(v)}</a>`:esc(v)||'—'}</dd>`}).join('')}</dl></div>
   <div style="display:grid;gap:16px">
   ${known?`<a class="known" href="#/katilimcilar/${known.id}"><span class="known-disc"><b>${knownMarkets.length}</b><small>PAZAR</small></span><span class="known-body"><span class="mono">${a.participantId?'KATILIMCI KARTI':'TANIDIK MARKA · DAHA ÖNCE KATILDI'}</span><b>${esc(known.brandName)}</b>${miniTl(known)}${sc(known.id)?`<small>Sadakat ${sc(known.id).points} puan · skor ${sc(known.id).score}/10${sc(known.id).reco==='kara'?' · <span class="pill s-red">kara listede</span>':''}</small>`:''}</span><i class="known-go">→</i></a>`:''}
@@ -458,16 +458,26 @@ function partList2(list,m){
   <tbody>${list.map((p,i)=>`<tr class="click" data-href="#/katilimcilar/${p.id}"><td>${i+1}</td><td><b>${esc(p.brandName)}</b></td><td>${esc(p.contactName||'—')}</td><td>${esc(p.phone||'—')}</td><td>${esc(p.email||'—')}</td><td>${esc(p.instagram||'—')}</td><td><small>${esc(p.category||'')}</small></td></tr>`).join('')}</tbody></table></div>`;
 }
 // Puan kartı: sadakat puanı, yönetici puanları ve öneri. Kimin kaç puan verdiğini yalnızca ana yönetici görür.
+// Yöneticilere özel marka özeti: başlığın sağında. Katılımcı panelinde yoktur.
+function brandSummary(p){
+  if(!p)return '';
+  if(isStaffBrand(p.id))return `<a class="bsum" href="#/katilimcilar/${p.id}"><span class="mono">YÖNETİCİ MARKASI</span><b>Puanlamaya girmez</b></a>`;
+  const x=sc(p.id);if(!x)return '';
+  return `<a class="bsum r-${x.reco}" href="#/puanlama?sekme=oneri"><span class="mono">YÖNETİCİ ÖZETİ</span><span class="bsum-row"><span><b>${x.score}</b><small>skor</small></span><span><b>${x.points}</b><small>sadakat</small></span><span><b>${x.avg??'—'}</b><small>ekip ort.</small></span><span><b>%${x.discount}</b><small>indirim</small></span></span><span class="bsum-reco">${recoName[x.reco]}</span></a>`;
+}
 const recoName={katil:'Sonraki pazara katılsın',katilma:'Sonraki pazara katılmasın',kara:'Kara listede'};
 function myRating(id){return S.d.ratings.find(r=>r.participantId===id&&r.adminId===S.d.me.id)}
-function rateSelect(id){const r=myRating(id);return `<select class="inp rate" data-rate="${id}" aria-label="Puan ver"><option value="">—</option>${Array.from({length:21},(_,i)=>i/2).map(v=>`<option value="${v}" ${r&&r.score===v?'selected':''}>${String(v).replace('.',',')}</option>`).join('')}</select>`}
+function rateSelect(id){const r=myRating(id),v=r?r.score:0;return `<span class="rate10" role="group" aria-label="Puan ver">${Array.from({length:10},(_,i)=>i+1).map(n=>`<button type="button" data-act="rate" data-p="${id}" data-v="${n}" class="${n<=v?'on':''} ${n===v?'cur':''}" style="--i:${n}">${n}</button>`).join('')}</span>`}
+const isStaffBrand=id=>(S.d.staffBrands||[]).includes(id);
+const rateable=()=>S.d.participants.filter(p=>!isStaffBrand(p.id));
 function scoreCard(p){
+  if(isStaffBrand(p.id))return '<div class="card"><h3>Puan ve sadakat</h3><p class="muted" style="margin:0">Bu bir yönetici markası; puanlamaya ve öneri listesine girmez.</p></div>';
   const x=sc(p.id);if(!x)return '';
   const rs=isAna()?S.d.ratings.filter(r=>r.participantId===p.id):[];
   return `<div class="card"><h3>Puan ve sadakat ${isAna()||P('rate')?'<a class="btn sm ghost" href="#/puanlama?sekme=oneri">Öneri listesi →</a>':''}</h3>
   <div class="scorebox"><div><span class="mono">SADAKAT</span><b>${x.points}</b><small>puan · ${x.attended} pazar</small></div><div><span class="mono">SKOR</span><b>${x.score}</b><small>/ 10${x.avg!=null?` · ekip ort. ${x.avg}`:''}</small></div><div><span class="mono">İNDİRİM</span><b>%${x.discount}</b><small>sadakat indirimi</small></div></div>
   <p class="reco r-${x.reco}">${recoName[x.reco]}${x.moved?' · ana yönetici yerini değiştirdi':''}</p>
-  ${P('rate')||isAna()?`<label class="f">Senin puanın <small>0–10 · diğer yöneticiler görmez</small>${rateSelect(p.id)}</label>`:''}
+  ${P('rate')||isAna()?`<div class="f">Senin puanın <small>1–10 · aynı sayıya tekrar basarsan silinir · diğer yöneticiler görmez</small>${rateSelect(p.id)}</div>`:''}
   ${isAna()&&rs.length?`<div class="list">${rs.map(r=>`<div class="item"><span>${esc(ad(r.adminId)?.name||'—')}${r.note?`<br><small class="muted">${esc(r.note)}</small>`:''}</span><b>${r.score}</b></div>`).join('')}</div>`:''}</div>`;
 }
 function partTable(list,m,bulk){
@@ -498,7 +508,7 @@ function participantPage(id){
   let streak=0;for(const m of [...ms].reverse()){if(p.markets.includes(m.id))streak++;else if(streak)break}
   const similar=S.d.participants.filter(x=>x.id!==id&&p.category&&x.category===p.category).map(x=>({x,shared:x.markets.filter(mm=>p.markets.includes(mm)).length})).sort((a,b)=>b.shared-a.shared||a.x.brandName.localeCompare(b.x.brandName,'tr')).slice(0,8);
   const ws=S.d.workshops.filter(w=>w.participantId===id);
-  return `<div class="crumb"><a href="#/katilimcilar">KATILIMCILAR</a> / ${esc((p.category||'').toLocaleUpperCase('tr'))}</div><div class="head"><div class="pcard">${avatar(p)}<div><h1>${esc(p.brandName)}</h1><p>${esc(p.category)}${p.instagram?' · '+igLink(p.instagram):''} · ${joined.length} pazar · ${loyalty(joined.length)}${ownerName(p)?` · kaydı giren: ${esc(ownerName(p))}`:''}</p></div></div>${P('participantDelete')&&mine(p)?`<button class="btn danger" data-act="part-del" data-v="${id}">Sil</button>`:''}</div>
+  return `<div class="crumb"><a href="#/katilimcilar">KATILIMCILAR</a> / ${esc((p.category||'').toLocaleUpperCase('tr'))}</div><div class="head"><div class="pcard">${avatar(p)}<div><h1>${esc(p.brandName)}</h1><p>${esc(p.category)}${p.instagram?' · '+igLink(p.instagram):''} · ${joined.length} pazar · ${loyalty(joined.length)}${ownerName(p)?` · kaydı giren: ${esc(ownerName(p))}`:''}</p></div></div><div class="head-side">${brandSummary(p)}<span class="row">${P('chat')?`<a class="btn sm" href="#/mesajlar?ref=participant:${id}">Ekibe sor</a>`:''}${P('participantDelete')&&mine(p)?`<button class="btn sm danger" data-act="part-del" data-v="${id}">Sil</button>`:''}</span></div></div>
   ${ro&&P('participantWrite')?`<p class="note">Bu kartı ${esc(ownerName(p)||'başka bir yönetici')} girdi. Yalnızca o ya da ana yönetici değiştirebilir.</p>`:''}
   ${p.pending?`<div class="warnbox"><b>${esc(ad(p.pending.by)?.name||'Katılımcı')} marka bilgilerini değiştirdi, onay bekliyor.</b><table class="diff"><thead><tr><th>ALAN</th><th>ŞU AN</th><th>YENİ</th></tr></thead><tbody>${Object.entries(p.pending.changes).map(([k,v])=>`<tr><td>${esc(L.pf?.[k]||k)}</td><td>${esc(p[k]||'—')}</td><td><b>${esc(v||'—')}</b></td></tr>`).join('')}</tbody></table>${P('changeApprove')?`<div class="row"><button class="btn sm dark" data-act="change-ok" data-v="${id}">Onayla ve yayımla</button><button class="btn sm" data-act="change-no" data-v="${id}">Reddet</button></div>`:'<small>Organizatör ya da yönetici onaylayacak.</small>'}</div>`:''}
   <div class="drawer-grid"><form class="card" id="part-form" style="display:grid;gap:14px"><h3 style="margin:0">Bilgiler</h3>${participantForm(p,ro)}${ro?'':'<div class="row"><button class="btn primary">Kaydet ve listeye dön</button><button type="button" class="btn ghost" data-act="part-save-stay">Kaydet, burada kal</button></div>'}</form>
@@ -691,9 +701,12 @@ function importModal(kind){
 
 // --- Görsel deposu ---
 const mediaThumb=m=>`<button class="thumb ${m.category==='Logo'?'is-logo':''}" data-act="media-open" data-v="${m.id}"><span class="img">${thumb(m)}</span><span class="cap"><b>${esc(m.title)}</b><small class="muted">${esc(m.category)}${m.participantId?' · '+esc(pt(m.participantId)?.brandName||''):''}</small></span></button>`;
+// Fatura ve fişler kasada kalır, görsel deposunda görünmez.
+const gCats=()=>S.d.mediaCategories.filter(c=>c!=='Fatura & fiş');
+const gMedia=()=>S.d.media.filter(m=>m.category!=='Fatura & fiş');
 pages.gorseller=r=>{
   const q=r.q,mq=q.get('m')||(S.market==='all'?'':S.market),cat=q.get('c'),who=q.get('k'),s=(q.get('ara')||'').toLocaleLowerCase('tr');
-  let list=S.d.media;
+  let list=gMedia();
   if(mq)list=list.filter(m=>mq==='genel'?!m.marketId:m.marketId===mq);
   if(cat)list=list.filter(m=>m.category===cat);
   if(who)list=list.filter(m=>m.participantId===who);
@@ -701,20 +714,29 @@ pages.gorseller=r=>{
   const link=(m,c)=>`#/gorseller?${new URLSearchParams(Object.entries({m,c}).filter(([,v])=>v))}`;
   const brandLink=(m,k)=>`#/gorseller?${new URLSearchParams(Object.entries({m,k}).filter(([,v])=>v))}`;
   const brands=items=>{const by={};for(const x of items)if(x.participantId)by[x.participantId]=(by[x.participantId]||0)+1;const e=Object.entries(by).sort((a,b)=>(pt(a[0])?.brandName||'').localeCompare(pt(b[0])?.brandName||'','tr'));return e.length?`<span class="sub-h mono">MARKALAR</span>${e.map(([pid,n])=>`<a class="sub brand ${who===pid?'on':''}" href="${brandLink(mq,pid)}">📁 ${esc(pt(pid)?.brandName||'—')} <small>${n}</small></a>`).join('')}`:''};
-  const folder=(key,name,items)=>{const on=mq===key;return `<a href="${link(key)}" class="${on&&!cat&&!who?'on':''}">📁 ${esc(name)} <small>${items.length}</small></a>${on?brands(items):''}${on?S.d.mediaCategories.map(c=>[c,items.filter(x=>x.category===c).length]).map(([c,n])=>`<a class="sub ${cat===c?'on':''}" href="${link(key,c)}">${esc(c)} <small>${n}</small></a>`).join(''):''}`};
+  const folder=(key,name,items)=>{const on=mq===key;return `<a href="${link(key)}" class="${on&&!cat&&!who?'on':''}">📁 ${esc(name)} <small>${items.length}</small></a>${on?brands(items):''}${on?gCats().map(c=>[c,items.filter(x=>x.category===c).length]).map(([c,n])=>`<a class="sub ${cat===c?'on':''}" href="${link(key,c)}">${esc(c)} <small>${n}</small></a>`).join(''):''}`};
   const drive=isAna()?`<div class="drivebar"><span><b>Google Drive</b> ${S.d.settings.driveDir?`yüklenen her görsel <code>${esc(S.d.settings.driveDir)}</code> klasörüne aynı düzenle kopyalanıyor.`:'bağlı değil. Bağlarsan her görsel Drive klasörüne pazar › marka düzeniyle kopyalanır.'}</span><span class="row">${S.d.settings.driveDir?'<button class="btn sm" data-act="drive-sync">Şimdi eşitle</button>':''}<button class="btn sm dark" data-act="drive-save">${S.d.settings.driveDir?'Klasörü değiştir':'Drive’a bağla'}</button></span></div>`:'';
   return drive+`<div class="head"><div><h1>Görsel deposu</h1><p>Her pazarın kendi klasörü; içinde markalar ve kategoriler. Logolar “Logo” klasöründe, kare alana sığdırılarak gösterilir.</p></div>${P('mediaWrite')?`<button class="btn primary" data-act="upload" data-market="${mq==='genel'?'':esc(mq)}" data-cat="${esc(cat||'')}" data-participant="${esc(who||'')}">+ Yükle</button>`:''}</div>
-  <div class="media-layout"><nav class="tree"><a href="#/gorseller?m=" class="${!mq?'on':''}">Tüm dosyalar <small>${S.d.media.length}</small></a>
-  ${S.d.markets.map(m=>folder(m.id,m.name,S.d.media.filter(x=>x.marketId===m.id))).join('')}${folder('genel','Genel (pazarsız)',S.d.media.filter(x=>!x.marketId))}</nav>
-  <div><div class="filters"><input data-nav-m="ara" placeholder="Başlık, etiket, marka ara" value="${esc(q.get('ara')||'')}"><select data-nav-m="c">${opts(S.d.mediaCategories.map(c=>[c,c]),cat||'','Tüm kategoriler')}</select><select data-nav-m="k">${opts(S.d.participants.map(p=>[p.id,p.brandName]),who||'','Tüm katılımcılar')}</select></div>
+  <div class="media-layout"><nav class="tree"><a href="#/gorseller?m=" class="${!mq?'on':''}">Tüm dosyalar <small>${gMedia().length}</small></a>
+  ${S.d.markets.map(m=>folder(m.id,m.name,gMedia().filter(x=>x.marketId===m.id))).join('')}${folder('genel','Genel (pazarsız)',gMedia().filter(x=>!x.marketId))}</nav>
+  <div><div class="filters"><input data-nav-m="ara" placeholder="Başlık, etiket, marka ara" value="${esc(q.get('ara')||'')}"><select data-nav-m="c">${opts(gCats().map(c=>[c,c]),cat||'','Tüm kategoriler')}</select><select data-nav-m="k">${opts(S.d.participants.map(p=>[p.id,p.brandName]),who||'','Tüm katılımcılar')}</select></div>
   ${P('mediaWrite')?`<div class="drop" id="drop" data-market="${mq==='genel'?'':esc(mq)}" data-cat="${esc(cat||'')}" data-participant="${esc(who||'')}" style="margin-bottom:16px">Dosyaları buraya sürükle ya da <button class="btn sm" data-act="upload" data-market="${mq==='genel'?'':esc(mq)}" data-cat="${esc(cat||'')}" data-participant="${esc(who||'')}">seç</button><br><small class="muted">${mq?esc(mq==='genel'?'Genel':mk(mq)?.name||''):'Klasör seçmeden yüklersen pazarı sorarız'}${cat?' / '+esc(cat):''}</small></div>`:''}
   ${list.length?`<div class="thumbs">${list.map(mediaThumb).join('')}</div>`:'<div class="empty">Bu klasör boş.</div>'}</div></div>`;
 };
-function readFiles(files){return Promise.all([...files].map(f=>new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res({name:f.name,type:f.type,data:String(r.result).split(',')[1]});r.onerror=rej;r.readAsDataURL(f)})))}
+// Fotoğraflar yüklenmeden önce tarayıcıda WEBP'ye çevrilir (en uzun kenar 2700 px). SVG, GIF ve PDF olduğu gibi gider.
+async function toWebp(f){
+  if(!/^image\/(jpeg|png|webp|bmp|heic|heif)$/.test(f.type))return f;
+  const bm=await createImageBitmap(f).catch(()=>null);if(!bm)return f;
+  const k=Math.min(1,2700/Math.max(bm.width,bm.height)),c=document.createElement('canvas');c.width=Math.round(bm.width*k);c.height=Math.round(bm.height*k);
+  c.getContext('2d').drawImage(bm,0,0,c.width,c.height);
+  const b=await new Promise(r=>c.toBlob(r,'image/webp',.86));
+  return b&&b.type==='image/webp'?new File([b],f.name.replace(/\.\w+$/,'')+'.webp',{type:'image/webp'}):f;
+}
+function readFiles(files){return Promise.all([...files].map(async f0=>{const f=await toWebp(f0);return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res({name:f.name,type:f.type,data:String(r.result).split(',')[1]});r.onerror=rej;r.readAsDataURL(f)})}))}
 function uploadModal(preset,files){
   const logo=preset.cat==='Logo';
   modal(`<span class="mono">${logo?'LOGO':'YÜKLE'}</span><h2>${logo?'Logo yükle':'Görsel yükle'}</h2>${files?`<p style="margin:0"><b>${files.length}</b> dosya seçildi.</p>`:field('Dosyalar',`<input type="file" name="files" ${logo?'':'multiple'} accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml,application/pdf" required>`,'JPG, PNG, WEBP, GIF, SVG, PDF · en fazla 15 MB')}
-  <div class="grid g2">${field('Pazar klasörü',`<select name="marketId">${marketOpts(preset.market||(S.market==='all'?'':S.market),'Genel (pazarsız)')}</select>`)}${field('Kategori',`<select name="category">${opts(S.d.mediaCategories.map(c=>[c,c]),preset.cat||'Etkinlik fotoğrafları')}</select>`)}</div>
+  <div class="grid g2">${field('Pazar klasörü',`<select name="marketId">${marketOpts(preset.market||(S.market==='all'?'':S.market),'Genel (pazarsız)')}</select>`)}${field('Kategori',`<select name="category">${opts(gCats().map(c=>[c,c]),preset.cat||'Etkinlik fotoğrafları')}</select>`)}</div>
   ${field('Katılımcı',`<select name="participantId">${opts(S.d.participants.map(p=>[p.id,p.brandName]),preset.participant||'','— bağlama —')}</select>`)}${field('Etiketler',`<input name="tags" placeholder="afiş, instagram, gece">`,'virgülle ayır')}
   ${actions2('Yükle')}`,
   async(d,form)=>{
@@ -766,16 +788,16 @@ const permTable=[
   ['Kendi marka profilini düzenleme (onayla)',['katilimci']]
 ];
 pages.yoneticiler=r=>{
-  if(r.id)return trailPage(r.id);
+  if(r.id){if(r.q.get('iz'))return trailPage(r.id);const u=ad(r.id);return u?userProfile(u,u.id===S.d.me.id):'<div class="empty">Kullanıcı bulunamadı.</div>'}
   const week=a=>S.d.activity.filter(x=>x.adminId===a.id&&Date.now()-new Date(x.at)<7*864e5).length;
   const can=a=>a.role!=='ana'&&a.id!==S.d.me.id&&(S.d.assignable||[]).includes(a.role);
   const staffRoles=(S.d.assignable||[]).filter(k=>k!=='katilimci');
   const prt=a=>a.participantId?pt(a.participantId):null;
   return `<div class="head"><div><h1>Kullanıcılar</h1><p>Yöneticiler, organizatörler, editörler ve katılımcılar aynı giriş sayfasından girer; herkes rolünün izin verdiği alanı görür.</p></div>${P('users')?'<button class="btn primary" data-act="admin-new">+ Kullanıcı ekle</button>':''}</div>
   <button class="info-btn" data-act="roles-info"><span>i</span>Roller ve yetki kuralları</button>
-  <div class="table-wrap" style="margin-top:30px"><table class="admins"><thead><tr><th>AD</th><th class="hide-sm">E-POSTA</th><th>ROL</th><th class="hide-sm">SON GİRİŞ</th>${isAna()?'<th class="hide-sm">7 GÜN</th>':''}<th></th></tr></thead>${roleOrder.map(k=>{const list=S.d.admins.filter(a=>a.role===k).sort((a,b)=>(a.active===false)-(b.active===false)||a.name.localeCompare(b.name,'tr'));return list.length?`<tbody><tr class="group"><td colspan="${isAna()?6:5}"><b>${esc(S.d.roles[k])}</b> <span class="mono muted">${list.length} KİŞİ</span></td></tr>${list.map(a=>`<tr${isAna()?` class="click" data-href="#/yoneticiler/${a.id}"`:''}><td><b>${esc(a.name)}</b>${a.id===S.d.me.id?' <span class="pill">sen</span>':''}${a.active===false?' <span class="pill s-red">pasif</span>':''}${a.demo?' <span class="pill demo">örnek</span>':''}${prt(a)?`<br><small class="muted">Marka: <a href="#/katilimcilar/${a.participantId}">${esc(prt(a).brandName)}</a></small>`:''}${a.claim&&pt(a.claim)?`<br><small class="claim">“${esc(pt(a.claim).brandName)}” markasıyla eşleşmek istiyor ${P('users')?`<button class="btn sm dark" data-act="claim-link" data-v="${a.id}" data-ok="1">Eşleştir</button> <button class="btn sm" data-act="claim-link" data-v="${a.id}" data-ok="0">Reddet</button>`:''}</small>`:''}${a.selfSignup?' <span class="pill">kendi kaydı</span>':''}</td><td class="hide-sm">${esc(a.email)}</td>
+  <div class="table-wrap" style="margin-top:30px"><table class="admins"><thead><tr><th>AD</th><th class="hide-sm">E-POSTA</th><th>ROL</th><th class="hide-sm">SON GİRİŞ</th>${isAna()?'<th class="hide-sm">7 GÜN</th>':''}<th></th></tr></thead>${roleOrder.map(k=>{const list=S.d.admins.filter(a=>a.role===k).sort((a,b)=>(a.active===false)-(b.active===false)||a.name.localeCompare(b.name,'tr'));return list.length?`<tbody><tr class="group"><td colspan="${isAna()?6:5}"><b>${esc(S.d.roles[k])}</b> <span class="mono muted">${list.length} KİŞİ</span></td></tr>${list.map(a=>`<tr class="click" data-href="#/yoneticiler/${a.id}"><td><b>${esc(a.name)}</b>${a.id===S.d.me.id?' <span class="pill">sen</span>':''}${a.active===false?' <span class="pill s-red">pasif</span>':''}${a.demo?' <span class="pill demo">örnek</span>':''}${prt(a)?`<br><small class="muted">Marka: <a href="#/katilimcilar/${a.participantId}">${esc(prt(a).brandName)}</a></small>`:''}${a.claim&&pt(a.claim)?`<br><small class="claim">“${esc(pt(a.claim).brandName)}” markasıyla eşleşmek istiyor ${P('users')?`<button class="btn sm dark" data-act="claim-link" data-v="${a.id}" data-ok="1">Eşleştir</button> <button class="btn sm" data-act="claim-link" data-v="${a.id}" data-ok="0">Reddet</button>`:''}</small>`:''}${a.selfSignup?' <span class="pill">kendi kaydı</span>':''}</td><td class="hide-sm">${esc(a.email)}</td>
   <td>${can(a)&&a.role!=='katilimci'?`<select class="inp" style="width:auto" data-admin-role="${a.id}">${opts(staffRoles.map(k=>[k,S.d.roles[k]]),a.role)}</select>`:`<span class="pill r-${a.role}">${esc(S.d.roles[a.role])}</span>`}</td><td class="hide-sm"><small>${a.lastLoginAt?ago(a.lastLoginAt):'—'}</small></td>${isAna()?`<td class="hide-sm"><small>${week(a)} işlem</small></td>`:''}
-  <td style="text-align:right;white-space:nowrap">${isAna()?`<a class="btn sm" href="#/yoneticiler/${a.id}">İz haritası</a> `:''}${can(a)?`<button class="btn sm" data-act="admin-pass" data-v="${a.id}">Şifre</button> <button class="btn sm" data-act="admin-toggle" data-v="${a.id}">${a.active===false?'Etkinleştir':'Pasifleştir'}</button>`:''}</td></tr>`).join('')}</tbody>`:''}).join('')}</table></div>
+  <td style="text-align:right;white-space:nowrap"><a class="btn sm" href="#/yoneticiler/${a.id}">Profil</a> ${can(a)?`<button class="btn sm" data-act="admin-pass" data-v="${a.id}">Şifre</button> <button class="btn sm" data-act="admin-toggle" data-v="${a.id}">${a.active===false?'Etkinleştir':'Pasifleştir'}</button>`:''}</td></tr>`).join('')}</tbody>`:''}).join('')}</table></div>
   <div class="card" style="margin-top:50px"><h3>Kim ne yapabilir?</h3><div class="table-wrap"><table class="perm"><thead><tr><th>YETKİ</th>${roleOrder.filter(k=>k!=='ana'||isAna()).map(k=>`<th class="c">${esc(S.d.roles[k]).toLocaleUpperCase('tr')}</th>`).join('')}</tr></thead><tbody>${permTable.map(([t,rs])=>`<tr><td>${t}</td>${roleOrder.filter(k=>k!=='ana'||isAna()).map(k=>`<td class="c">${rs.includes(k)?'<span class="dot on">✓</span>':'<span class="dot">–</span>'}</td>`).join('')}</tr>`).join('')}</tbody></table></div></div>`;
 };
 function trailPage(id){
@@ -783,7 +805,7 @@ function trailPage(id){
   const a=ad(id);if(!a)return '<div class="empty">Yönetici bulunamadı.</div>';
   if(S.trail?.id!==id){S.trail={id,list:null};call('GET','/api/activity?admin='+id).then(list=>{S.trail={id,list};render()}).catch(e=>toast(e.message,true))}
   const list=S.trail.list;
-  const head=`<div class="crumb"><a href="#/yoneticiler">YÖNETİCİLER</a> / İZ HARİTASI</div><div class="head"><div><h1>${esc(a.name)}</h1><p><span class="pill r-${a.role}">${esc(S.d.roles[a.role])}</span> · ${esc(a.email)} · son giriş ${a.lastLoginAt?ago(a.lastLoginAt):'—'}</p></div></div>`;
+  const head=`<div class="crumb"><a href="#/yoneticiler">KULLANICILAR</a> / <a href="#/yoneticiler/${id}">${esc(a.name.toLocaleUpperCase('tr'))}</a> / İZ HARİTASI</div><div class="head"><div><h1>${esc(a.name)}</h1><p><span class="pill r-${a.role}">${esc(S.d.roles[a.role])}</span> · ${esc(a.email)} · son giriş ${a.lastLoginAt?ago(a.lastLoginAt):'—'}</p></div></div>`;
   if(!list)return head+'<div class="empty">Yükleniyor…</div>';
   const days={};for(const x of list){const d=x.at.slice(0,10);days[d]=(days[d]||0)+1}
   const max=Math.max(1,...Object.values(days)),cells=[];
@@ -798,15 +820,63 @@ function trailPage(id){
   <div class="card cats"><h3>Ne üzerinde çalışmış</h3>${Object.entries(types).sort((a,b)=>b[1]-a[1]).map(([t,n])=>`<div class="c"><div><span>${esc(tName[t]||t)}</span><b>${n}</b></div><div class="bar-meter"><i style="width:${n/list.length*100}%"></i></div></div>`).join('')}</div></div>`;
 }
 pages.hesap=()=>{
-  const me=S.d.me,dt=x=>x?new Date(x).toLocaleString('tr-TR',{day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'}):'—';
-  return `<div class="head"><div><h1>Hesabım</h1><p>${esc(me.name)} · <span class="pill r-${me.role}">${esc(S.d.roles[me.role])}</span></p></div><button class="btn" data-act="logout">Çıkış yap</button></div>
-  <div class="grid split"><div class="card"><h3>Hesap bilgileri</h3><div class="list">
-  <div class="item"><span>E-posta</span><b>${esc(me.email)}</b></div>
-  <div class="item"><span>Rol</span><b>${esc(S.d.roles[me.role])}</b></div>
-  <div class="item"><span>Hesap açılışı</span><b>${dt(me.createdAt)}</b></div>
-  <div class="item"><span>Son giriş</span><b>${dt(me.lastLoginAt)}</b></div></div>
-  <p class="muted" style="margin-top:18px"><b>Bu rolde neler yapabilirsin:</b> ${esc(roleDesc[me.role]||'')}</p></div>
-  <form class="card" id="me-form" style="display:grid;gap:12px;align-content:start"><h3 style="margin:0">Bilgilerini güncelle</h3>${field('Ad soyad',`<input name="name" value="${esc(me.name)}">`)}${field('Yeni şifre','<input name="password" type="password" minlength="8" autocomplete="new-password">','değiştirmeyeceksen boş bırak · en az 8 karakter')}<button class="btn primary" style="justify-self:start">Kaydet</button><small class="muted">E-posta ya da rol değişikliği için ana yöneticiye yaz.</small></form></div>`;
+  const me=S.d.me;
+  return userProfile(me,true)+`<form class="card" id="me-form" style="display:grid;gap:12px;align-content:start;margin-top:40px;max-width:640px"><h3 style="margin:0">Bilgilerini güncelle</h3>${field('Ad soyad',`<input name="name" value="${esc(me.name)}">`)}${field('Yeni şifre','<input name="password" type="password" minlength="8" autocomplete="new-password">','değiştirmeyeceksen boş bırak · en az 8 karakter')}<button class="btn primary" style="justify-self:start">Kaydet</button><small class="muted">E-posta ya da rol değişikliği için ana yöneticiye yaz.</small></form>`;
+};
+
+// --- Kullanıcı profili: kişi, rol, markası ve markanın her şeyi, görevleri, puanları, son işlemleri ---
+function userProfile(a,self){
+  const dt=x=>x?new Date(x).toLocaleString('tr-TR',{day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'}):'—';
+  const p=a.participantId?pt(a.participantId):null,staff=a.role!=='katilimci';
+  const tasks=S.d.tasks.filter(t=>t.assignee===a.id),rated=S.d.ratings.filter(r=>r.adminId===a.id).length;
+  const acts=S.d.activity.filter(x=>x.adminId===a.id&&x.ref?.type!=='login').slice(0,5);
+  const canSeeActs=self||isAna();
+  const brand=p?(()=>{const apps=S.d.applications.filter(x=>x.participantId===p.id||x.matchedParticipantId===p.id),ms=marketsAsc().filter(m=>p.markets.includes(m.id));return `<div class="card"><h3>Markası <a class="btn sm ghost" href="#/katilimcilar/${p.id}">Marka kartı →</a></h3><div class="pcard" style="margin-bottom:14px">${avatar(p)}<span><b style="font-size:20px">${esc(p.brandName)}</b><br><small class="muted">${esc(p.category||'')}${p.instagram?' · '+esc(p.instagram):''}</small></span></div>
+    <p class="mono tl-label">KATILIM SAĞLANAN PAZARLAR</p>${miniTl(p)}<div class="list" style="margin-top:12px"><div class="item"><span>Katıldığı pazar</span><b>${ms.length}</b></div><div class="item"><span>Başvuru</span><b>${apps.length}</b></div>${P('ledgerRead')?`<div class="item"><span>Ödenen ücret</span><b>${money(ms.reduce((s2,m)=>s2+feeOf(p,m).paid,0))}</b></div>`:''}${p.phone?`<div class="item"><span>Telefon</span><b>${esc(p.phone)}</b></div>`:''}</div>
+    ${apps.length?`<div class="list" style="margin-top:12px">${apps.slice(0,4).map(x=>`<a class="item" href="#/basvurular/${x.id}"><span>${esc(fm(x.formId)?.title||'')}<br><small class="muted">${date(x.createdAt)}</small></span>${pill('app',x.status)}</a>`).join('')}</div>`:''}</div>`})()
+    :`<div class="card"><h3>Markası</h3><div class="empty">Bağlı marka yok.${staff&&P('users')&&!self?` <button class="btn sm" data-act="user-brand" data-v="${a.id}">Marka bağla</button>`:''}</div></div>`;
+  return `<div class="crumb">${self?'HESABIM':'<a href="#/yoneticiler">KULLANICILAR</a> / PROFİL'}</div><div class="head"><div class="pcard"><span class="avatar big">${esc((a.name||'?')[0])}</span><div><h1>${esc(a.name)}</h1><p><span class="pill r-${a.role}">${esc(S.d.roles[a.role])}</span>${a.active===false?' <span class="pill s-red">pasif</span>':''} · ${esc(a.email)}</p></div></div>
+  <span class="row">${self?'<button class="btn" data-act="logout">Çıkış yap</button>':''}${!self&&staff&&P('users')&&p?`<button class="btn sm" data-act="user-brand" data-v="${a.id}">Markayı değiştir</button>`:''}${!self&&isAna()?`<a class="btn sm" href="#/yoneticiler/${a.id}?iz=1">İz haritası</a>`:''}</span></div>
+  <div class="grid g4"><div class="stat o"><strong>${p?p.markets.length:'—'}</strong><span>Markasıyla katıldığı pazar</span></div><div class="stat y"><strong>${tasks.filter(t=>!t.done).length}<small>/${tasks.length}</small></strong><span>Açık görev</span></div><div class="stat p"><strong>${staff?rated:'—'}</strong><span>Verdiği puan</span></div><div class="stat b"><strong>${a.lastLoginAt?ago(a.lastLoginAt).replace(' önce',''):'—'}</strong><span>Son giriş</span></div></div>
+  <div class="grid split" style="margin-top:40px"><div style="display:grid;gap:28px;align-content:start"><div class="card"><h3>Bilgiler</h3><div class="list">
+  <div class="item"><span>E-posta</span><b>${esc(a.email)}</b></div>${a.phone?`<div class="item"><span>Telefon</span><b>${esc(a.phone)}</b></div>`:''}
+  <div class="item"><span>Rol</span><b>${esc(S.d.roles[a.role])}</b></div><div class="item"><span>Hesap açılışı</span><b>${dt(a.createdAt)}</b></div><div class="item"><span>Son giriş</span><b>${dt(a.lastLoginAt)}</b></div>${a.createdBy&&ad(a.createdBy)?`<div class="item"><span>Ekleyen</span><b>${esc(ad(a.createdBy).name)}</b></div>`:''}</div>
+  <p class="muted" style="margin:14px 0 0"><b>Bu rolde:</b> ${esc(roleDesc[a.role]||'')}</p></div>
+  ${tasks.length?`<div class="card"><h3>Görevleri <a class="btn sm ghost" href="#/gorevler">Tümü →</a></h3>${tasks.sort(taskSort).slice(0,5).map(t=>taskLine(t,false)).join('')}</div>`:''}</div>
+  <div style="display:grid;gap:28px;align-content:start">${brand}
+  ${canSeeActs?`<div class="card"><h3>Son işlemler <button class="btn sm ghost" data-act="act-csv" data-v="${a.id}">Tümünü indir ↓</button></h3><ul class="feed act">${acts.map(x=>`<li><span class="tag">${importantType[x.ref?.type]||'İŞLEM'}</span><span>${esc(x.text)}<small class="muted">${ago(x.at)}</small></span></li>`).join('')||'<li class="muted">İşlem yok.</li>'}</ul></div>`:''}</div></div>`;
+}
+
+// --- Ekip mesajları ---
+const staffList=()=>S.d.admins.filter(a=>a.role!=='katilimci'&&a.active!==false);
+const unreadMsgs=()=>{const seen=S.d.me.msgSeen||'';return (S.d.messages||[]).filter(m=>m.by!==S.d.me.id&&m.at>seen).length};
+function keepDraft(){const t=$('#msg-text');if(t)S.msgDraft=t.value;if(S.pollDraft){const q=$('#msg-form [name=pq]');if(q)S.pollDraft.question=q.value;S.pollDraft.options=S.pollDraft.options.map((o,i)=>$(`#msg-form [name=po${i}]`)?.value??o)}}
+function refLabel(type,id){return type==='application'?appName(S.d.applications.find(x=>x.id===id)||{answers:{}}):type==='participant'?pt(id)?.brandName||'':type==='market'?mk(id)?.name||'':''}
+function refMedia(type,id){if(type==='application'){const a=S.d.applications.find(x=>x.id===id);return (a?.mediaIds||[]).find(m=>md(m)?.mime?.startsWith('image/'))||null}if(type==='participant'){const p=pt(id);return p?cover(p)?.id||null:null}return null}
+const refHref=r=>r.type==='application'?`#/basvurular/${r.id}`:r.type==='participant'?`#/katilimcilar/${r.id}`:r.type==='market'?`#/pazarlar/${r.id}`:'#/';
+const refName={application:'BAŞVURU',participant:'MARKA',market:'PAZAR',media:'GÖRSEL',workshop:'WORKSHOP'};
+function msgHtml(m){
+  const who=ad(m.by),mine2=m.by===S.d.me.id,me1=S.d.me.name.split(' ')[0];
+  const txt=esc(m.text).replace(/@([\wçğıöşüÇĞİÖŞÜ]+)/g,(x,n)=>`<b class="at ${n.toLocaleLowerCase('tr')===me1.toLocaleLowerCase('tr')?'me':''}">@${n}</b>`);
+  const poll=m.poll?(()=>{const tot=Object.keys(m.poll.votes).length,my=m.poll.votes[S.d.me.id];return `<div class="poll"><b>${esc(m.poll.question)}</b>${m.poll.options.map((o,i)=>{const n=Object.values(m.poll.votes).filter(v=>v===i).length,names=Object.entries(m.poll.votes).filter(([,v])=>v===i).map(([k])=>ad(k)?.name.split(' ')[0]||'').join(', ');return `<button type="button" class="opt ${my===i?'on':''}" data-act="msg-vote" data-v="${m.id}" data-i="${i}" ${m.poll.open?'':'disabled'}><span class="fill" style="width:${tot?n/tot*100:0}%"></span><span>${esc(o)}</span><small>${n}${names?' · '+esc(names):''}</small></button>`}).join('')}<small class="mono">${tot} OY · ${m.poll.open?'AÇIK':'KAPANDI'}</small>${m.poll.open&&(mine2||isAna())?` <button type="button" class="btn sm ghost" data-act="msg-close" data-v="${m.id}">Oylamayı kapat</button>`:''}</div>`})():'';
+  const ref=m.ref?`<a class="msg-ref" href="${refHref(m.ref)}">${m.ref.mediaId?`<img src="/media/${m.ref.mediaId}" alt="">`:''}<span><span class="mono">${refName[m.ref.type]||''}</span><b>${esc(m.ref.label||'')}</b></span></a>`:'';
+  return `<div class="msg ${mine2?'mine':''}"><span class="avatar">${esc((who?.name||'?')[0])}</span><div class="bubble"><div class="msg-head"><b>${esc(who?.name||'—')}</b><small class="muted">${ago(m.at)}</small>${mine2||isAna()?`<button class="x" data-act="msg-del" data-v="${m.id}" aria-label="Sil">×</button>`:''}</div>${m.text?`<p>${txt}</p>`:''}${ref}${poll}</div></div>`;
+}
+pages.mesajlar=r=>{
+  if(!P('chat'))return '<div class="empty">Mesajlar yalnızca yöneticilere açık.</div>';
+  if(unreadMsgs()&&!S.seenPending){S.seenPending=true;call('PUT','/api/messages/seen').then(()=>{S.d.me.msgSeen=new Date().toISOString();S.seenPending=false}).catch(()=>{S.seenPending=false})}
+  const rq=r.q.get('ref'),[rt,rid]=(rq||'').split(':'),rl=rq?refLabel(rt,rid):'',rm=rq?refMedia(rt,rid):null;
+  if(rq&&rt==='application'&&!S.pollDraft&&S.pollAuto!==rq){S.pollAuto=rq;S.pollDraft={question:`${rl} kabul edilsin mi?`,options:['Kabul','Yedek','Red']}}
+  const filter=r.q.get('f'),meName=S.d.me.name.split(' ')[0].toLocaleLowerCase('tr');
+  let list=S.d.messages||[];if(filter==='bana')list=list.filter(m=>(m.mentions||[]).includes(S.d.me.id)||m.text.toLocaleLowerCase('tr').includes('@'+meName));if(filter==='oylama')list=list.filter(m=>m.poll);
+  const pd=S.pollDraft;
+  return `<div class="head"><div><h1>Mesajlar</h1><p>Yöneticilerin ortak sohbeti. @ ile kişi an, başvuru ya da markaya bağla, oylama aç. Katılımcılar görmez.</p></div></div>
+  <div class="chips" style="margin-bottom:16px"><a class="chip ${!filter?'on':''}" href="#/mesajlar">Tümü</a><a class="chip ${filter==='bana'?'on':''}" href="#/mesajlar?f=bana">Beni anan</a><a class="chip ${filter==='oylama'?'on':''}" href="#/mesajlar?f=oylama">Oylamalar</a></div>
+  <div class="chat"><div class="chat-list">${list.map(msgHtml).join('')||'<div class="empty">Henüz mesaj yok. İlk mesajı sen yaz.</div>'}</div>
+  <form class="composer" id="msg-form">${rq?`<div class="msg-ref draft">${rm?`<img src="/media/${rm}" alt="">`:''}<span><span class="mono">${refName[rt]||''}</span><b>${esc(rl)}</b></span><button type="button" class="x" data-act="ref-clear" aria-label="Kaldır">×</button></div>`:''}
+  ${pd?`<div class="poll-edit"><input name="pq" placeholder="Oylama sorusu" value="${esc(pd.question)}">${pd.options.map((o,i)=>`<input name="po${i}" placeholder="Seçenek ${i+1}" value="${esc(o)}">`).join('')}${pd.options.length<6?'<button type="button" class="btn sm ghost" data-act="poll-add">+ seçenek</button>':''}</div>`:''}
+  <div class="comp-row"><div class="comp-in"><textarea id="msg-text" name="text" rows="2" placeholder="Mesaj yaz… @ ile kişi an">${esc(S.msgDraft||'')}</textarea><div id="mention-box" class="mention-box"></div></div><button class="btn primary">Gönder</button></div>
+  <div class="chips sm"><span class="mono">OYLAMA</span><button type="button" class="chip ${pd&&pd.options.join('|')==='Kabul|Yedek|Red'?'on':''}" data-act="poll-preset" data-v="Kabul|Yedek|Red" data-q="Bu marka kabul edilsin mi?">Kabul / Yedek / Red</button><button type="button" class="chip ${pd&&pd.options.join('|')==='Evet|Hayır'?'on':''}" data-act="poll-preset" data-v="Evet|Hayır" data-q="Ne dersiniz?">Evet / Hayır</button><button type="button" class="chip" data-act="poll-preset" data-v="ozel">Özel oylama</button>${pd?'<button type="button" class="chip" data-act="poll-preset" data-v="">Oylamayı kaldır</button>':''}</div></form></div>`;
 };
 
 
@@ -844,21 +914,23 @@ function taskDoneModal(t){
 pages.puanlama=r=>{
   const q=r.q,tab=['puanla','oneri','sadakat','kara'].includes(q.get('sekme'))?q.get('sekme'):(P('rate')?'puanla':'oneri');
   const tabs=[['puanla','Puanla'],['oneri','Öneri listesi'],['sadakat','Sadakat & indirim'],['kara','Kara liste']].filter(([k])=>k!=='puanla'||P('rate'));
-  const head=`<div class="head"><div><h1>Puanlama</h1><p>Yöneticilerin puanı ve sadakat puanı birleşir, 10 üzerinden bir skor çıkar. ${S.d.scores.cfg.threshold} ve üzeri sonraki pazara önerilir. Bu bir öneri sayfasıdır.</p></div></div>
+  const c=S.d.scores.cfg;
+  const head=`<div class="head"><div><h1>Puanlama</h1><p>Bu bir öneri sayfasıdır. Yönetici markaları puanlamaya girmez.</p></div></div>
+  <div class="how"><div><span class="mono">01</span><b>Siz puan verin</b><small>Her yönetici markaya 1–10 arası puan verir: uyum, stant düzeni, iletişim.</small></div><i>+</i><div><span class="mono">02</span><b>Sistem sadakati sayar</b><small>Kaç pazara katıldığına bakar. Her pazar ${c.perMarket} puan, üst üste katılım +${c.streak}.</small></div><i>=</i><div><span class="mono">03</span><b>Skor çıkar</b><small>Puanların %${c.weight}'ı + katılım oranının %${100-c.weight}'ı. ${c.threshold} ve üzeri “katılsın” listesine girer.</small></div></div>
   <nav class="tabs">${tabs.map(([k,t])=>`<a href="#/puanlama?sekme=${k}" class="${tab===k?'on':''}">${t}</a>`).join('')}</nav>`;
   return head+({puanla:rateTab,oneri:recoTab,sadakat:loyaltyTab,kara:blackTab}[tab])(q);
 };
 const scoreOf=p=>sc(p.id)||{points:0,score:0,attended:0,discount:0,reco:'katilma'};
 function rateTab(q){
   const s=(q.get('ara')||'').toLocaleLowerCase('tr');
-  const list=S.d.participants.filter(p=>!s||[p.brandName,p.category].join(' ').toLocaleLowerCase('tr').includes(s)).sort((a,b)=>a.brandName.localeCompare(b.brandName,'tr'));
+  const list=rateable().filter(p=>!s||[p.brandName,p.category].join(' ').toLocaleLowerCase('tr').includes(s)).sort((a,b)=>a.brandName.localeCompare(b.brandName,'tr'));
   return `<p class="muted">Her katılımcıya 0–10 arası puan ver: uyumu, stant düzeni, iletişimi, zamanında gelmesi. ${isAna()?'Kimin kaç puan verdiğini yalnızca sen görürsün.':'Verdiğin puanı diğer yöneticiler görmez.'}</p>
   <div class="filters"><input data-nav-o="ara" placeholder="Marka ara" value="${esc(q.get('ara')||'')}"></div>
   <div class="table-wrap"><table><thead><tr><th>MARKA</th><th class="hide-sm">KATILIM</th><th>SADAKAT</th><th>SENİN PUANIN</th>${isAna()?'<th>EKİP ORT.</th><th class="hide-sm">KİM KAÇ VERDİ</th>':''}</tr></thead><tbody>${list.map(p=>{const x=scoreOf(p),rs=isAna()?S.d.ratings.filter(r=>r.participantId===p.id):[];return `<tr><td><a href="#/katilimcilar/${p.id}"><b>${esc(p.brandName)}</b></a><br><small class="muted">${esc(p.category||'')}</small></td><td class="hide-sm">${miniTl(p)}</td><td><b>${x.points}</b> <small class="muted">puan</small></td><td>${rateSelect(p.id)}</td>${isAna()?`<td>${x.avg!=null?`<b>${x.avg}</b> <small class="muted">${x.n} kişi</small>`:'—'}</td><td class="hide-sm"><small>${rs.map(r=>`${esc(ad(r.adminId)?.name.split(' ')[0]||'—')} ${r.score}`).join(' · ')||'—'}</small></td>`:''}</tr>`}).join('')}</tbody></table></div>`;
 }
 function recoTab(){
   const ana=isAna(),cols={katil:[],katilma:[],kara:[]};
-  for(const p of S.d.participants)cols[scoreOf(p).reco].push(p);
+  for(const p of rateable())cols[scoreOf(p).reco].push(p);
   for(const k in cols)cols[k].sort((a,b)=>scoreOf(b).score-scoreOf(a).score);
   const card=(p,k)=>{const x=scoreOf(p);return `<div class="reco-card"><span class="sc ${x.score>=S.d.scores.cfg.threshold?'hi':''}">${x.score}</span><div><a href="#/katilimcilar/${p.id}"><b>${esc(p.brandName)}</b></a><small class="muted">${x.points} sadakat · ${x.attended} pazar${x.avg!=null?' · ekip '+x.avg:''}${x.moved?' · elle taşındı':''}</small></div>${ana&&k!=='kara'?`<span class="row">${k==='katil'?`<button class="btn sm" data-act="reco-move" data-v="${p.id}" data-s="katilma">Çıkar →</button>`:`<button class="btn sm" data-act="reco-move" data-v="${p.id}" data-s="katil">← Al</button>`}${x.moved?`<button class="btn sm ghost" data-act="reco-move" data-v="${p.id}" data-s="">Otomatik</button>`:''}</span>`:''}</div>`};
   return `${ana?'':'<p class="note">Bu listeyi yalnızca ana yönetici değiştirebilir.</p>'}<div class="reco-cols"><section class="reco-col in"><h3>Sonraki pazara katılsın <span class="mono">${cols.katil.length}</span></h3><p class="muted">Skoru ${S.d.scores.cfg.threshold} ve üzeri</p>${cols.katil.map(p=>card(p,'katil')).join('')||'<div class="empty">Liste boş.</div>'}</section>
@@ -867,14 +939,14 @@ function recoTab(){
 }
 function loyaltyTab(){
   const c=S.d.scores.cfg,ana=isAna(),dis=ana?'':'disabled';
-  const list=[...S.d.participants].sort((a,b)=>scoreOf(b).points-scoreOf(a).points);
-  return `<div class="grid split"><form class="card" id="loyalty-form" style="display:grid;gap:12px;align-content:start"><h3 style="margin:0">Nasıl hesaplanır?</h3>
-  <p class="muted" style="margin:0">Tamamlanan her pazar sadakat puanı kazandırır; üst üste katılımda ek puan gelir. Skor (10 üzerinden) = yönetici puan ortalaması ile katılım oranının ağırlıklı ortalaması. Puan verilmemişse yalnızca katılım oranı kullanılır.</p>
-  <div class="grid g2">${field('Pazar başına puan',`<input name="perMarket" type="number" min="0" value="${c.perMarket}" ${dis}>`)}${field('Üst üste katılım bonusu',`<input name="streak" type="number" min="0" value="${c.streak}" ${dis}>`)}${field('Yönetici puanının ağırlığı',`<input name="weight" type="number" min="0" max="100" value="${c.weight}" ${dis}>`,'% · kalanı katılım oranı')}${field('Öneri eşiği',`<input name="threshold" type="number" min="0" max="10" step="0.5" value="${c.threshold}" ${dis}>`,'10 üzerinden')}</div>
-  ${field('İndirim neye göre?',`<select name="basis" ${dis}>${opts([['puan','Sadakat puanına göre'],['ortalama','Skora (ortalamaya) göre']],c.basis)}</select>`)}
-  <div><span class="mono">İNDİRİM BASAMAKLARI</span><table class="tiers"><thead><tr><th>EN AZ</th><th>İNDİRİM %</th></tr></thead><tbody>${[...c.tiers,{min:'',pct:''},{min:'',pct:''}].slice(0,Math.max(4,c.tiers.length+1)).map((t,i)=>`<tr><td><input class="inp" name="min${i}" type="number" step="0.5" min="0" value="${t.min}" ${dis}></td><td><input class="inp" name="pct${i}" type="number" min="0" max="100" value="${t.pct}" ${dis}></td></tr>`).join('')}</tbody></table></div>
+  const list=[...rateable()].sort((a,b)=>scoreOf(b).points-scoreOf(a).points);
+  const knob=(name,label,val,hint,min,max,step=1)=>`<label class="knob"><span class="mono">${label}</span><span class="knob-in"><button type="button" data-act="knob" data-d="-${step}" ${dis}>−</button><input name="${name}" type="number" min="${min}" max="${max}" step="${step}" value="${val}" ${dis}><button type="button" data-act="knob" data-d="${step}" ${dis}>+</button></span><small>${hint}</small></label>`;
+  return `<div class="grid split"><form class="card" id="loyalty-form" style="display:grid;gap:18px;align-content:start"><h3 style="margin:0">Ayarlar</h3>
+  <div class="knobs">${knob('perMarket','PAZAR BAŞINA',c.perMarket,'sadakat puanı',0,100)}${knob('streak','ÜST ÜSTE BONUS',c.streak,'ek puan',0,100)}${knob('weight','YÖNETİCİ PUANI',c.weight,'% ağırlık',0,100,10)}${knob('threshold','ÖNERİ EŞİĞİ',c.threshold,'10 üzerinden',0,10,0.5)}</div>
+  <div><span class="mono">İNDİRİM</span><div class="chips" style="margin-top:8px">${[['puan','Sadakat puanına göre'],['ortalama','Skora göre']].map(([k,t])=>`<label class="chip ${c.basis===k?'on':''}"><input type="radio" name="basis" value="${k}" ${c.basis===k?'checked':''} ${dis}> ${t}</label>`).join('')}</div>
+  <div class="tiers2">${[...c.tiers,{min:'',pct:''}].map((t,i)=>`<span class="tier"><input name="min${i}" type="number" min="0" step="0.5" value="${t.min}" placeholder="—" ${dis}><small>${c.basis==='ortalama'?'skor':'puan'} ve üstü</small><b>%</b><input name="pct${i}" type="number" min="0" max="100" value="${t.pct}" placeholder="—" ${dis}><small>indirim</small></span>`).join('')}</div></div>
   ${ana?'<button class="btn primary" style="justify-self:start">Kaydet</button>':'<p class="note">Ayarları yalnızca ana yönetici değiştirebilir.</p>'}
-  <small class="muted">İndirimi uygulamak için Kasa › Katılımcı ödemeleri sekmesinde bir pazar seçip “Sadakat indirimlerini uygula”ya bas.</small></form>
+  <small class="muted">İndirimi uygulamak için Kasa › Katılımcı ödemeleri'nde bir pazar seç, “Sadakat indirimlerini uygula”ya bas.</small></form>
   <div class="card"><h3>Sadakat sıralaması</h3><div class="list">${list.map(p=>{const x=scoreOf(p);return `<a class="item" href="#/katilimcilar/${p.id}"><span><b>${esc(p.brandName)}</b><br><small class="muted">${x.attended} pazar · skor ${x.score}</small></span><span class="row"><b>${x.points}</b>${x.discount?`<span class="pill s-acik">%${x.discount}</span>`:''}</span></a>`}).join('')}</div></div></div>`;
 }
 function blackTab(){
@@ -1072,6 +1144,17 @@ const actions={
   'auth-mode':el=>{S.authMode=el.dataset.v;start()},
   'portal-cancel':()=>act(()=>call('DELETE','/api/portal/profile'),'Değişiklik geri çekildi'),
   'task-new':el=>taskModal(el.dataset.v),
+  rate:el=>{const cur=myRating(el.dataset.p),v=+el.dataset.v;act(()=>call('PUT',`/api/ratings/${el.dataset.p}`,{score:cur&&cur.score===v?'':v}),cur&&cur.score===v?'Puan silindi':'Puan: '+v)},
+  knob:el=>{const i=el.parentElement.querySelector('input'),st=+el.dataset.d;i.value=Math.min(+i.max,Math.max(+i.min,Math.round(((+i.value||0)+st)*10)/10))},
+  'msg-vote':el=>act(()=>call('POST',`/api/messages/${el.dataset.v}/vote`,{i:+el.dataset.i})),
+  'msg-close':el=>act(()=>call('PUT',`/api/messages/${el.dataset.v}/close`),'Oylama kapandı'),
+  'msg-del':el=>confirm('Mesaj silinsin mi?')&&act(()=>call('DELETE',`/api/messages/${el.dataset.v}`)),
+  'poll-preset':el=>{S.pollDraft=el.dataset.v==='ozel'?{question:'',options:['','']}:el.dataset.v===''?null:{question:el.dataset.q,options:el.dataset.v.split('|')};keepDraft();render()},
+  'poll-add':()=>{keepDraft();S.pollDraft.options.push('');render()},
+  'ref-clear':()=>{keepDraft();location.hash='#/mesajlar'},
+  'mention':el=>{const t=$('#msg-text');t.value=t.value.replace(/@[^\s@]*$/,'')+'@'+el.dataset.v+' ';t.focus();$('#mention-box').innerHTML=''},
+  'act-csv':el=>{location.href='/api/activity?format=csv&admin='+el.dataset.v},
+  'user-brand':el=>modal(`<span class="mono">MARKA</span><h2>Markayı bağla</h2><p class="muted">Yöneticinin kendi markası. Yönetici markaları puanlamaya ve öneriye girmez.</p>${field('Marka',`<select name="brand">${opts(S.d.participants.map(p=>[p.id,p.brandName]),ad(el.dataset.v)?.participantId||'','— marka yok —')}</select>`)}${actions2()}`,async d=>{await call('PUT',`/api/admins/${el.dataset.v}`,{brand:d.brand});closeModal();await refresh();render();toast('Marka güncellendi')}),
   'task-done':el=>taskDoneModal(S.d.tasks.find(t=>t.id===el.dataset.v)),
   'task-undo':el=>act(()=>call('PUT',`/api/tasks/${el.dataset.v}`,{done:false}),'Görev yeniden açıldı'),
   'task-del':el=>confirm('Görev silinsin mi?')&&act(()=>call('DELETE',`/api/tasks/${el.dataset.v}`),'Görev silindi'),
@@ -1104,11 +1187,15 @@ document.addEventListener('submit',async e=>{
   if(f.id==='portal-form'){e.preventDefault();act(()=>call('PUT','/api/portal/profile',formData(f)),'Değişikliklerin onaya gönderildi');return}
   if(f.id==='part-form'){e.preventDefault();act(async()=>{await call('PUT',`/api/participants/${route().id}`,formData(f));location.hash='#/katilimcilar'},'Katılımcı kaydedildi')}
   if(f.id==='loyalty-form'){e.preventDefault();const d=formData(f),tiers=[];for(let i=0;i<10;i++)if(d['pct'+i])tiers.push({min:+d['min'+i]||0,pct:+d['pct'+i]});act(()=>call('PUT','/api/settings/loyalty',{...d,tiers}),'Ayarlar kaydedildi');return}
+  if(f.id==='msg-form'){e.preventDefault();const d=formData(f),r=route().q.get('ref');let ref=null;if(r){const [type,id]=r.split(':');ref={type,id,label:refLabel(type,id),mediaId:refMedia(type,id)}}
+    const poll=S.pollDraft?{question:d.pq,options:Object.keys(d).filter(k=>/^po\d+$/.test(k)).map(k=>d[k])}:null;
+    act(async()=>{await call('POST','/api/messages',{text:d.text,ref,poll});S.pollDraft=null;S.msgDraft='';if(r)location.hash='#/mesajlar';setTimeout(()=>$('.chat-list')?.lastElementChild?.scrollIntoView({block:'end'}),50)});return}
   if(f.id==='me-form'){e.preventDefault();act(()=>call('PUT','/api/admins/me',formData(f)),'Hesap güncellendi')}
 });
 document.addEventListener('input',e=>{
   const el=e.target;
   if(el.id==='q')return showResults();
+  if(el.id==='msg-text'){S.msgDraft=el.value;const m=/@([^\s@]*)$/.exec(el.value),box=$('#mention-box');if(!box)return;if(!m){box.innerHTML='';return}const t=m[1].toLocaleLowerCase('tr');box.innerHTML=staffList().filter(a=>a.id!==S.d.me.id&&a.name.toLocaleLowerCase('tr').startsWith(t)).slice(0,6).map(a=>`<button type="button" data-act="mention" data-v="${esc(a.name.split(' ')[0])}">@${esc(a.name)}</button>`).join('');return}
   if(el.dataset.bind&&S.draft){S.draft[el.dataset.bind]=el.value;afterDraftEdit()}
   if(el.dataset.f!==undefined&&S.draft&&el.dataset.full===undefined){const f=S.draft.fields[+el.dataset.f],k=el.dataset.k;f[k]=k==='options'?el.value.split('\n').map(s=>s.trim()).filter(Boolean):k==='required'?el.checked:el.value;afterDraftEdit()}
 });
@@ -1125,7 +1212,7 @@ document.addEventListener('change',e=>{
   if(el.dataset.rate!==undefined){act(()=>call('PUT',`/api/ratings/${el.dataset.rate}`,{score:el.value}),el.value===''?'Puan kaldırıldı':'Puan kaydedildi');return}
   if(el.dataset.taskRole!==undefined){act(()=>call('PUT','/api/settings/tasks',{roles:[...document.querySelectorAll('[data-task-role]:checked')].map(x=>x.value)}),'Görev erişimi güncellendi');return}
   if(el.dataset.adminRole)act(()=>call('PUT',`/api/admins/${el.dataset.adminRole}`,{role:el.value}),'Rol güncellendi');
-  if(el.id==='app-notes')act(()=>call('PUT',`/api/applications/${route().id}`,{notes:el.value}),'Not kaydedildi');
+  if(el.id==='app-notes'){const id=route().id,a=S.d.applications.find(x=>x.id===id);act(async()=>{await call('PUT',`/api/applications/${id}`,{notes:el.value});if(P('chat')&&el.value.trim())await call('POST','/api/messages',{text:'Ekip notu: '+el.value.trim(),ref:{type:'application',id,label:appName(a)}})},'Not kaydedildi, mesajlara da düştü');return}
   const navKey=el.dataset.nav||el.dataset.navP||el.dataset.navM||el.dataset.navO;
   if(navKey){const r=route(),q=new URLSearchParams(r.q);el.value&&el.value!=='all'||navKey!=='pazar'?(el.value?q.set(navKey,el.value):q.delete(navKey)):q.set(navKey,'all');const view=el.dataset.nav?'basvurular':el.dataset.navP?'katilimcilar':el.dataset.navO?r.view:'gorseller';location.hash=`#/${view}?${q}`}
 });

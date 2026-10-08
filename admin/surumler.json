@@ -1,5 +1,20 @@
 [
  {
+  "v": "2.10.0",
+  "date": "2026-10-08",
+  "notes": [
+   "Yeni “Mesajlar”: yöneticilerin ortak sohbeti. @ ile kişi anılır, başvuru ya da markaya bağlanır, Kabul/Yedek/Red, Evet/Hayır ya da özel oylama açılır. Ekip notları da buraya düşer.",
+   "Başvuru ve marka sayfalarında başlığın sağında yöneticilere özel özet: skor, sadakat, ekip ortalaması, indirim ve öneri listesi. Katılımcılar görmez.",
+   "Kullanıcılar: satıra basınca kişinin profili açılır (bilgiler, markası, katılımları, başvuruları, görevleri, son işlemleri). İz haritası profilin içinde.",
+   "Hesabım: aynı profil; son işlemler sadeleşti, tümü CSV olarak indirilebilir. Yöneticiye marka bağlanabilir.",
+   "Puanlama: 1–10 tıklamalı puan şeridi, üç adımlı “nasıl çalışır” şeması, sade ayarlar. Yönetici markaları puanlamaya girmez.",
+   "Kara listedeki “Ekle” butonu görünür oldu; görev, puan, kara liste ve mesajlara örnekler eklendi.",
+   "Görsel deposunda “Fatura & fiş” klasörü yok; fişler kasada kalır.",
+   "Yüklenen tüm fotoğraflar WEBP’ye çevrilir ve SEO uyumlu ad alır (ör. dardanos-fine-foods-logo.webp).",
+   "Sitenin ana sayfasında sağda pazarın kuşbakışı fotoğrafı."
+  ]
+ },
+ {
   "v": "2.9.0",
   "date": "2026-10-08",
   "notes": [
