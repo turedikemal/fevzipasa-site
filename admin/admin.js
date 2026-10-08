@@ -309,7 +309,7 @@ function formBuilder(id){
   const dirty=JSON.stringify(d)!==JSON.stringify(form);
   return `<div class="crumb"><a href="#/formlar">FORMLAR</a> / <a href="#/pazarlar/${form.marketId}">${esc(mk(form.marketId)?.name)}</a></div>
   <div class="head"><div><h1>${esc(d.title)}</h1><p>${pill('form',form.status)} · ${apps.length} başvuru · <a href="#/basvurular?form=${id}">başvuruları gör</a>${ro&&P('formWrite')?` · bu formu ${esc(ownerName(form))} oluşturdu, yalnızca o ya da ana yönetici değiştirebilir`:''}</p></div>
-  <div class="row">${ioBar('formlar','form='+id,false)}${P('formWrite')?`<button class="btn" data-act="form-copy-into" data-v="" data-form="${id}">Başka pazara kopyala</button>`:''}${ro?'':`${!apps.filter(a=>!a.demo).length?`<button class="btn danger" data-act="form-del" data-v="${id}">Sil</button>`:''}<button class="btn primary" data-act="form-save" ${dirty?'':'disabled'}>${dirty?'Değişiklikleri kaydet':'Kaydedildi'}</button>`}</div></div>
+  <div class="row">${ioBar('formlar','form='+id,false)}${P('formWrite')?`<button class="btn" data-act="form-copy-into" data-v="" data-form="${id}">Başka pazara kopyala</button>`:''}${ro?'':`${!apps.filter(a=>!a.demo).length?`<button class="btn danger" data-act="form-del" data-v="${id}">Sil</button>`:''}<button class="btn ${dirty?'dark':''}" data-act="form-save" ${dirty?'':'disabled'}>${dirty?'Değişiklikleri kaydet':'Kaydedildi'}</button>`}<a class="btn" href="/basvuru/${id}" target="_blank" rel="noopener">${form.status==='acik'?'Formu aç ↗':'Önizle ↗'}</a>${ro?'':form.status==='acik'?`<button class="btn" data-act="form-pub" data-v="kapali">Yayından kaldır</button>`:`<button class="btn primary" data-act="form-pub" data-v="acik">Yayınla</button>`}</div></div>
   <div class="builder"><div>
   <div class="card" style="margin-bottom:16px;display:grid;gap:12px"><h3 style="margin:0">Form ayarları</h3>
   ${field('Başlık',`<input data-bind="title" value="${esc(d.title)}" ${ro?'disabled':''}>`)}
@@ -876,6 +876,7 @@ const actions={
   'form-new':el=>newFormModal(el.dataset.v),
   'form-copy-into':el=>copyFormModal(el.dataset.v,el.dataset.form),
   'form-del':el=>confirm('Bu form silinsin mi?')&&act(async()=>{await call('DELETE',`/api/forms/${el.dataset.v}`);S.draft=null;location.hash='#/formlar'},'Form silindi'),
+  'form-pub':el=>act(async()=>{const f=await call('PUT',`/api/forms/${S.draft.id}`,{...S.draft,status:el.dataset.v});S.draft=structuredClone(f)},el.dataset.v==='acik'?'Form yayında; bağlantıyı paylaşabilirsin':'Form yayından kaldırıldı'),
   'form-save':()=>act(async()=>{const f=await call('PUT',`/api/forms/${S.draft.id}`,S.draft);S.draft=structuredClone(f)},'Form kaydedildi'),
   'field-open':el=>{S.openField=S.openField===el.dataset.v?null:el.dataset.v;render()},
   'field-add':el=>{const t=el.dataset.v,f={id:newId(),type:t,label:t==='heading'?'Yeni bölüm':t==='consent'?'Koşulları okudum ve kabul ediyorum.':L.type[t],required:false,help:'',options:['select','checkboxes'].includes(t)?['Seçenek 1','Seçenek 2']:[],mapTo:''};S.draft.fields.push(f);S.openField=f.id;render()},

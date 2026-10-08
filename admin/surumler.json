@@ -1,5 +1,12 @@
 [
  {
+  "v": "2.4.3",
+  "date": "2026-10-08",
+  "notes": [
+   "Form düzenleme ekranına “Yayınla” / “Yayından kaldır” ve “Önizle / Formu aç” butonları eklendi."
+  ]
+ },
+ {
   "v": "2.4.2",
   "date": "2026-10-08",
   "notes": [
