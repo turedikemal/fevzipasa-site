@@ -30,7 +30,7 @@ if(box){const wid=location.pathname.split('/').filter(Boolean)[1];get('/api/publ
   ${upcoming(w)?`<div class="ws-cta">${join(w,'pill big')}<small>Kayıt için hesabını aç ya da giriş yap; ekip onaylayınca yerin kesinleşir.${w.paid?' Ödeme havale/EFT ile yapılır, bilgiler panelinde.':''}</small></div>`:`<p class="ws-done">${w.status==='yapildi'?'Bu workshop yapıldı.':'Bu workshopun tarihi geçti.'}</p>`}</div>
   <button class="ws-detail-media" ${w.images[0]?`data-photo="/media/${w.images[0]}" data-caption="${esc(w.title)}"`:''} aria-label="Görseli büyüt">${cover(w,1)}</button></section>
   ${w.description?`<section class="ws-about section"><p class="eyebrow">NE YAPACAĞIZ?</p><p class="ws-desc">${esc(w.description).replace(/\n/g,'<br>')}</p></section>`:''}
-  ${w.images.length>1?`<section class="ws-gallery section"><p class="eyebrow">GÖRSELLER</p><div class="ws-gal">${w.images.slice(1).map(id=>`<button data-photo="/media/${id}" data-caption="${esc(w.title)}"><img src="/media/${id}" alt="" loading="lazy"></button>`).join('')}</div></section>`:''}
+  ${w.images.length>1?`<section class="ws-gallery section"><p class="eyebrow">GÖRSELLER</p><div class="ws-gal">${w.images.slice(1).map(id=>`<span><img src="/media/${id}" alt="" loading="lazy"></span>`).join('')}</div></section>`:''}
   ${upcoming(w)?`<section class="ws-come section"><div class="ws-come-copy"><p class="eyebrow">YERİN HAZIR MI?</p><h2>Gel.<br>Dene.<br>Üret.</h2>${join(w,'pill big')}</div><aside class="ws-market" data-ws-market></aside></section>`:''}`;
   const mbox=box.querySelector('[data-ws-market]');
   if(mbox){const m=w.market,range=m?.startDate?[short(m.startDate),m.endDate&&m.endDate!==m.startDate?short(m.endDate):''].filter(Boolean).join(' – '):'';
@@ -42,6 +42,6 @@ if(box){const wid=location.pathname.split('/').filter(Boolean)[1];get('/api/publ
     <div class="ws-market-links"><a class="text-link" href="/ziyaret">Ziyaret bilgileri ↗</a><a class="text-link" href="/katilimcilar">Katılımcılar ↗</a></div>`};
     paint([]);get('/api/public/workshops').then(all=>paint(all.filter(o=>o.id!==w.id&&upcoming(o)&&(m?o.market?.id===m.id:true)))).catch(()=>{});
   }
-  box.querySelectorAll('[data-photo]').forEach(b=>b.addEventListener('click',()=>{const d=document.getElementById('viewer');if(!d)return;d.querySelector('.dialog-content').innerHTML=`<img src="${b.dataset.photo}" alt=""><p class="dialog-caption">${esc(b.dataset.caption||'')}</p>`;d.showModal()}));
+;
 }).catch(()=>{box.innerHTML='<section class="ws-detail-missing section"><h1>Workshop bulunamadı.</h1><a class="pill" href="/workshoplar">Tüm workshoplar <span>↗</span></a></section>'})}
 })();
