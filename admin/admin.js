@@ -751,7 +751,7 @@ function trailPage(id){
 }
 pages.hesap=()=>{
   const me=S.d.me,dt=x=>x?new Date(x).toLocaleString('tr-TR',{day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'}):'—';
-  return `<div class="head"><div><h1>Hesabım</h1><p>${esc(me.name)} · <span class="pill r-${me.role}">${esc(S.d.roles[me.role])}</span></p></div></div>
+  return `<div class="head"><div><h1>Hesabım</h1><p>${esc(me.name)} · <span class="pill r-${me.role}">${esc(S.d.roles[me.role])}</span></p></div><button class="btn" data-act="logout">Çıkış yap</button></div>
   <div class="grid split"><div class="card"><h3>Hesap bilgileri</h3><div class="list">
   <div class="item"><span>E-posta</span><b>${esc(me.email)}</b></div>
   <div class="item"><span>Rol</span><b>${esc(S.d.roles[me.role])}</b></div>
