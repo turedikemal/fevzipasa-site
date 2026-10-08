@@ -766,7 +766,7 @@ const appStatusText={yeni:'Başvurun alındı, incelenecek',inceleniyor:'İncele
 const regText={bekliyor:'Kaydın alındı, onay bekliyor',onay:'Yerin ayrıldı',red:'Kayıt onaylanmadı'};
 function renderPortal(){
   const d=S.d,p=d.participant,r=route(),v=['basvurularim','workshoplarim','markam','odeme','hesap'].includes(r.view)?r.view:'ana';
-  const tabs=[['ana','Ana sayfa'],['basvurularim','Başvurularım'],['workshoplarim','Workshoplarım'],['markam','Markam'],['odeme','Ödeme bilgileri'],['hesap','Hesabım']];
+  const tabs=[['ana','Ana sayfa'],['basvurularim','Başvurularım'],['workshoplarim','Workshoplarım'],['markam','Markam'],['odeme','Ödeme bilgileri']];
   const pages={ana:portalHome,basvurularim:portalApps,workshoplarim:portalWs,markam:portalBrand,odeme:portalPay,hesap:portalAccount};
   $('#app').innerHTML=`<header class="bar"><div class="bar-top"><a class="wordmark" href="#/">FEVZİPAŞA<br>TASARIM PAZARI<span>KATILIMCI PANELİ</span></a><div class="bar-right"><a class="acc ${v==='hesap'?'on':''}" href="#/hesap">Hesabım · ${esc(d.me.name.split(' ')[0])}</a><a class="nav-pill" href="/" target="_blank">Site <span>↗</span></a><button class="menu-btn" data-act="menu">Menü</button></div></div>
   <nav id="side">${tabs.map(([k,t])=>`<a href="#/${k==='ana'?'':k}" class="${v===k?'on':''}">${t}</a>`).join('')}</nav></header>

@@ -1,5 +1,12 @@
 [
  {
+  "v": "2.4.2",
+  "date": "2026-10-08",
+  "notes": [
+   "Katılımcı menüsündeki Hesabım sekmesi kaldırıldı; hesaba sağ üstteki “Hesabım” butonundan girilir."
+  ]
+ },
+ {
   "v": "2.4.1",
   "date": "2026-10-08",
   "notes": [
