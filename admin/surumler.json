@@ -1,5 +1,12 @@
 [
  {
+  "v": "2.17.2",
+  "date": "2026-10-08",
+  "notes": [
+   "Otomatik yedek: her içe aktarma, toplu işlem ve mükerrer birleştirmeden önce verinin kopyası data/yedekler/ klasörüne alınır (son 30 kopya). Yanlış bir işlemde bir önceki hale dönülebilir."
+  ]
+ },
+ {
   "v": "2.17.1",
   "date": "2026-10-08",
   "notes": [
