@@ -423,6 +423,7 @@ function appPage(id){
 }
 
 // --- Katılımcılar ---
+const partsBack=()=>'#/katilimcilar'+(S.partQ?'?'+S.partQ:'');
 function partList(q){
   const market=q.get('pazar')||S.market,m=mk(market),cat=q.get('kategori'),gap=q.get('eksik'),join=q.get('katilim'),freq=q.get('siklik'),s=(q.get('ara')||'').toLocaleLowerCase('tr');
   let list=join&&m?S.d.participants.filter(p=>joinState(p,m)===join):S.d.participants.filter(p=>market==='all'||p.markets.includes(market));
@@ -446,6 +447,8 @@ pages.katilimcilar=r=>{
   const joinCount=k=>m?S.d.participants.filter(p=>joinState(p,m)===k).length:0;
   const bulk=P('bulk');
   S.listIds=list.map(p=>p.id);
+  // Seçili pazar ve filtreler hatırlanır: bir markaya girip geri dönünce aynı liste açılır.
+  S.partQ=new URLSearchParams(q);if(!S.partQ.get('pazar'))S.partQ.set('pazar',market);
   return `<div class="head"><div><h1>Katılımcılar</h1><p>${list.length} marka${m?` · ${esc(m.name)}`:' · tüm pazarlar'} · katılım geçmişiyle</p></div><div class="row">${ioBar('katilimcilar','pazar='+encodeURIComponent(market))}${P('participantWrite')?'<button class="btn primary" data-act="part-new">+ Katılımcı ekle</button>':''}</div></div>
   ${isAna()&&list.length?`<div class="anabar"><span class="mono">SADECE SEN GÖRÜYORSUN · LİSTEDEKİ ${list.length} MARKA</span><span class="row"><button class="btn sm" data-act="ana-selall">Tümünü seç</button><select id="ana-market" aria-label="Pazar">${marketOpts(m?.id||S.d.markets[0]?.id)}</select><button class="btn sm" data-act="ana-bulk" data-v="addMarket">Tümünü pazara ekle</button><button class="btn sm" data-act="ana-bulk" data-v="removeMarket">Tümünü pazardan çıkar</button><button class="btn sm danger" data-act="ana-bulk" data-v="delete">Tümünü sil</button></span></div>`:''}
   <div class="filters"><input data-nav-p="ara" placeholder="Marka, kişi, @instagram, etiket ara" value="${esc(q.get('ara')||'')}"><select data-nav-p="eksik">${opts([['','Tüm kayıtlar'],['logo','Logosu olmayanlar'],['gorsel','Görseli olmayanlar'],['iletisim','İletişimi eksik olanlar']],gap||'')}</select>
@@ -518,7 +521,7 @@ function participantPage(id){
   let streak=0;for(const m of [...ms].reverse()){if(p.markets.includes(m.id))streak++;else if(streak)break}
   const similar=S.d.participants.filter(x=>x.id!==id&&p.category&&x.category===p.category).map(x=>({x,shared:x.markets.filter(mm=>p.markets.includes(mm)).length})).sort((a,b)=>b.shared-a.shared||a.x.brandName.localeCompare(b.x.brandName,'tr')).slice(0,8);
   const ws=S.d.workshops.filter(w=>w.participantId===id);
-  return `<div class="crumb"><a href="#/katilimcilar">KATILIMCILAR</a> / ${esc((p.category||'').toLocaleUpperCase('tr'))}</div><div class="head"><div class="pcard">${avatar(p)}<div><h1>${esc(p.brandName)}</h1><p>${esc(p.category)}${p.instagram?' · '+igLink(p.instagram):''} · ${joined.length} pazar · ${loyalty(joined.length)}${ownerName(p)?` · kaydı giren: ${esc(ownerName(p))}`:''}</p></div></div><div class="head-side">${brandSummary(p)}<span class="row">${P('chat')?`<a class="btn sm" href="#/mesajlar?ref=participant:${id}">Ekibe sor</a>`:''}${P('participantDelete')&&mine(p)?`<button class="btn sm danger" data-act="part-del" data-v="${id}">Sil</button>`:''}</span></div></div>
+  return `<div class="crumb"><a href="${partsBack()}">KATILIMCILAR</a> / ${esc((p.category||'').toLocaleUpperCase('tr'))}</div><div class="head"><div class="pcard">${avatar(p)}<div><h1>${esc(p.brandName)}</h1><p>${esc(p.category)}${p.instagram?' · '+igLink(p.instagram):''} · ${joined.length} pazar · ${loyalty(joined.length)}${ownerName(p)?` · kaydı giren: ${esc(ownerName(p))}`:''}</p></div></div><div class="head-side">${brandSummary(p)}<span class="row">${P('chat')?`<a class="btn sm" href="#/mesajlar?ref=participant:${id}">Ekibe sor</a>`:''}${P('participantDelete')&&mine(p)?`<button class="btn sm danger" data-act="part-del" data-v="${id}">Sil</button>`:''}</span></div></div>
   ${ro&&P('participantWrite')?`<p class="note">Bu kartı ${esc(ownerName(p)||'başka bir yönetici')} girdi. Yalnızca o ya da ana yönetici değiştirebilir.</p>`:''}
   ${p.pending?`<div class="warnbox"><b>${esc(ad(p.pending.by)?.name||'Katılımcı')} marka bilgilerini değiştirdi, onay bekliyor.</b><table class="diff"><thead><tr><th>ALAN</th><th>ŞU AN</th><th>YENİ</th></tr></thead><tbody>${Object.entries(p.pending.changes).map(([k,v])=>`<tr><td>${esc(L.pf?.[k]||k)}</td><td>${esc(p[k]||'—')}</td><td><b>${esc(v||'—')}</b></td></tr>`).join('')}</tbody></table>${P('changeApprove')?`<div class="row"><button class="btn sm dark" data-act="change-ok" data-v="${id}">Onayla ve yayımla</button><button class="btn sm" data-act="change-no" data-v="${id}">Reddet</button></div>`:'<small>Organizatör ya da yönetici onaylayacak.</small>'}</div>`:''}
   <div class="drawer-grid"><form class="card" id="part-form" style="display:grid;gap:14px"><h3 style="margin:0">Bilgiler</h3>${participantForm(p,ro)}${ro?'':'<div class="row"><button class="btn primary">Kaydet ve listeye dön</button><button type="button" class="btn ghost" data-act="part-save-stay">Kaydet, burada kal</button></div>'}</form>
@@ -1118,7 +1121,7 @@ const actions={
   'demo-all-del':()=>confirm('Tüm örnek veriler silinsin mi? Gerçek kayıtların kalır.')&&act(()=>call('DELETE','/api/demo/all'),'Örnek veriler silindi'),
   'demo-del':()=>confirm('Örnek başvurular silinsin mi?')&&act(()=>call('DELETE','/api/demo/applications'),'Örnek başvurular silindi'),
   'part-new':()=>newParticipantModal(),
-  'part-del':el=>confirm('Katılımcı silinsin mi? Görselleri depoda kalır.')&&act(async()=>{await call('DELETE',`/api/participants/${el.dataset.v}`);location.hash='#/katilimcilar'},'Katılımcı silindi'),
+  'part-del':el=>confirm('Katılımcı silinsin mi? Görselleri depoda kalır.')&&act(async()=>{await call('DELETE',`/api/participants/${el.dataset.v}`);location.hash=partsBack()},'Katılımcı silindi'),
   'part-save-stay':()=>act(()=>call('PUT',`/api/participants/${route().id}`,formData($('#part-form'))),'Katılımcı kaydedildi'),
   'sel-all':el=>{for(const id of S.listIds||[])el.checked?S.sel.add(id):S.sel.delete(id);render()},
   'bulk-clear':()=>{S.sel.clear();render()},
@@ -1160,7 +1163,7 @@ const actions={
   'change-ok':el=>act(()=>call('POST',`/api/participants/${el.dataset.v}/changes`,{approve:true}),'Değişiklik onaylandı'),
   'change-no':el=>confirm('Değişiklik reddedilsin mi?')&&act(()=>call('POST',`/api/participants/${el.dataset.v}/changes`,{approve:false}),'Değişiklik reddedildi'),
   'form-publish':el=>act(()=>call('PUT',`/api/forms/${el.dataset.v}`,{...fm(el.dataset.v),status:'acik'}),'Form yayında; bağlantıyı paylaşabilirsin'),
-  back:()=>{if(S.navDepth>0){S.backing=true;history.back()}else{const r=route();location.hash=r.id?'#/'+r.view:'#/'}},
+  back:()=>{if(S.navDepth>0){S.backing=true;history.back()}else{const r=route();location.hash=r.id?(r.view==='katilimcilar'?partsBack():'#/'+r.view):'#/'}},
   scrollto:el=>{const go=()=>document.getElementById(el.dataset.v)?.scrollIntoView({behavior:'smooth'});if(route().view!=='genel'&&location.hash!=='#/'){location.hash='#/';setTimeout(go,60)}else go()},
   'reg-set':el=>act(async()=>{await call('PUT',`/api/workshops/${el.dataset.w}/registrations/${el.dataset.r}`,{status:el.dataset.v});closeModal();setTimeout(()=>workshopModal(S.d.workshops.find(w=>w.id===el.dataset.w)))},el.dataset.v==='onay'?'Kayıt onaylandı':'Kayıt reddedildi'),
   'opening-edit':()=>{const o=S.d.settings?.opening||{};modal(`<span class="mono">KASA</span><h2>Devreden bakiye</h2><p class="muted" style="margin:0">Bu panelden önceki pazarlardan kasada kalan para. Her pazarın devredeni bunun üstüne önceki pazarların sonucu eklenerek hesaplanır.</p>${field('Tutar (₺)',`<input name="amount" type="number" step="0.01" value="${esc(o.amount??'')}" placeholder="0">`)}${field('Not',`<textarea name="note" placeholder="Örn. 4. pazardan elde kalan nakit">${esc(o.note||'')}</textarea>`)}${actions2('Kaydet')}`,async d=>{await call('PUT','/api/settings/opening',d);await refresh();closeModal();toast('Devreden bakiye kaydedildi');render()})},
@@ -1216,7 +1219,7 @@ document.addEventListener('submit',async e=>{
   const f=e.target;
   if(f.matches('[data-modal]')){e.preventDefault();try{await S.modalSubmit(formData(f),f)}catch(err){$('#modal-err').textContent=err.message;const b=f.querySelector('.btn.primary');if(b&&b.textContent==='Yükleniyor…')b.textContent='Yükle'}}
   if(f.id==='portal-form'){e.preventDefault();act(()=>call('PUT','/api/portal/profile',formData(f)),'Değişikliklerin onaya gönderildi');return}
-  if(f.id==='part-form'){e.preventDefault();act(async()=>{await call('PUT',`/api/participants/${route().id}`,formData(f));location.hash='#/katilimcilar'},'Katılımcı kaydedildi')}
+  if(f.id==='part-form'){e.preventDefault();act(async()=>{await call('PUT',`/api/participants/${route().id}`,formData(f));location.hash=partsBack()},'Katılımcı kaydedildi')}
   if(f.id==='loyalty-form'){e.preventDefault();const d=formData(f),tiers=[];for(let i=0;i<10;i++)if(d['pct'+i])tiers.push({min:+d['min'+i]||0,pct:+d['pct'+i]});act(()=>call('PUT','/api/settings/loyalty',{...d,tiers}),'Ayarlar kaydedildi');return}
   if(f.id==='msg-form'){e.preventDefault();const d=formData(f),r=route().q.get('ref');let ref=null;if(r){const [type,id]=r.split(':');ref={type,id,label:refLabel(type,id),mediaId:refMedia(type,id)}}
     const poll=S.pollDraft?{question:d.pq,options:Object.keys(d).filter(k=>/^po\d+$/.test(k)).map(k=>d[k])}:null;
