@@ -1,5 +1,23 @@
 [
  {
+  "v": "2.9.0",
+  "date": "2026-10-08",
+  "notes": [
+   "Sekmelere ve kasa kutularına basınca sayfa artık en üste kaymıyor; olduğun yerde kalıyor.",
+   "Yeni “Görevler” sayfası: herkes kendi görevini ekler, yapınca işaretler, tarih ve not girer. Ana yönetici tüm ekibi görev ağacında görür, kime görev listesi açılacağını seçer.",
+   "Yeni “Puanlama” sayfası: yöneticiler katılımcılara 10 üzerinden puan verir; kimin kaç verdiğini yalnızca ana yönetici görür.",
+   "Sadakat puanı: her pazar ve üst üste katılım puan kazandırır. Puan ya da skora göre indirim basamakları; kasada tek tuşla “Sadakat indirimlerini uygula”.",
+   "Öneri listesi: skor 6 ve üzeri sonraki pazara katılsın, altı katılmasın. Yerleri yalnızca ana yönetici değiştirir.",
+   "Kara liste: sebebiyle birlikte; kara listedekiler öneriye girmez, başvuruda uyarı çıkar.",
+   "Başvurularda geçmiş pazarlar küçük bir şeritle gösteriliyor; “Tanıdık marka” kutusu yeniden tasarlandı.",
+   "Katılımcı tablosunda pazar numaralarının üstünde “Katılım sağlanan pazarlar” yazıyor.",
+   "Genel bakışta “Son hareketler” yerine görevler ve yalnızca önemli işler.",
+   "Katılımcı görselleri pazar klasöründe marka adına klasörleniyor; görsel kuralları (4:5, 1080×1350, üzerinde yazı yok) katılımcı panelinde.",
+   "Google Drive: Drive klasörünü bağlayınca her görsel aynı klasör düzeniyle oraya kopyalanır.",
+   "Kullanıcılar sayfasında rol açıklamaları “i” butonuyla açılan pencerede; ana yönetici diğerlerine yönetici olarak görünür."
+  ]
+ },
+ {
   "v": "2.8.0",
   "date": "2026-10-08",
   "notes": [
