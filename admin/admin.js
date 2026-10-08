@@ -294,9 +294,11 @@ function marketModal(m){
   ${section('Kimlik',`<div class="grid g3">${field('Sıra no',`<input name="edition" type="number" min="1" step="1" value="${esc(m.edition||'')}" required>`,'tekrar kullanılamaz')}<div style="grid-column:span 2">${field('Pazar adı',`<input name="name" required value="${esc(m.name||(m.edition?m.edition+'. Fevzipaşa Tasarım Pazarı':''))}">`)}</div></div>${field('Durum',`<div class="seg">${Object.entries(L.market).map(([k,t])=>`<label><input type="radio" name="status" value="${k}" ${m.status===k?'checked':''}><span>${t}</span></label>`).join('')}</div>`)}`)}
   ${section('Tarih ve yer',`<div class="grid g2">${field('Başlangıç',`<input name="startDate" type="date" value="${esc(m.startDate||'')}">`)}${field('Bitiş',`<input name="endDate" type="date" value="${esc(m.endDate||'')}">`)}${field('Saatler',`<input name="hours" value="${esc(m.hours||'')}">`)}${field('Konum',`<input name="location" value="${esc(m.location||'')}">`)}</div>`)}
   ${section('Kapasite ve ücret',`<div class="grid g2">${field('Kapasite',`<input name="capacity" type="number" min="0" value="${esc(m.capacity||'')}">`,'stant sayısı')}${field('Katılım ücreti (₺)',`<input name="fee" type="number" min="0" step="any" value="${esc(m.fee||'')}">`,'kabul edilene otomatik atanır')}</div>`)}
+  ${section('Afiş · sitede görünür',isNew?'<p class="muted">Afişi pazar kaydedildikten sonra ekleyebilirsin.</p>':`<p class="muted" style="margin:0 0 12px">Sitedeki Katılımcılar listesinde bu pazarın üzerine gelince imleci takip eder. Dikey (3:4) bir görsel en iyi durur.</p><div class="mk-poster">${m.posterId?`<figure><img src="/media/${m.posterId}" alt="${esc(m.name)} afişi"><button type="button" class="btn sm" data-act="mk-poster-del" data-v="${m.id}">Kaldır</button></figure>`:''}<label class="btn sm dark">${m.posterId?'Afişi değiştir':'Afiş yükle'} ↑<input type="file" accept="image/*" data-mk-poster hidden></label></div>`)}
   ${section('Notlar',field('Ekip notu',`<textarea name="notes">${esc(m.notes||'')}</textarea>`))}
   ${actions2(isNew?'Pazarı oluştur':'Kaydet')}`,
   async d=>{const r=await call(m.id?'PUT':'POST',m.id?`/api/markets/${m.id}`:'/api/markets',d);await refresh();closeModal();toast('Pazar kaydedildi');location.hash=`#/pazarlar/${r.id}`;render()},'wide');
+  const up=$('#modal [data-mk-poster]');if(up)up.addEventListener('change',async()=>{if(!up.files.length)return;try{await call('POST',`/api/markets/${m.id}/poster`,{files:await readFiles([up.files[0]])});await refresh();toast('Afiş yüklendi');marketModal(mk(m.id))}catch(e){toast(e.message,true)}});
 }
 
 // --- Formlar ---
@@ -1123,6 +1125,7 @@ const actions={
   'ws-img-del':el=>confirm('Görsel silinsin mi?')&&(async()=>{try{await call('DELETE',`/api/workshops/${el.dataset.w}/images/${el.dataset.v}`);await refresh();toast('Görsel silindi');workshopModal(S.d.workshops.find(x=>x.id===el.dataset.w))}catch(e){toast(e.message,true)}})(),
   'app-note-send':()=>{const id=route().id,a=S.d.applications.find(x=>x.id===id),t=$('#app-notes').value.trim();if(!t)return toast('Önce notu yaz',true);act(async()=>{await call('PUT',`/api/applications/${id}`,{notes:t});await call('POST','/api/messages',{text:'Ekip notu: '+t,ref:{type:'application',id,label:appName(a)}})},'Not kaydedildi, Mesajlar’a gönderildi')},
   'ws-open':el=>workshopModal(S.d.workshops.find(w=>w.id===el.dataset.v)),
+  'mk-poster-del':el=>confirm('Afiş kaldırılsın mı?')&&(async()=>{try{await call('DELETE',`/api/markets/${el.dataset.v}/poster`);await refresh();toast('Afiş kaldırıldı');marketModal(mk(el.dataset.v))}catch(e){toast(e.message,true)}})(),
   'ws-del':el=>confirm('Workshop silinsin mi?')&&act(async()=>{await call('DELETE',`/api/workshops/${el.dataset.v}`);closeModal()},'Workshop silindi'),
   'ledger-new':el=>ledgerModal(null,el.dataset.v,el.dataset.cat),
   'ledger-open':el=>ledgerModal(S.d.ledger.find(e=>e.id===el.dataset.v)),

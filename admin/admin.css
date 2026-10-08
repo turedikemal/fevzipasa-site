@@ -391,3 +391,8 @@ table.tiers{width:auto;margin-top:6px}table.tiers td{padding:3px 6px 3px 0}table
 .import-result.bad{background:#ffe1d6}
 .import-result.ok{background:var(--yellow)}
 .import-result small{color:inherit;opacity:.8}
+.mk-poster{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap}
+.mk-poster figure{margin:0;position:relative;width:150px;aspect-ratio:3/4;border:1px solid var(--ink);overflow:hidden}
+.mk-poster img{width:100%;height:100%;object-fit:cover;display:block}
+.mk-poster figure .btn{position:absolute;right:6px;bottom:6px;background:#fff}
+.mk-poster label.btn{cursor:pointer}
