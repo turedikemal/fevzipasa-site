@@ -248,7 +248,7 @@ table.admins tr.group td{padding:26px 0 10px;border-bottom:1px solid var(--ink);
 table.admins tbody:first-of-type tr.group td{padding-top:6px}
 .roles td{padding-top:14px;padding-bottom:14px}
 /* Kasa akışı */
-.kasa-flow{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:stretch;gap:10px;margin:0 0 26px}.kasa-flow>i{align-self:center;font-style:normal;font-size:40px;font-weight:800;color:var(--muted)}
+.kasa-flow{display:grid;grid-template-columns:1fr auto 1fr auto 1fr auto 1fr;align-items:stretch;gap:10px;margin:0 0 26px}.kasa-flow>i{align-self:center;font-style:normal;font-size:40px;font-weight:800;color:var(--muted)}
 .kf{display:grid;gap:8px;padding:22px;text-decoration:none;border:2px solid var(--ink);transition:transform .25s var(--ease),box-shadow .25s}.kf:hover{transform:translateY(-3px);box-shadow:0 8px 0 var(--ink)}.kf.on{box-shadow:0 8px 0 var(--ink)}
 .kf span{font-family:'Roboto Mono',monospace;font-size:11px;letter-spacing:1px}.kf strong{font-size:clamp(30px,3vw,48px);letter-spacing:-.05em;line-height:1}.kf small{font-size:12px}
 .kf.in{background:#e3f4ea;color:var(--green)}.kf.out{background:#fde4e1;color:var(--red)}.kf.cash{background:var(--blue);color:var(--yellow)}.kf small{color:inherit;opacity:.85}
@@ -319,3 +319,6 @@ figure.thumb{margin:0}
 .acc.out{cursor:pointer;font:inherit;font-weight:700}.acc.out:hover{background:var(--orange);border-color:var(--orange);color:#fff}.wordmark{justify-self:start;width:fit-content}.wordmark:focus:not(:focus-visible){outline:0}
 .acc.out{background:#fff;color:var(--ink)}.acc.out:hover{background:var(--orange);color:#fff}
 .pay-sum{display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid var(--ink);border-bottom:1px solid var(--ink);padding:14px 0;margin:6px 0 18px}.pay-sum strong{font-size:34px;letter-spacing:-.04em;color:var(--orange)}.pay-steps{margin:0 0 20px;padding-left:20px;display:grid;gap:10px;line-height:1.5}.pay-steps code{background:var(--yellow);padding:2px 6px;font-size:13px}
+
+.kf.carry{cursor:pointer}.print-only{display:none}
+@media print{body *{visibility:hidden}.print-area,.print-area *{visibility:visible}.print-area{position:absolute;left:0;top:0;width:100%}.print-only{display:block;margin:0 0 12px}.plist tr{color:#000}}

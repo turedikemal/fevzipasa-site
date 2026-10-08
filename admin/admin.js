@@ -62,6 +62,12 @@ const feeOf=(p,m)=>({amount:m.fee||0,paid:0,method:'',date:'',note:'',...(p.fees
 const feeState=f=>!f.set&&!f.amount?'tanimsiz':f.amount<=0&&f.paid<=0?'ucretsiz':f.paid>=f.amount?'odendi':f.paid>0?'kismi':'bekliyor';
 const feeRows=scope=>S.d.participants.flatMap(p=>p.markets.map(mk).filter(m=>m&&(scope==='all'||m.id===scope)).map(m=>({p,m,f:feeOf(p,m)})));
 const feeSum=rows=>{const due=rows.reduce((s,r)=>s+(r.f.amount||0),0),paid=rows.reduce((s,r)=>s+(r.f.paid||0),0);return {due,paid,rest:Math.max(0,due-paid),open:rows.filter(r=>['bekliyor','kismi'].includes(feeState(r.f))).length,unset:rows.filter(r=>feeState(r.f)==='tanimsiz').length}};
+const opening=()=>Number(S.d.settings?.opening?.amount)||0;
+function carryIn(scope){
+  if(scope==='all')return opening();
+  const m=mk(scope);if(!m)return 0;
+  return opening()+S.d.markets.filter(x=>x.id!==m.id&&(x.startDate||'')<(m.startDate||'')).reduce((s,x)=>s+kasa(x.id).cash,0);
+}
 function kasa(scope){
   const fees=feeSum(feeRows(scope)).paid,led=S.d.ledger.filter(e=>scope==='all'||e.marketId===scope);
   const inc=led.filter(e=>e.type==='gelir').reduce((s,e)=>s+e.amount,0),exp=led.filter(e=>e.type==='gider').reduce((s,e)=>s+e.amount,0);
@@ -419,17 +425,22 @@ pages.katilimcilar=r=>{
   return `<div class="head"><div><h1>Katılımcılar</h1><p>${list.length} marka${m?` · ${esc(m.name)}`:' · tüm pazarlar'} · katılım geçmişiyle</p></div><div class="row">${ioBar('katilimcilar','pazar='+encodeURIComponent(market))}${P('participantWrite')?'<button class="btn primary" data-act="part-new">+ Katılımcı ekle</button>':''}</div></div>
   <div class="filters"><input data-nav-p="ara" placeholder="Marka, kişi, @instagram, etiket ara" value="${esc(q.get('ara')||'')}"><select data-nav-p="eksik">${opts([['','Tüm kayıtlar'],['logo','Logosu olmayanlar'],['gorsel','Görseli olmayanlar'],['iletisim','İletişimi eksik olanlar']],gap||'')}</select>
   <select data-nav-p="pazar">${opts([['all','Tüm pazarlar'],...S.d.markets.map(x=>[x.id,x.name])],market)}</select>
-  <span class="viewsw"><button class="${S.view==='grid'?'on':''}" data-act="view" data-v="grid">Kartlar</button><button class="${S.view==='table'?'on':''}" data-act="view" data-v="table">Tablo${bulk?' · toplu işlem':''}</button></span></div>
+  <span class="viewsw"><button class="${S.view==='grid'?'on':''}" data-act="view" data-v="grid">Kartlar</button><button class="${S.view==='table'?'on':''}" data-act="view" data-v="table">Tablo${bulk?' · toplu işlem':''}</button><button class="${S.view==='liste'?'on':''}" data-act="view" data-v="liste">Liste</button></span></div>
   <div class="filters f2">${m?`<select data-nav-p="katilim" aria-label="Katılım">${opts([['',`Bu pazardakiler (${allIn.length})`],...Object.entries(L.join).map(([k,t])=>[k,`${t} (${joinCount(k)})`])],join||'')}</select>`
   :`<select data-nav-p="siklik" aria-label="Kaç pazar">${opts([['','Kaç pazar: tümü'],['1',`Tek pazar (${allIn.filter(p=>p.markets.length===1).length})`],['2',`2–3 pazar (${allIn.filter(p=>p.markets.length>=2&&p.markets.length<=3).length})`],['4',`Sadık · 4+ pazar (${allIn.filter(p=>p.markets.length>=4).length})`]],freq||'')}</select>`}
   <select data-nav-p="kategori" aria-label="Kategori">${opts([['','Tüm kategoriler'],...S.d.categories.filter(c=>catCount(c)||cat===c).map(c=>[c,`${c} (${catCount(c)})`])],cat||'')}</select></div>
-  ${!list.length?'<div class="empty">Kayıt yok.</div>':S.view==='table'?partTable(list,m,bulk):`<div class="grid g4">${list.map(p=>partTile(p,m)).join('')}</div>`}
+  ${!list.length?'<div class="empty">Kayıt yok.</div>':S.view==='liste'?partList2(list,m):S.view==='table'?partTable(list,m,bulk):`<div class="grid g4">${list.map(p=>partTile(p,m)).join('')}</div>`}
   ${bulk?`<div class="bulkbar" id="bulkbar" hidden><b id="bulk-n">0 seçili</b><select id="bulk-market">${marketOpts(m?.id||S.d.markets[0]?.id)}</select><button class="btn sm" data-act="bulk" data-v="addMarket">Pazara ekle</button><button class="btn sm" data-act="bulk" data-v="removeMarket">Pazardan çıkar</button><select id="bulk-cat">${opts(S.d.categories.map(c=>[c,c]),'','Kategori seç')}</select><button class="btn sm" data-act="bulk" data-v="category">Kategori ata</button><button class="btn sm" data-act="bulk" data-v="tag">Etiket ekle</button>${P('participantDelete')?'<button class="btn sm danger" data-act="bulk" data-v="delete">Sil</button>':''}<button class="btn sm ghost" data-act="bulk-clear">Seçimi kaldır</button></div>`:''}`;
 };
 function partTile(p,m){
   const l=logoOf(p),c=l||cover(p),st=m&&joinState(p,m);
   return `<a class="pcard-tile" href="#/katilimcilar/${p.id}"><span class="img ${l?'logo':''}">${c?`<img src="/media/${c.id}" alt="" loading="lazy">`:`<span>${esc((p.brandName||'?')[0])}</span>`}</span><span class="row" style="justify-content:space-between"><span class="mono">${esc((p.category||'Kategori yok').toLocaleUpperCase('tr'))}</span>${st?pill('join',st):''}</span><strong>${esc(p.brandName)}</strong>
   <span class="row mono" style="gap:12px"><span>${p.markets.length} PAZAR · ${loyalty(p.markets.length).toLocaleUpperCase('tr')}</span>${p.instagram?`<span>${esc(p.instagram)}</span>`:''}</span>${[...missing(p),...(l?[]:['Logo'])].length?`<small style="color:var(--red)">Eksik: ${[...missing(p),...(l?[]:['Logo'])].join(', ')}</small>`:''}</a>`;
+}
+function partList2(list,m){
+  return `<div class="row" style="justify-content:space-between;margin-bottom:12px"><span class="mono">${list.length} MARKA${m?' · '+esc(m.name.toLocaleUpperCase('tr')):''}</span><button class="btn sm" data-act="print">Yazdır / PDF</button></div>
+  <div class="table-wrap print-area"><h2 class="print-only">Katılımcı listesi${m?' · '+esc(m.name):''}</h2><table class="plist"><thead><tr><th>#</th><th>MARKA</th><th>YETKİLİ</th><th>TELEFON</th><th>E-POSTA</th><th>INSTAGRAM</th><th>KATEGORİ</th></tr></thead>
+  <tbody>${list.map((p,i)=>`<tr class="click" data-href="#/katilimcilar/${p.id}"><td>${i+1}</td><td><b>${esc(p.brandName)}</b></td><td>${esc(p.contactName||'—')}</td><td>${esc(p.phone||'—')}</td><td>${esc(p.email||'—')}</td><td>${esc(p.instagram||'—')}</td><td><small>${esc(p.category||'')}</small></td></tr>`).join('')}</tbody></table></div>`;
 }
 function partTable(list,m,bulk){
   const ms=marketsAsc().slice(-6);
@@ -522,8 +533,8 @@ pages.kasa=r=>{
   const tabLink=t=>{const n=new URLSearchParams();n.set('sekme',t);if(q.get('pazar'))n.set('pazar',q.get('pazar'));return '#/kasa?'+n};
   const k=kasa(scope);
   const head=`<div class="head"><div><h1>Kasa</h1><p>Ne aldık, ne harcadık, kasada ne var. Her yönetici kendi girdiği kaydı düzenler.</p></div>
-  <div class="row"><select class="pill-select" data-nav-o="pazar">${opts([['all','Tüm pazarlar'],...S.d.markets.map(m=>[m.id,m.name])],scope)}</select>${tab==='tahsilat'?ioBar('odemeler','pazar='+encodeURIComponent(scope)):ioBar('kasa','pazar='+encodeURIComponent(scope))}</div></div>
-  <div class="kasa-flow"><a class="kf in ${tab==='gelirler'?'on':''}" href="${tabLink('gelirler')}"><span>GELİRLER</span><strong>+ ${money(k.fees+k.inc)}</strong><small>katılım ücreti ${money(k.fees)} · diğer ${money(k.inc)}</small></a><i>−</i><a class="kf out ${tab==='masraflar'?'on':''}" href="${tabLink('masraflar')}"><span>MASRAFLAR</span><strong>− ${money(k.exp)}</strong><small>${k.led.filter(e=>e.type==='gider').length} kayıt · ${k.noInvoice.length} faturası bekleniyor</small></a><i>=</i><a class="kf cash ${tab==='ozet'?'on':''}" href="${tabLink('ozet')}"><span>KASADA</span><strong>${money(k.cash)}</strong><small>${scope==='all'?'tüm pazarlar':esc(mk(scope)?.name||'')}</small></a></div>
+  <div class="row">${P('ledgerWrite')?'<button class="btn primary" data-act="ledger-new" data-v="gelir">+ Kasaya para gir</button><button class="btn" data-act="ledger-new" data-v="gider">− Masraf gir</button>':''}<select class="pill-select" data-nav-o="pazar">${opts([['all','Tüm pazarlar'],...S.d.markets.map(m=>[m.id,m.name])],scope)}</select>${tab==='tahsilat'?ioBar('odemeler','pazar='+encodeURIComponent(scope)):ioBar('kasa','pazar='+encodeURIComponent(scope))}</div></div>
+  <div class="kasa-flow"><a class="kf carry" ${P('ledgerWrite')?'data-act="opening-edit" href="javascript:void 0"':''}><span>DEVREDEN</span><strong>${money(carryIn(scope))}</strong><small>${scope==='all'?'açılış bakiyesi':'önceki pazarlardan'}${P('ledgerWrite')?' · düzenle':''}</small></a><i>+</i><a class="kf in ${tab==='gelirler'?'on':''}" href="${tabLink('gelirler')}"><span>GELİRLER</span><strong>+ ${money(k.fees+k.inc)}</strong><small>katılım ücreti ${money(k.fees)} · diğer ${money(k.inc)}</small></a><i>−</i><a class="kf out ${tab==='masraflar'?'on':''}" href="${tabLink('masraflar')}"><span>MASRAFLAR</span><strong>− ${money(k.exp)}</strong><small>${k.led.filter(e=>e.type==='gider').length} kayıt · ${k.noInvoice.length} faturası bekleniyor</small></a><i>=</i><a class="kf cash ${tab==='ozet'?'on':''}" href="${tabLink('ozet')}"><span>KASADA</span><strong>${money(carryIn(scope)+k.cash)}</strong><small>${scope==='all'?'tüm pazarlar':'bu pazar '+money(k.cash)+' · '+esc(mk(scope)?.name||'')}</small></a></div>
   <nav class="tabs">${kasaTabs.map(([t,n])=>`<a href="${tabLink(t)}" class="${tab===t?'on':''}">${n}</a>`).join('')}</nav>`;
   const pay=S.d.settings?.payment||{};
   const payCard=`<div class="paycard"><div><span class="mono">HAVALE / EFT BİLGİLERİ · KATILIMCI PANELİNDE GÖRÜNÜR</span>${pay.iban?`<b>${esc(pay.bank||'')} · ${esc(pay.holder||'')}</b><code>${esc(pay.iban)}</code>`:'<b>Henüz eklenmedi.</b><small>Katılımcılar ödeme yapabilsin diye banka ve IBAN bilgisini ekle.</small>'}</div>${P('ledgerWrite')?`<button class="btn sm ${pay.iban?'':'primary'}" data-act="pay-edit">${pay.iban?'Düzenle':'+ Ödeme bilgisi ekle'}</button>`:''}</div>`;
@@ -878,6 +889,7 @@ const actions={
   close:()=>closeModal(),
   copy:async el=>{try{await navigator.clipboard.writeText(el.dataset.v);toast('Bağlantı kopyalandı')}catch{prompt('Bağlantıyı kopyala:',el.dataset.v)}},
   scope:el=>{S.market=el.dataset.v;store.set('fp-market',S.market);render();toast('Panel bu pazara odaklandı')},
+  print:()=>window.print(),
   view:el=>{S.view=el.dataset.v;store.set('fp-view',S.view);render()},
   'market-new':()=>marketModal(),
   'market-edit':el=>marketModal(mk(el.dataset.v)),
@@ -935,6 +947,7 @@ const actions={
   back:()=>{if(S.navDepth>0){S.backing=true;history.back()}else{const r=route();location.hash=r.id?'#/'+r.view:'#/'}},
   scrollto:el=>{const go=()=>document.getElementById(el.dataset.v)?.scrollIntoView({behavior:'smooth'});if(route().view!=='genel'&&location.hash!=='#/'){location.hash='#/';setTimeout(go,60)}else go()},
   'reg-set':el=>act(async()=>{await call('PUT',`/api/workshops/${el.dataset.w}/registrations/${el.dataset.r}`,{status:el.dataset.v});closeModal();setTimeout(()=>workshopModal(S.d.workshops.find(w=>w.id===el.dataset.w)))},el.dataset.v==='onay'?'Kayıt onaylandı':'Kayıt reddedildi'),
+  'opening-edit':()=>{const o=S.d.settings?.opening||{};modal(`<span class="mono">KASA</span><h2>Devreden bakiye</h2><p class="muted" style="margin:0">Bu panelden önceki pazarlardan kasada kalan para. Her pazarın devredeni bunun üstüne önceki pazarların sonucu eklenerek hesaplanır.</p>${field('Tutar (₺)',`<input name="amount" type="number" step="0.01" value="${esc(o.amount??'')}" placeholder="0">`)}${field('Not',`<textarea name="note" placeholder="Örn. 4. pazardan elde kalan nakit">${esc(o.note||'')}</textarea>`)}${actions2('Kaydet')}`,async d=>{await call('PUT','/api/settings/opening',d);await refresh();closeModal();toast('Devreden bakiye kaydedildi');render()})},
   'pay-edit':()=>{const p=S.d.settings?.payment||{};modal(`<span class="mono">KASA</span><h2>Ödeme bilgileri</h2><p class="muted" style="margin:0">Havale / EFT için. Katılımcı panelinde “Ödeme bilgileri” sayfasında görünür.</p>${field('Banka',`<input name="bank" value="${esc(p.bank||'')}" placeholder="Örn. Ziraat Bankası">`)}${field('Alıcı adı',`<input name="holder" value="${esc(p.holder||'')}" placeholder="Hesap sahibi">`)}${field('IBAN',`<input name="iban" value="${esc(p.iban||'')}" placeholder="TR00 0000 0000 0000 0000 0000 00">`)}${field('Not',`<textarea name="note" placeholder="Örn. Açıklamaya marka adını yazın.">${esc(p.note||'')}</textarea>`)}${actions2('Kaydet')}`,async d=>{await call('PUT','/api/settings/payment',d);await refresh();closeModal();toast('Ödeme bilgileri kaydedildi');render()})},
   'claim-link':el=>act(()=>call('PUT',`/api/admins/${el.dataset.v}`,{link:el.dataset.ok==='1'}),el.dataset.ok==='1'?'Hesap markayla eşleştirildi':'Eşleştirme reddedildi'),
   'ws-join':el=>{const id=el.dataset.v,w=S.d.workshops.find(x=>x.id===id),go=()=>act(()=>call('POST',`/api/portal/workshops/${id}`,{}),'Yerin ayrıldı; ekip onaylayınca kesinleşir');if(el.dataset.paid!=='1'||!w)return go();

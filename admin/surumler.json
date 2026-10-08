@@ -1,5 +1,14 @@
 [
  {
+  "v": "2.8.0",
+  "date": "2026-10-08",
+  "notes": [
+   "Katılımcılarda yeni “Liste” görünümü: marka, yetkili, telefon, e-posta, Instagram, kategori; tek tuşla yazdır ya da PDF kaydet.",
+   "Kasada “+ Kasaya para gir” ve “− Masraf gir” butonları.",
+   "Kasada “Devreden” kutusu: açılış bakiyesi ve önceki pazarlardan devreden para; KASADA toplamı buna göre hesaplanır."
+  ]
+ },
+ {
   "v": "2.7.0",
   "date": "2026-10-08",
   "notes": [
