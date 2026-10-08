@@ -21,3 +21,4 @@
 @media(max-width:900px){.ws-come{grid-template-columns:1fr}.ws-market{padding:26px}}
 
 .legal p,.legal details p{max-width:none}.legal details h4{margin:22px 0 8px;font-size:1.05rem}.legal details ul{margin:0 0 14px;padding-left:1.2em;display:grid;gap:6px}
+.hero{min-height:0}.hero .hero-media{aspect-ratio:1/1;min-height:0;height:auto;align-self:start}@media(max-width:640px){.hero .hero-media{height:auto;min-height:0}}
