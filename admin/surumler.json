@@ -1,5 +1,13 @@
 [
  {
+  "v": "2.4.5",
+  "date": "2026-10-08",
+  "notes": [
+   "Geniş ekranda paneldeki üst butonlar kenara yapışmıyor; içerikle aynı hizada.",
+   "Sitedeki dönen Kayıt ol yazısı daha hızlı."
+  ]
+ },
+ {
   "v": "2.4.4",
   "date": "2026-10-08",
   "notes": [

@@ -11,3 +11,4 @@
 .credit{display:inline-flex;align-items:center;gap:6px;font-family:Manrope,Arial,sans-serif;font-style:normal;font-weight:500;font-size:12px;letter-spacing:0}.credit b{font-family:Inter,Arial,sans-serif;font-style:italic;font-weight:700;letter-spacing:-.05em}.credit img{width:14px;height:14px;object-fit:contain;display:inline-block}
 .credit{display:inline;white-space:nowrap}.credit img{vertical-align:-2px;margin-left:6px}
 .nav-join{background:var(--orange);border-color:var(--orange);color:#fff}.nav-join:hover{background:#fff;color:var(--orange);border-color:var(--orange)}.participants .nav-join{color:#fff}.participants .nav-join:hover{color:var(--orange)}
+.join-words b{transition-duration:.4s}

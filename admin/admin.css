@@ -313,3 +313,4 @@ figure.thumb{margin:0}
 .auth-ig{align-items:center;border-bottom-width:2px}
 .auth-tabs button{background:transparent;border-color:var(--ink);color:var(--ink)}.auth-tabs button:hover{background:var(--ink);color:var(--yellow)}.auth-tabs button[data-v=login].on{background:var(--blue);border-color:var(--blue);color:#fff}.auth-tabs button[data-v=signup].on{background:var(--pink);border-color:var(--pink);color:var(--ink)}
 .auth-tabs button[data-v=signup].on{background:var(--orange);border-color:var(--orange);color:var(--yellow)}
+.bar,.tools,.admin-foot{padding-left:max(5%,calc((100% - 1500px)/2 + 5%));padding-right:max(5%,calc((100% - 1500px)/2 + 5%))}
