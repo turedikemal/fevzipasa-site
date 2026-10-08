@@ -1,5 +1,13 @@
 [
  {
+  "v": "2.5.3",
+  "date": "2026-10-08",
+  "notes": [
+   "Ücretli workshopa katılırken ödeme adımı açılır: ücret, 3 adım, açıklamaya yazılacak metin ve kopyalanabilir IBAN ile banka bilgileri.",
+   "Kayıt sonrası workshop kartında “Ödeme bilgileri” butonu çıkar."
+  ]
+ },
+ {
   "v": "2.5.2",
   "date": "2026-10-08",
   "notes": [

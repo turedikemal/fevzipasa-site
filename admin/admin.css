@@ -318,3 +318,4 @@ figure.thumb{margin:0}
 .pcard-row.hl{outline:2px solid var(--blue);outline-offset:8px}
 .acc.out{cursor:pointer;font:inherit;font-weight:700}.acc.out:hover{background:var(--orange);border-color:var(--orange);color:#fff}.wordmark{justify-self:start;width:fit-content}.wordmark:focus:not(:focus-visible){outline:0}
 .acc.out{background:#fff;color:var(--ink)}.acc.out:hover{background:var(--orange);color:#fff}
+.pay-sum{display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid var(--ink);border-bottom:1px solid var(--ink);padding:14px 0;margin:6px 0 18px}.pay-sum strong{font-size:34px;letter-spacing:-.04em;color:var(--orange)}.pay-steps{margin:0 0 20px;padding-left:20px;display:grid;gap:10px;line-height:1.5}.pay-steps code{background:var(--yellow);padding:2px 6px;font-size:13px}
