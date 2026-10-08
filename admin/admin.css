@@ -403,3 +403,4 @@ table.tiers{width:auto;margin-top:6px}table.tiers td{padding:3px 6px 3px 0}table
 .accepted-note{display:grid;gap:4px;background:var(--ink);color:#fff;padding:12px 16px}.accepted-note b{font-size:16px}.accepted-note span{font-size:13px;opacity:.85}
 
 .dup-row{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-top:1px solid var(--line,#ddd);cursor:pointer}.dup-row:first-of-type{border-top:0}.dup-row input{margin-top:4px}.dup-list{max-height:60vh;overflow:auto}
+.dot-btn{background:none;border:0;padding:4px;cursor:pointer;border-radius:50%}.dot-btn:hover .dot{transform:scale(1.18);box-shadow:0 0 0 2px currentColor}.dot-btn .dot{transition:transform .15s}

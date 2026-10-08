@@ -520,7 +520,7 @@ function scoreCard(p){
 function partTable(list,m,bulk){
   const ms=marketsAsc().slice(-6);
   return `<div class="table-wrap"><table class="ptable"><thead><tr class="grp hide-sm"><th colspan="${bulk?4:3}"></th><th colspan="${ms.length}" class="c">KATILIM SAĞLANAN PAZARLAR</th><th colspan="${m?2:1}"></th></tr><tr>${bulk?`<th><input type="checkbox" data-act="sel-all" ${list.every(p=>S.sel.has(p.id))?'checked':''} aria-label="Tümünü seç"></th>`:''}<th>MARKA</th><th class="hide-sm">KATEGORİ</th><th class="hide-sm">INSTAGRAM</th>${ms.map(x=>`<th class="hide-sm c" title="${esc(x.name)}">${x.edition||''}</th>`).join('')}<th>TOPLAM</th>${m?'<th>DURUM</th>':''}</tr></thead>
-  <tbody>${list.map(p=>`<tr class="click" data-href="#/katilimcilar/${p.id}">${bulk?`<td><input type="checkbox" data-sel="${p.id}" ${S.sel.has(p.id)?'checked':''} aria-label="Seç"></td>`:''}<td><span class="pcard">${avatar(p)}<b>${esc(p.brandName)}</b></span></td><td class="hide-sm"><small>${esc(p.category)}</small></td><td class="hide-sm"><small>${esc(p.instagram)}</small></td>${ms.map(x=>`<td class="hide-sm c">${p.markets.includes(x.id)?'<span class="dot on">✓</span>':'<span class="dot">–</span>'}</td>`).join('')}<td><b>${p.markets.length}</b></td>${m?`<td>${joinState(p,m)?pill('join',joinState(p,m)):''}</td>`:''}</tr>`).join('')}</tbody></table></div>`;
+  <tbody>${list.map(p=>`<tr class="click" data-href="#/katilimcilar/${p.id}">${bulk?`<td><input type="checkbox" data-sel="${p.id}" ${S.sel.has(p.id)?'checked':''} aria-label="Seç"></td>`:''}<td><span class="pcard">${avatar(p)}<b>${esc(p.brandName)}</b></span></td><td class="hide-sm"><small>${esc(p.category)}</small></td><td class="hide-sm"><small>${esc(p.instagram)}</small></td>${ms.map(x=>{const on=p.markets.includes(x.id),d=on?'<span class="dot on">✓</span>':'<span class="dot">–</span>';return `<td class="hide-sm c">${bulk?`<button class="dot-btn" data-act="part-mk" data-id="${p.id}" data-v="${x.id}" title="${esc(x.name)}: ${on?'çıkar':'ekle'}">${d}</button>`:d}</td>`}).join('')}<td><b>${p.markets.length}</b></td>${m?`<td>${joinState(p,m)?pill('join',joinState(p,m)):''}</td>`:''}</tr>`).join('')}</tbody></table></div>`;
 }
 function syncBulk(){
   const bar=$('#bulkbar');if(!bar)return;
@@ -1146,6 +1146,8 @@ const actions={
   'demo-del':()=>confirm('Örnek başvurular silinsin mi?')&&act(()=>call('DELETE','/api/demo/applications'),'Örnek başvurular silindi'),
   'part-new':()=>newParticipantModal(),
   'part-dupes':()=>dupesModal(),
+  // Tablodaki pazar dairesine tıklayınca marka o pazara eklenir ya da çıkarılır.
+  'part-mk':el=>{const p=pt(el.dataset.id),on=p?.markets.includes(el.dataset.v);if(!p)return;act(()=>call('POST','/api/participants/bulk',{ids:[p.id],op:on?'removeMarket':'addMarket',marketId:el.dataset.v}),`${p.brandName} ${on?'pazardan çıkarıldı':'pazara eklendi'} · ${mk(el.dataset.v)?.name||''}`)},
   'part-del':el=>confirm('Katılımcı silinsin mi? Görselleri depoda kalır.')&&act(async()=>{await call('DELETE',`/api/participants/${el.dataset.v}`);location.hash=partsBack()},'Katılımcı silindi'),
   'part-save-stay':()=>act(()=>call('PUT',`/api/participants/${route().id}`,formData($('#part-form'))),'Katılımcı kaydedildi'),
   'sel-all':el=>{for(const id of S.listIds||[])el.checked?S.sel.add(id):S.sel.delete(id);render()},
