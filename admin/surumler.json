@@ -1,5 +1,13 @@
 [
  {
+  "v": "2.11.0",
+  "date": "2026-10-08",
+  "notes": [
+   "Sitedeki Katılımcılar alanı artık panele bağlı: sıradaki pazarın katılımcı isimleri siyah oval çerçevelerde görünür, isme tıklayınca markanın Instagram sayfası açılır.",
+   "İsimlerde spot ışığı efekti: bir ismin üzerine gelince diğerleri soluklaşır, seçilen isim sarıya döner. Kimse dokunmazken ışık isimler arasında kendi kendine gezer."
+  ]
+ },
+ {
   "v": "2.10.3",
   "date": "2026-10-08",
   "notes": [
