@@ -1,5 +1,15 @@
 [
  {
+  "v": "2.5.0",
+  "date": "2026-10-08",
+  "notes": [
+   "Sitede üst menüye “Workshoplar” sekmesi: panelde açılan (iptal edilmemiş) workshoplar kartlarla listelenir; geçmiş olanlar altta.",
+   "Her workshopun kendi sayfası: tarih, saat, yer, düzenleyen, ücret, kontenjan, açıklama, görsel galerisi ve “Yerini ayırt” butonu.",
+   "“Yerini ayırt” kayıt/giriş ekranına götürür; giriş sonrası katılımcı panelinde o workshop işaretli gelir.",
+   "Panelde workshop penceresine görsel yükleme: ilk görsel kapak olur, görseller sitede herkese açık görünür."
+  ]
+ },
+ {
   "v": "2.4.5",
   "date": "2026-10-08",
   "notes": [
