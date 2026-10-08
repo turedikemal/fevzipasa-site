@@ -1,5 +1,12 @@
 [
  {
+  "v": "2.11.2",
+  "date": "2026-10-08",
+  "notes": [
+   "Katılımcı isimleri: fare isimden çekildiği anda tüm isimler beklemeden normale döner. Kendi kendine gezen spot ışığı kaldırıldı; isimler sadece üzerine gelince soluklaşır."
+  ]
+ },
+ {
   "v": "2.11.1",
   "date": "2026-10-08",
   "notes": [

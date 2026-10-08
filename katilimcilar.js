@@ -1,6 +1,6 @@
 // Katılımcılar alanı: panelden gelen marka isimleri siyah oval çerçevelerde, tıklayınca Instagram açılır.
 // Efekt: kayan şeritler + spot ışığı. İsimler iki şerit halinde ters yönlere akar; bir ismin üzerine gelince
-// şeritler durur, diğer isimler soluklaşır, seçilen isim sarıya döner.
+// şeritler durur, diğer isimler soluklaşır, seçilen isim sarıya döner. Fare çekilince anında normale döner.
 (()=>{
 const box=document.querySelector('[data-names]');if(!box)return;
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
@@ -19,18 +19,11 @@ fetch('/api/public/participants',{cache:'no-store'}).then(r=>r.ok?r.json():Promi
       let set=one;const w=t.scrollWidth||1;const n=Math.max(1,Math.ceil(innerWidth*1.2/w));for(let i=1;i<n;i++)set+=copy;
       t.innerHTML=set+copy.repeat(n);t.style.setProperty('--dur',Math.max(20,t.scrollWidth/2/45)+'s')})}
   const pills=[...box.querySelectorAll('.name-pill')];
-  const on=p=>{box.classList.add('dim');pills.forEach(x=>x.classList.toggle('hot',x===p))};
-  const off=()=>{box.classList.remove('dim');pills.forEach(x=>x.classList.remove('hot'))};
-  pills.forEach(p=>{p.addEventListener('pointerenter',()=>on(p));p.addEventListener('focus',()=>on(p));p.addEventListener('blur',off)});
+  const on=p=>{box.classList.remove('snap');box.classList.add('dim');pills.forEach(x=>x.classList.toggle('hot',x===p))};
+  // Fare çekildiği anda geçiş beklemeden normale döner.
+  const off=()=>{box.classList.add('snap');box.classList.remove('dim');pills.forEach(x=>x.classList.remove('hot'))};
+  pills.forEach(p=>{p.addEventListener('pointerenter',()=>on(p));p.addEventListener('pointerleave',off);p.addEventListener('focus',()=>on(p));p.addEventListener('blur',off)});
   box.addEventListener('pointerleave',off);
   requestAnimationFrame(()=>box.classList.add('shown'));
-  // Kimse dokunmazken ışık, ekranda görünen isimler arasında kendi kendine gezer.
-  if(still||pills.length<2)return;
-  let last=0,inView=false;
-  addEventListener('pointermove',()=>last=Date.now(),{passive:true});
-  new IntersectionObserver(es=>{inView=es[0].isIntersecting;if(!inView)off()},{threshold:.3}).observe(box);
-  setInterval(()=>{if(!inView||document.hidden||Date.now()-last<3000||box.contains(document.activeElement))return;
-    const seen=pills.filter(p=>{const r=p.getBoundingClientRect();return r.left>innerWidth*.1&&r.right<innerWidth*.9});
-    if(seen.length)on(seen[Math.floor(Math.random()*seen.length)])},1700);
 }).catch(()=>{box.innerHTML='<p class="name-empty">Katılımcılar şu an yüklenemedi.</p>'});
 })();

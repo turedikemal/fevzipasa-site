@@ -41,3 +41,4 @@ a.name-pill{cursor:pointer}
 .motion .name-cloud.shown .name-lane+.name-lane{transition-delay:.15s}
 .name-empty{font-size:18px;font-weight:600;color:var(--ink);margin:0;padding-inline:5%}
 @media(max-width:640px){.name-cloud,.name-track,.name-static{gap:10px}.name-pill{padding:10px 18px}}
+.name-cloud.snap .name-pill{transition:none}
