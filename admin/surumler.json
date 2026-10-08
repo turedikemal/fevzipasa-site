@@ -1,5 +1,13 @@
 [
  {
+  "v": "2.5.1",
+  "date": "2026-10-08",
+  "notes": [
+   "Her sayfada sağ üstte “Çıkış” butonu (yönetim ve katılımcı paneli).",
+   "Logonun etrafında çıkan turuncu çerçeve kaldırıldı."
+  ]
+ },
+ {
   "v": "2.5.0",
   "date": "2026-10-08",
   "notes": [

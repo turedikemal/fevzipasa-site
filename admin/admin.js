@@ -172,7 +172,7 @@ function render(){
   const scrollY=window.scrollY,focusId=document.activeElement?.id;
   const N=nav(),ni=N.findIndex(([k])=>k===r.view),eyebrow=!r.id&&ni>=0?`<p class="eyebrow">${String(ni+1).padStart(2,'0')} / ${N[ni][1].toLocaleUpperCase('tr')}</p>`:'';
   $('#app').innerHTML=`<header class="bar"><div class="bar-top"><a class="wordmark" href="#/">FEVZİPAŞA<br>TASARIM PAZARI<span>YÖNETİM PANELİ</span></a>
-  <div class="bar-right"><a class="acc ${r.view==='hesap'?'on':''}" href="#/hesap">Hesabım · ${esc(S.d.me.name.split(' ')[0])}</a><a class="nav-pill" href="/" target="_blank">Site <span>↗</span></a><button class="menu-btn" data-act="menu">Menü</button></div></div>
+  <div class="bar-right"><a class="acc ${r.view==='hesap'?'on':''}" href="#/hesap">Hesabım · ${esc(S.d.me.name.split(' ')[0])}</a><a class="nav-pill" href="/" target="_blank">Site <span>↗</span></a><button class="acc out" data-act="logout">Çıkış</button><button class="menu-btn" data-act="menu">Menü</button></div></div>
   <nav id="side">${N.map(([k,t])=>`<a href="#/${k}" class="${r.view===k?'on':''}">${t}${k==='basvurular'&&newCount?`<b>${newCount}</b>`:''}</a>`).join('')}</nav></header>
   <div class="tools"><div class="search"><input id="q" placeholder="⌕  Ara…  ( / )" autocomplete="off" value="${esc(S.q||'')}"><div id="results"></div></div>
   <label class="market-pick"><span class="mono hide-sm">PAZAR</span><select id="market-pick">${opts([['all','Tüm pazarlar'],...S.d.markets.map(m=>[m.id,m.name])],S.market)}</select></label></div>
@@ -770,7 +770,7 @@ function renderPortal(){
   const d=S.d,p=d.participant,r=route(),v=['basvurularim','workshoplarim','markam','odeme','hesap'].includes(r.view)?r.view:'ana';
   const tabs=[['ana','Ana sayfa'],['basvurularim','Başvurularım'],['workshoplarim','Workshoplarım'],['markam','Markam'],['odeme','Ödeme bilgileri']];
   const pages={ana:portalHome,basvurularim:portalApps,workshoplarim:portalWs,markam:portalBrand,odeme:portalPay,hesap:portalAccount};
-  $('#app').innerHTML=`<header class="bar"><div class="bar-top"><a class="wordmark" href="#/">FEVZİPAŞA<br>TASARIM PAZARI<span>KATILIMCI PANELİ</span></a><div class="bar-right"><a class="acc ${v==='hesap'?'on':''}" href="#/hesap">Hesabım · ${esc(d.me.name.split(' ')[0])}</a><a class="nav-pill" href="/" target="_blank">Site <span>↗</span></a><button class="menu-btn" data-act="menu">Menü</button></div></div>
+  $('#app').innerHTML=`<header class="bar"><div class="bar-top"><a class="wordmark" href="#/">FEVZİPAŞA<br>TASARIM PAZARI<span>KATILIMCI PANELİ</span></a><div class="bar-right"><a class="acc ${v==='hesap'?'on':''}" href="#/hesap">Hesabım · ${esc(d.me.name.split(' ')[0])}</a><a class="nav-pill" href="/" target="_blank">Site <span>↗</span></a><button class="acc out" data-act="logout">Çıkış</button><button class="menu-btn" data-act="menu">Menü</button></div></div>
   <nav id="side">${tabs.map(([k,t])=>`<a href="#/${k==='ana'?'':k}" class="${v===k?'on':''}">${t}</a>`).join('')}</nav></header>
   <main class="page">${v!=='ana'?'<button class="back" data-act="back">← Geri</button>':''}
   ${d.claimPending?`<div class="warnbox"><b>Hesabın markanla eşleştirilmeyi bekliyor.</b><span>Bu e-posta kayıtlı bir markaya ait. Ekibimiz onaylayınca marka bilgilerin ve ödemelerin burada görünür. Bu sırada başvuru yapabilir, workshoplara katılabilirsin.</span></div>`:''}
