@@ -210,7 +210,7 @@ function dashWork(){
 pages.genel=()=>{
   const apps=S.d.applications.filter(a=>inScope(a.marketId)),markets=S.d.markets.filter(m=>inScope(m.id));
   const parts=S.d.participants.filter(p=>S.market==='all'||p.markets.includes(S.market));
-  const accepted=apps.filter(a=>a.status==='kabul').length,capacity=markets.reduce((s,m)=>s+(m.capacity||0),0);
+  const listed=markets.reduce((s,m)=>s+listedOnly(m,S.d.applications.filter(a=>a.marketId===m.id)).length,0),accepted=apps.filter(a=>a.status==='kabul').length+listed,stands=markets.reduce((s,m)=>s+S.d.participants.filter(p=>p.markets.includes(m.id)).length,0);
   const media=S.d.media.filter(m=>inScope(m.marketId));
   const openForms=S.d.forms.filter(f=>f.status==='acik'&&inScope(f.marketId));
   const t=today(),tips=[];
@@ -220,7 +220,6 @@ pages.genel=()=>{
   for(const f of S.d.forms.filter(f=>inScope(f.marketId)))if(f.status==='acik'&&f.deadline&&f.deadline<t)tips.push([`“${f.title}” formunun son tarihi geçti ama form hâlâ yayında.`,`#/formlar/${f.id}`,'Formu aç','warn']);
   for(const m of markets){
     const acc=S.d.applications.filter(a=>a.marketId===m.id&&a.status==='kabul').length;
-    if(m.capacity&&acc>=m.capacity)tips.push([`${m.name} kapasitesi doldu (${acc}/${m.capacity}).`,`#/pazarlar/${m.id}`,'Pazarı aç','warn']);
     if(m.status==='basvuru'&&!S.d.forms.some(f=>f.marketId===m.id&&f.status==='acik'))tips.push([`${m.name} başvuru döneminde ama yayında bir form yok.`,`#/pazarlar/${m.id}`,'Form ekle','warn']);
   }
   const drafts=S.d.forms.filter(f=>f.status==='taslak'&&inScope(f.marketId));
@@ -246,8 +245,8 @@ pages.genel=()=>{
   const myAct=S.d.activity.filter(a=>a.adminId===S.d.me.id);
   return `<div class="head"><div><h1>Merhaba ${esc(S.d.me.name.split(' ')[0])}.</h1><p>${S.market==='all'?'Tüm pazarların özeti':esc(mk(S.market)?.name)+' özeti'} · ${esc(S.d.roles[S.d.me.role])}</p></div>
   <div class="row">${P('formWrite')?`<button class="btn primary" data-act="form-new" data-v="${S.market==='all'?'':S.market}">+ Yeni başvuru formu</button>`:''}${P('participantWrite')?'<button class="btn" data-act="part-new">+ Katılımcı</button>':''}${P('ledgerWrite')?'<button class="btn" data-act="ledger-new" data-v="gider">+ Masraf</button>':''}</div></div>
-  <div class="grid g4"><a class="stat o" href="#/basvurular"><strong>${apps.length}</strong><span>Başvuru · ${fresh} yeni</span></a>
-  <div class="stat y"><strong>${accepted}${capacity?`<small>/${capacity}</small>`:''}</strong><span>Kabul edilen${capacity?' / kapasite':''}${capacity?`<div class="bar-meter"><i style="width:${Math.min(100,accepted/capacity*100)}%"></i></div>`:''}</span></div>
+  <div class="grid g4"><a class="stat o" href="#/basvurular"><strong>${apps.length+listed}</strong><span>Başvuru · ${fresh} yeni${listed?` · ${listed} listeden`:''}</span></a>
+  <a class="stat y" href="#/pazarlar"><strong>${stands}</strong><span>Stant · katılımcı listesinden · ${accepted} kabul</span></a>
   <a class="stat p" href="#/katilimcilar"><strong>${parts.length}</strong><span>Katılımcı · ${media.length} görsel</span></a>
   ${k?`<a class="stat b money" href="#/kasa"><strong>${money(k.cash)}</strong><span>Kasada · ${money(fs.rest)} tahsil edilecek</span></a>`:`<a class="stat b" href="#/workshoplar"><strong>${upcoming.length}</strong><span>Yaklaşan workshop</span></a>`}</div>
   <div class="grid split" style="margin-top:40px">
@@ -262,12 +261,14 @@ pages.genel=()=>{
 };
 
 // --- Pazarlar ---
-const marketStats=m=>{const apps=S.d.applications.filter(a=>a.marketId===m.id);return {forms:S.d.forms.filter(f=>f.marketId===m.id),apps,acc:apps.filter(a=>a.status==='kabul').length,parts:S.d.participants.filter(p=>p.markets.includes(m.id)),media:S.d.media.filter(x=>x.marketId===m.id),workshops:S.d.workshops.filter(w=>w.marketId===m.id)}};
+// Excel'le ya da elle pazara eklenen katılımcıların başvuru kaydı yoksa "listeden" kabul edilmiş başvuru sayılır; eski pazarlar da böylece tam görünür.
+const listedOnly=(m,apps)=>S.d.participants.filter(p=>p.markets.includes(m.id)&&!apps.some(a=>a.participantId===p.id||a.matchedParticipantId===p.id));
+const marketStats=m=>{const apps=S.d.applications.filter(a=>a.marketId===m.id),listed=listedOnly(m,apps);return {forms:S.d.forms.filter(f=>f.marketId===m.id),apps,listed,applied:apps.length+listed.length,acc:apps.filter(a=>a.status==='kabul').length+listed.length,parts:S.d.participants.filter(p=>p.markets.includes(m.id)),media:S.d.media.filter(x=>x.marketId===m.id),workshops:S.d.workshops.filter(w=>w.marketId===m.id)}};
 pages.pazarlar=r=>{
   if(r.id)return marketPage(r);
   return `<div class="head"><div><h1>Pazarlar</h1><p>Sıra numarasına göre, en yeni üstte. Her pazarın kendi formları, başvuruları, katılımcıları, workshopları ve kasası var.</p></div><div class="row">${ioBar('pazarlar')}${P('marketWrite')?'<button class="btn primary" data-act="market-new">+ Yeni pazar</button>':''}</div></div>
   <div class="grid g3">${S.d.markets.map(m=>{const s=marketStats(m);return `<a class="card" href="#/pazarlar/${m.id}" style="text-decoration:none;display:grid;gap:10px"><div class="row" style="justify-content:space-between"><span class="mono">${m.edition?'SIRA NO '+String(m.edition).padStart(2,'0'):''}</span>${pill('market',m.status)}</div><strong style="font-size:22px;letter-spacing:-.04em;line-height:1.1">${esc(m.name)}</strong><span class="muted">${marketRange(m)}<br>${esc(m.location)}</span>
-  <div class="row mono" style="gap:14px"><span>${s.forms.length} FORM</span><span>${s.apps.length} BAŞVURU</span><span>${s.parts.length} KATILIMCI</span><span>${s.workshops.length} WORKSHOP</span></div>${m.capacity?`<div><small class="muted">Kabul ${s.acc}/${m.capacity}</small><div class="bar-meter"><i style="width:${Math.min(100,s.acc/m.capacity*100)}%;background:var(--orange)"></i></div></div>`:''}</a>`}).join('')||'<div class="empty">Henüz pazar yok.</div>'}</div>`;
+  <div class="row mono" style="gap:14px"><span>${s.forms.length} FORM</span><span>${s.applied} BAŞVURU</span><span><b>${s.parts.length} STANT</b></span><span>${s.workshops.length} WORKSHOP</span></div></a>`}).join('')||'<div class="empty">Henüz pazar yok.</div>'}</div>`;
 };
 function marketPage(r){
   const m=mk(r.id);if(!m)return '<div class="empty">Pazar bulunamadı.</div>';
@@ -277,8 +278,9 @@ function marketPage(r){
   const states={};for(const p of S.d.participants){const st=joinState(p,m);if(st)states[st]=(states[st]||0)+1}
   return `<div class="crumb"><a href="#/pazarlar">PAZARLAR</a> / SIRA NO ${String(m.edition||'').padStart(2,'0')}</div><div class="head"><div><h1>${esc(m.name)}</h1><p>${marketRange(m)} · ${esc(m.hours)} · ${esc(m.location)} ${pill('market',m.status)}${m.fee?` · katılım ücreti ${money(m.fee)}`:''}</p></div>
   <div class="row">${S.market!==m.id?`<button class="btn" data-act="scope" data-v="${m.id}">Paneli bu pazara odakla</button>`:''}${P('marketWrite')&&mine(m)?`<button class="btn" data-act="market-edit" data-v="${m.id}">Düzenle</button><button class="btn danger" data-act="market-del" data-v="${m.id}">Sil</button>`:''}</div></div>
-  <div class="grid g4"><a class="stat o" href="#/basvurular?pazar=${m.id}"><strong>${s.apps.length}</strong><span>Başvuru · ${byStatus('yeni')} yeni · ${byStatus('inceleniyor')} inceleniyor</span></a><div class="stat y"><strong>${s.acc}${m.capacity?`<small>/${m.capacity}</small>`:''}</strong><span>Kabul / kapasite</span></div><a class="stat p" href="#/katilimcilar?pazar=${m.id}"><strong>${s.parts.length}</strong><span>Katılımcı · ${states.yeni||0} ilk kez · ${states.katilmadi||0} gelmedi</span></a>${k?`<a class="stat b money" href="#/kasa?pazar=${m.id}"><strong>${money(k.cash)}</strong><span>Bu pazarın kasası · ${money(fs.rest)} tahsil edilecek</span></a>`:`<a class="stat b" href="#/workshoplar?pazar=${m.id}"><strong>${s.workshops.length}</strong><span>Workshop</span></a>`}</div>
+  <div class="grid g4"><a class="stat o" href="#/basvurular?pazar=${m.id}"><strong>${s.applied}</strong><span>Başvuru · ${byStatus('yeni')} yeni · ${byStatus('inceleniyor')} inceleniyor${s.listed.length?` · ${s.listed.length} katılımcı listesinden`:''}</span></a><a class="stat y" href="#/katilimcilar?pazar=${m.id}"><strong>${s.parts.length}</strong><span>Stant · katılımcı listesinden · ${s.acc} kabul</span></a><a class="stat p" href="#/katilimcilar?pazar=${m.id}"><strong>${s.parts.length}</strong><span>Katılımcı · ${states.yeni||0} ilk kez · ${states.katilmadi||0} gelmedi</span></a>${k?`<a class="stat b money" href="#/kasa?pazar=${m.id}"><strong>${money(k.cash)}</strong><span>Bu pazarın kasası · ${money(fs.rest)} tahsil edilecek</span></a>`:`<a class="stat b" href="#/workshoplar?pazar=${m.id}"><strong>${s.workshops.length}</strong><span>Workshop</span></a>`}</div>
   <div class="grid g2" style="margin-top:40px">
+  <div class="card"><h3>Afiş · sitede görünür <a class="btn sm ghost" href="#/gorseller?m=afis">Tüm afişler →</a></h3>${posterBox(m,P('marketWrite')&&mine(m))}</div>
   <div class="card"><h3>Başvuru formları ${P('formWrite')?`<span class="row"><button class="btn sm" data-act="form-copy-into" data-v="${m.id}">Önceki formu kopyala</button><button class="btn sm primary" data-act="form-new" data-v="${m.id}">+ Form</button></span>`:''}</h3>
   <div class="list">${s.forms.map(f=>`<a class="item" href="#/formlar/${f.id}"><span><b>${esc(f.title)}</b><br><small class="muted">${S.d.applications.filter(a=>a.formId===f.id).length} başvuru · son tarih ${date(f.deadline)}</small></span>${pill('form',f.status)}</a>`).join('')||'<div class="empty">Bu pazar için form yok.</div>'}</div></div>
   <div class="card"><h3>Katılım <a class="btn sm ghost" href="#/katilimcilar?pazar=${m.id}">Katılımcılar →</a></h3><div class="list">${Object.entries(L.join).map(([k2,t])=>`<a class="item" href="#/katilimcilar?pazar=${m.id}&katilim=${k2}"><span>${t}</span><b>${states[k2]||0}</b></a>`).join('')}</div></div>
@@ -288,17 +290,22 @@ function marketPage(r){
   ${k?`<div class="card"><h3>Kasa <a class="btn sm ghost" href="#/kasa?pazar=${m.id}">Kasaya git →</a></h3><div class="list"><div class="item"><span>Tahsil edilen ücretler</span><b>${money(k.fees)}</b></div><div class="item"><span>Diğer gelirler</span><b>${money(k.inc)}</b></div><div class="item"><span>Giderler</span><b>− ${money(k.exp)}</b></div><div class="item"><span><b>Kasada</b></span><b>${money(k.cash)}</b></div></div></div>`:''}</div>
   ${m.notes?`<div class="card" style="margin-top:40px"><h3>Notlar</h3><p style="white-space:pre-wrap;margin:0">${esc(m.notes)}</p></div>`:''}`;
 }
+// Pazar afişi kutusu: pazar sayfasında ve Düzenle penceresinin en üstünde. Yeni pazarda seçilen afiş kayıttan sonra yüklenir.
+const posterBox=(m,edit)=>`<div class="mk-poster" data-poster-box>${m.posterId?`<figure><img src="/media/${m.posterId}" alt="${esc(m.name)} afişi">${edit?`<button type="button" class="btn sm" data-act="mk-poster-del" data-v="${m.id}">Kaldır</button>`:''}</figure>`:'<figure class="none"><span>Afiş yok</span></figure>'}${edit?`<label class="btn sm dark">${m.posterId?'Afişi değiştir':'Afiş yükle'} ↑<input type="file" accept="image/*" data-mk-poster="${m.id||'new'}" hidden></label>`:''}</div>`;
+const posterDone=id=>{const box=$('#modal [data-poster-box]');if(box)box.outerHTML=posterBox(mk(id),true);else render()};
 function marketModal(m){
+  S.newPoster=null;
   const isNew=!m;m=m||{status:'planlama',edition:S.d.nextEdition,hours:'11.00–21.00',location:'Fevzipaşa / Çanakkale'};
   modal(`<span class="mono">${isNew?'YENİ PAZAR':'PAZARI DÜZENLE'} · SIRA NO ${String(m.edition||'').padStart(2,'0')}</span><h2>${isNew?'Yeni pazar':esc(m.name)}</h2>
+  ${section('Afiş · sitede görünür',`<p class="muted" style="margin:0 0 12px">Sitedeki Katılımcılar listesinde bu pazarın üzerine gelince imleci takip eder; görsellerde “Pazar afişleri” klasörüne girer. Dikey (3:4) bir görsel en iyi durur.</p>${posterBox(m,true)}`)}
   ${section('Kimlik',`<div class="grid g3">${field('Sıra no',`<input name="edition" type="number" min="1" step="1" value="${esc(m.edition||'')}" required>`,'tekrar kullanılamaz')}<div style="grid-column:span 2">${field('Pazar adı',`<input name="name" required value="${esc(m.name||(m.edition?m.edition+'. Fevzipaşa Tasarım Pazarı':''))}">`)}</div></div>${field('Durum',`<div class="seg">${Object.entries(L.market).map(([k,t])=>`<label><input type="radio" name="status" value="${k}" ${m.status===k?'checked':''}><span>${t}</span></label>`).join('')}</div>`)}`)}
   ${section('Tarih ve yer',`<div class="grid g2">${field('Başlangıç',`<input name="startDate" type="date" value="${esc(m.startDate||'')}">`)}${field('Bitiş',`<input name="endDate" type="date" value="${esc(m.endDate||'')}">`)}${field('Saatler',`<input name="hours" value="${esc(m.hours||'')}">`)}${field('Konum',`<input name="location" value="${esc(m.location||'')}">`)}</div>`)}
-  ${section('Kapasite ve ücret',`<div class="grid g2">${field('Kapasite',`<input name="capacity" type="number" min="0" value="${esc(m.capacity||'')}">`,'stant sayısı')}${field('Katılım ücreti (₺)',`<input name="fee" type="number" min="0" step="any" value="${esc(m.fee||'')}">`,'kabul edilene otomatik atanır')}</div>`)}
-  ${section('Afiş · sitede görünür',isNew?'<p class="muted">Afişi pazar kaydedildikten sonra ekleyebilirsin.</p>':`<p class="muted" style="margin:0 0 12px">Sitedeki Katılımcılar listesinde bu pazarın üzerine gelince imleci takip eder. Dikey (3:4) bir görsel en iyi durur.</p><div class="mk-poster">${m.posterId?`<figure><img src="/media/${m.posterId}" alt="${esc(m.name)} afişi"><button type="button" class="btn sm" data-act="mk-poster-del" data-v="${m.id}">Kaldır</button></figure>`:''}<label class="btn sm dark">${m.posterId?'Afişi değiştir':'Afiş yükle'} ↑<input type="file" accept="image/*" data-mk-poster hidden></label></div>`)}
+  ${section('Stant ve ücret',`<div class="grid g2">${field('Stant sayısı',`<input value="${isNew?0:marketStats(m).parts.length}" disabled>`,'katılımcı listesinden otomatik')}${field('Katılım ücreti (₺)',`<input name="fee" type="number" min="0" step="any" value="${esc(m.fee||'')}">`,'kabul edilene otomatik atanır')}</div>`)}
   ${section('Notlar',field('Ekip notu',`<textarea name="notes">${esc(m.notes||'')}</textarea>`))}
   ${actions2(isNew?'Pazarı oluştur':'Kaydet')}`,
-  async d=>{const r=await call(m.id?'PUT':'POST',m.id?`/api/markets/${m.id}`:'/api/markets',d);await refresh();closeModal();toast('Pazar kaydedildi');location.hash=`#/pazarlar/${r.id}`;render()},'wide');
-  const up=$('#modal [data-mk-poster]');if(up)up.addEventListener('change',async()=>{if(!up.files.length)return;try{await call('POST',`/api/markets/${m.id}/poster`,{files:await readFiles([up.files[0]])});await refresh();toast('Afiş yüklendi');marketModal(mk(m.id))}catch(e){toast(e.message,true)}});
+  async d=>{const r=await call(m.id?'PUT':'POST',m.id?`/api/markets/${m.id}`:'/api/markets',d);
+    if(S.newPoster){await call('POST',`/api/markets/${r.id}/poster`,{files:await readFiles([S.newPoster])});S.newPoster=null}
+    await refresh();closeModal();toast('Pazar kaydedildi');location.hash=`#/pazarlar/${r.id}`;render()},'wide');
 }
 
 // --- Formlar ---
@@ -719,7 +726,7 @@ const gMedia=()=>S.d.media.filter(m=>m.category!=='Fatura & fiş');
 pages.gorseller=r=>{
   const q=r.q,mq=q.get('m')||(S.market==='all'?'':S.market),cat=q.get('c'),who=q.get('k'),s=(q.get('ara')||'').toLocaleLowerCase('tr');
   let list=gMedia();
-  if(mq)list=list.filter(m=>mq==='genel'?!m.marketId:m.marketId===mq);
+  if(mq)list=list.filter(m=>mq==='afis'?m.category==='Pazar afişleri':mq==='genel'?!m.marketId:m.marketId===mq);
   if(cat)list=list.filter(m=>m.category===cat);
   if(who)list=list.filter(m=>m.participantId===who);
   if(s)list=list.filter(m=>[m.title,m.filename,...m.tags,pt(m.participantId)?.brandName].join(' ').toLocaleLowerCase('tr').includes(s));
@@ -729,7 +736,7 @@ pages.gorseller=r=>{
   const folder=(key,name,items)=>{const on=mq===key;return `<a href="${link(key)}" class="${on&&!cat&&!who?'on':''}">📁 ${esc(name)} <small>${items.length}</small></a>${on?brands(items):''}${on?gCats().map(c=>[c,items.filter(x=>x.category===c).length]).map(([c,n])=>`<a class="sub ${cat===c?'on':''}" href="${link(key,c)}">${esc(c)} <small>${n}</small></a>`).join(''):''}`};
   const drive=isAna()?`<div class="drivebar"><span><b>Google Drive</b> ${S.d.settings.driveDir?`yüklenen her görsel <code>${esc(S.d.settings.driveDir)}</code> klasörüne aynı düzenle kopyalanıyor.`:'bağlı değil. Bağlarsan her görsel Drive klasörüne pazar › marka düzeniyle kopyalanır.'}</span><span class="row">${S.d.settings.driveDir?'<button class="btn sm" data-act="drive-sync">Şimdi eşitle</button>':''}<button class="btn sm dark" data-act="drive-save">${S.d.settings.driveDir?'Klasörü değiştir':'Drive’a bağla'}</button></span></div>`:'';
   return drive+`<div class="head"><div><h1>Görsel deposu</h1><p>Her pazarın kendi klasörü; içinde markalar ve kategoriler. Logolar “Logo” klasöründe, kare alana sığdırılarak gösterilir.</p></div>${P('mediaWrite')?`<button class="btn primary" data-act="upload" data-market="${mq==='genel'?'':esc(mq)}" data-cat="${esc(cat||'')}" data-participant="${esc(who||'')}">+ Yükle</button>`:''}</div>
-  <div class="media-layout"><nav class="tree"><a href="#/gorseller?m=" class="${!mq?'on':''}">Tüm dosyalar <small>${gMedia().length}</small></a>
+  <div class="media-layout"><nav class="tree"><a href="#/gorseller?m=" class="${!mq?'on':''}">Tüm dosyalar <small>${gMedia().length}</small></a><a href="#/gorseller?m=afis" class="${mq==='afis'?'on':''}">📁 Pazar afişleri <small>${gMedia().filter(x=>x.category==='Pazar afişleri').length}</small></a>
   ${S.d.markets.map(m=>folder(m.id,m.name,gMedia().filter(x=>x.marketId===m.id))).join('')}${folder('genel','Genel (pazarsız)',gMedia().filter(x=>!x.marketId))}</nav>
   <div><div class="filters"><input data-nav-m="ara" placeholder="Başlık, etiket, marka ara" value="${esc(q.get('ara')||'')}"><select data-nav-m="c">${opts(gCats().map(c=>[c,c]),cat||'','Tüm kategoriler')}</select><select data-nav-m="k">${opts(S.d.participants.map(p=>[p.id,p.brandName]),who||'','Tüm katılımcılar')}</select></div>
   ${P('mediaWrite')?`<div class="drop" id="drop" data-market="${mq==='genel'?'':esc(mq)}" data-cat="${esc(cat||'')}" data-participant="${esc(who||'')}" style="margin-bottom:16px">Dosyaları buraya sürükle ya da <button class="btn sm" data-act="upload" data-market="${mq==='genel'?'':esc(mq)}" data-cat="${esc(cat||'')}" data-participant="${esc(who||'')}">seç</button><br><small class="muted">${mq?esc(mq==='genel'?'Genel':mk(mq)?.name||''):'Klasör seçmeden yüklersen pazarı sorarız'}${cat?' / '+esc(cat):''}</small></div>`:''}
@@ -1125,7 +1132,7 @@ const actions={
   'ws-img-del':el=>confirm('Görsel silinsin mi?')&&(async()=>{try{await call('DELETE',`/api/workshops/${el.dataset.w}/images/${el.dataset.v}`);await refresh();toast('Görsel silindi');workshopModal(S.d.workshops.find(x=>x.id===el.dataset.w))}catch(e){toast(e.message,true)}})(),
   'app-note-send':()=>{const id=route().id,a=S.d.applications.find(x=>x.id===id),t=$('#app-notes').value.trim();if(!t)return toast('Önce notu yaz',true);act(async()=>{await call('PUT',`/api/applications/${id}`,{notes:t});await call('POST','/api/messages',{text:'Ekip notu: '+t,ref:{type:'application',id,label:appName(a)}})},'Not kaydedildi, Mesajlar’a gönderildi')},
   'ws-open':el=>workshopModal(S.d.workshops.find(w=>w.id===el.dataset.v)),
-  'mk-poster-del':el=>confirm('Afiş kaldırılsın mı?')&&(async()=>{try{await call('DELETE',`/api/markets/${el.dataset.v}/poster`);await refresh();toast('Afiş kaldırıldı');marketModal(mk(el.dataset.v))}catch(e){toast(e.message,true)}})(),
+  'mk-poster-del':el=>confirm('Afiş kaldırılsın mı?')&&(async()=>{try{await call('DELETE',`/api/markets/${el.dataset.v}/poster`);await refresh();toast('Afiş kaldırıldı');posterDone(el.dataset.v)}catch(e){toast(e.message,true)}})(),
   'ws-del':el=>confirm('Workshop silinsin mi?')&&act(async()=>{await call('DELETE',`/api/workshops/${el.dataset.v}`);closeModal()},'Workshop silindi'),
   'ledger-new':el=>ledgerModal(null,el.dataset.v,el.dataset.cat),
   'ledger-open':el=>ledgerModal(S.d.ledger.find(e=>e.id===el.dataset.v)),
@@ -1220,6 +1227,9 @@ function afterDraftEdit(){
 }
 document.addEventListener('change',e=>{
   const el=e.target;
+  if(el.dataset.mkPoster!==undefined){const f=el.files[0],id=el.dataset.mkPoster;if(!f)return;
+    if(id==='new'){S.newPoster=f;el.closest('[data-poster-box]').querySelector('figure').outerHTML=`<figure><img src="${URL.createObjectURL(f)}" alt=""></figure>`;return}
+    (async()=>{try{await call('POST',`/api/markets/${id}/poster`,{files:await readFiles([f])});await refresh();toast('Afiş yüklendi');posterDone(id)}catch(e){toast(e.message,true)}})();return}
   if(el.id==='market-pick'){S.market=el.value;store.set('fp-market',S.market);render();return}
   if(el.dataset.f!==undefined&&el.dataset.full!==undefined&&S.draft){const f=S.draft.fields[+el.dataset.f];f[el.dataset.k]=el.value;if(el.dataset.k==='type'){if(!['select','checkboxes'].includes(f.type))f.options=[];else if(!f.options.length)f.options=['Seçenek 1','Seçenek 2'];if(['file','consent','heading','checkboxes'].includes(f.type))f.mapTo=''}render();return}
   if(el.dataset.bind==='marketId'||el.dataset.bind==='status'){afterDraftEdit();return}

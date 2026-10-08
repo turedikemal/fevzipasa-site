@@ -1,5 +1,16 @@
 [
  {
+  "v": "2.14.0",
+  "date": "2026-10-08",
+  "notes": [
+   "Excel'le eklenen katılımcılar artık gerçek kayıt sayılır: “Örnekleri sil” onları ve bağlı oldukları pazarı silmez.",
+   "Eski pazarlara eklenen katılımcılar o pazarın başvuru ve kabul sayılarına da “listeden” olarak eklenir; pazar kartı, pazar sayfası ve genel bakış bunu gösterir.",
+   "Stant sayısı artık elle girilmiyor: pazarın katılımcı listesinden otomatik sayılır.",
+   "Afiş alanı pazarın Düzenle penceresinin en üstünde ve pazar sayfasında ayrı bir kart olarak. Yeni pazar oluştururken de afiş seçilebilir.",
+   "Afişler Görseller'de “Pazar afişleri” klasöründe toplanır (her pazarın kendi klasöründe de görünür)."
+  ]
+ },
+ {
   "v": "2.13.0",
   "date": "2026-10-08",
   "notes": [

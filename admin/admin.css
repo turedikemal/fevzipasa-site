@@ -396,3 +396,4 @@ table.tiers{width:auto;margin-top:6px}table.tiers td{padding:3px 6px 3px 0}table
 .mk-poster img{width:100%;height:100%;object-fit:cover;display:block}
 .mk-poster figure .btn{position:absolute;right:6px;bottom:6px;background:#fff}
 .mk-poster label.btn{cursor:pointer}
+.mk-poster figure.none{display:grid;place-items:center;border-style:dashed;color:var(--muted,#888);font-size:13px}
