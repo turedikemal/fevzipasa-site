@@ -1,5 +1,12 @@
 [
  {
+  "v": "2.10.2",
+  "date": "2026-10-08",
+  "notes": [
+   "Başvuru sayfasında ekip notunun altında “Gönder” butonu: not kaydedilir ve başvuruya bağlı mesaj olarak Mesajlar’a gider. Notu yazıp çıkınca artık sadece kaydedilir, mesaj göndermez."
+  ]
+ },
+ {
   "v": "2.10.1",
   "date": "2026-10-08",
   "notes": [

@@ -407,7 +407,7 @@ function appPage(id){
   ${known?`<a class="known" href="#/katilimcilar/${known.id}"><span class="known-disc"><b>${knownMarkets.length}</b><small>PAZAR</small></span><span class="known-body"><span class="mono">${a.participantId?'KATILIMCI KARTI':'TANIDIK MARKA · DAHA ÖNCE KATILDI'}</span><b>${esc(known.brandName)}</b>${miniTl(known)}${sc(known.id)?`<small>Sadakat ${sc(known.id).points} puan · skor ${sc(known.id).score}/10${sc(known.id).reco==='kara'?' · <span class="pill s-red">kara listede</span>':''}</small>`:''}</span><i class="known-go">→</i></a>`:''}
   <div class="card"><h3>Değerlendirme</h3><div style="display:grid;gap:12px">${review?`<div class="chips">${Object.entries(L.app).filter(([k])=>k!=='kabul').map(([k,t])=>`<button class="chip ${a.status===k?'on':''}" data-act="app-status" data-v="${k}">${t}</button>`).join('')}</div>`:pill('app',a.status)}
   <div class="row"><span class="muted">Puan</span>${review?stars(a.rating||0,'app-rate'):stars(a.rating||0)}</div>
-  ${field('Ekip notu',`<textarea id="app-notes" ${note?'':'disabled'} placeholder="Sadece ekip görür">${esc(a.notes)}</textarea>`)}
+  ${field('Ekip notu',`<textarea id="app-notes" ${note?'':'disabled'} placeholder="Sadece ekip görür">${esc(a.notes)}</textarea>`)}${note&&P('chat')?`<button class="btn dark" data-act="app-note-send" style="justify-self:start">Gönder ↗ <small style="font-weight:500;opacity:.8">mesaj olarak da ekibe</small></button>`:''}
   ${a.status==='kabul'&&a.participantId?`<a class="btn" href="#/katilimcilar/${a.participantId}">Katılımcı kartını aç →</a>`:P('appAccept')?`<button class="btn primary" data-act="app-accept">✓ Kabul et ve katılımcılara ekle</button><small class="muted">${known?`Bilgiler mevcut “${esc(known.brandName)}” kartına işlenir, bu pazar eklenir.`:'Yeni bir katılımcı kartı oluşturulur.'} Başvuru görselleri katılımcının klasörüne taşınır.</small>`:''}
   ${P('appDelete')?'<button class="btn sm danger" data-act="app-del" style="justify-self:start">Başvuruyu sil</button>':''}</div></div>
   ${p.email||p.phone||p.instagram?`<div class="card"><h3>Hızlı iletişim</h3><div class="row">${p.email?`<a class="btn sm" href="mailto:${esc(p.email)}">E-posta</a>`:''}${p.phone?`<a class="btn sm" href="tel:${esc(p.phone.replace(/\s/g,''))}">Ara</a><a class="btn sm" target="_blank" rel="noopener" href="https://wa.me/${esc(p.phone.replace(/\D/g,'').replace(/^0/,'90'))}">WhatsApp</a>`:''}${p.instagram?`<a class="btn sm" target="_blank" rel="noopener" href="https://instagram.com/${esc(p.instagram.replace(/^@/,''))}">Instagram</a>`:''}</div></div>`:''}</div></div>`;
@@ -1111,6 +1111,7 @@ const actions={
   },
   'ws-new':()=>workshopModal(),
   'ws-img-del':el=>confirm('Görsel silinsin mi?')&&(async()=>{try{await call('DELETE',`/api/workshops/${el.dataset.w}/images/${el.dataset.v}`);await refresh();toast('Görsel silindi');workshopModal(S.d.workshops.find(x=>x.id===el.dataset.w))}catch(e){toast(e.message,true)}})(),
+  'app-note-send':()=>{const id=route().id,a=S.d.applications.find(x=>x.id===id),t=$('#app-notes').value.trim();if(!t)return toast('Önce notu yaz',true);act(async()=>{await call('PUT',`/api/applications/${id}`,{notes:t});await call('POST','/api/messages',{text:'Ekip notu: '+t,ref:{type:'application',id,label:appName(a)}})},'Not kaydedildi, Mesajlar’a gönderildi')},
   'ws-open':el=>workshopModal(S.d.workshops.find(w=>w.id===el.dataset.v)),
   'ws-del':el=>confirm('Workshop silinsin mi?')&&act(async()=>{await call('DELETE',`/api/workshops/${el.dataset.v}`);closeModal()},'Workshop silindi'),
   'ledger-new':el=>ledgerModal(null,el.dataset.v,el.dataset.cat),
@@ -1212,7 +1213,7 @@ document.addEventListener('change',e=>{
   if(el.dataset.rate!==undefined){act(()=>call('PUT',`/api/ratings/${el.dataset.rate}`,{score:el.value}),el.value===''?'Puan kaldırıldı':'Puan kaydedildi');return}
   if(el.dataset.taskRole!==undefined){act(()=>call('PUT','/api/settings/tasks',{roles:[...document.querySelectorAll('[data-task-role]:checked')].map(x=>x.value)}),'Görev erişimi güncellendi');return}
   if(el.dataset.adminRole)act(()=>call('PUT',`/api/admins/${el.dataset.adminRole}`,{role:el.value}),'Rol güncellendi');
-  if(el.id==='app-notes'){const id=route().id,a=S.d.applications.find(x=>x.id===id);act(async()=>{await call('PUT',`/api/applications/${id}`,{notes:el.value});if(P('chat')&&el.value.trim())await call('POST','/api/messages',{text:'Ekip notu: '+el.value.trim(),ref:{type:'application',id,label:appName(a)}})},'Not kaydedildi, mesajlara da düştü');return}
+  if(el.id==='app-notes'){const id=route().id;act(()=>call('PUT',`/api/applications/${id}`,{notes:el.value}),'Not kaydedildi');return}
   const navKey=el.dataset.nav||el.dataset.navP||el.dataset.navM||el.dataset.navO;
   if(navKey){const r=route(),q=new URLSearchParams(r.q);el.value&&el.value!=='all'||navKey!=='pazar'?(el.value?q.set(navKey,el.value):q.delete(navKey)):q.set(navKey,'all');const view=el.dataset.nav?'basvurular':el.dataset.navP?'katilimcilar':el.dataset.navO?r.view:'gorseller';location.hash=`#/${view}?${q}`}
 });
