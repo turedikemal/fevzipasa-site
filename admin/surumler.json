@@ -5,7 +5,8 @@
   "notes": [
    "Katılımcılarda yeni “Liste” görünümü: marka, yetkili, telefon, e-posta, Instagram, kategori; tek tuşla yazdır ya da PDF kaydet.",
    "Kasada “+ Kasaya para gir” ve “− Masraf gir” butonları.",
-   "Kasada “Devreden” kutusu: açılış bakiyesi ve önceki pazarlardan devreden para; KASADA toplamı buna göre hesaplanır."
+   "Kasada “Devreden” kutusu: açılış bakiyesi ve önceki pazarlardan devreden para; KASADA toplamı buna göre hesaplanır.",
+   "Kasada “+ Gelir gir” butonu da var; “Kasaya para gir” kendi kategorisiyle (Kasaya para girişi) kaydedilir."
   ]
  },
  {
