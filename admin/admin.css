@@ -397,3 +397,5 @@ table.tiers{width:auto;margin-top:6px}table.tiers td{padding:3px 6px 3px 0}table
 .mk-poster figure .btn{position:absolute;right:6px;bottom:6px;background:#fff}
 .mk-poster label.btn{cursor:pointer}
 .mk-poster figure.none{display:grid;place-items:center;border-style:dashed;color:var(--muted,#888);font-size:13px}
+
+.anabar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;border:1.5px dashed var(--ink);padding:10px 14px;margin:0 0 16px}.anabar .row{gap:8px;flex-wrap:wrap}.anabar select{width:auto}

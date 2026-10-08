@@ -1,5 +1,13 @@
 [
  {
+  "v": "2.15.0",
+  "date": "2026-10-08",
+  "notes": [
+   "Katılımcılar sayfasında yalnızca ana kullanıcının gördüğü toplu araçlar: Tümünü seç, Tümünü pazara ekle, Tümünü pazardan çıkar, Tümünü sil. Hepsi o an filtrelenmiş listedeki markalara uygulanır.",
+   "“Tümünü sil” için onay kutusuna SİL yazmak gerekir; markaların görselleri depoda kalır."
+  ]
+ },
+ {
   "v": "2.14.0",
   "date": "2026-10-08",
   "notes": [

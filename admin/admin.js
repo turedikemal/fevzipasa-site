@@ -447,6 +447,7 @@ pages.katilimcilar=r=>{
   const bulk=P('bulk');
   S.listIds=list.map(p=>p.id);
   return `<div class="head"><div><h1>Katılımcılar</h1><p>${list.length} marka${m?` · ${esc(m.name)}`:' · tüm pazarlar'} · katılım geçmişiyle</p></div><div class="row">${ioBar('katilimcilar','pazar='+encodeURIComponent(market))}${P('participantWrite')?'<button class="btn primary" data-act="part-new">+ Katılımcı ekle</button>':''}</div></div>
+  ${isAna()&&list.length?`<div class="anabar"><span class="mono">SADECE SEN GÖRÜYORSUN · LİSTEDEKİ ${list.length} MARKA</span><span class="row"><button class="btn sm" data-act="ana-selall">Tümünü seç</button><select id="ana-market" aria-label="Pazar">${marketOpts(m?.id||S.d.markets[0]?.id)}</select><button class="btn sm" data-act="ana-bulk" data-v="addMarket">Tümünü pazara ekle</button><button class="btn sm" data-act="ana-bulk" data-v="removeMarket">Tümünü pazardan çıkar</button><button class="btn sm danger" data-act="ana-bulk" data-v="delete">Tümünü sil</button></span></div>`:''}
   <div class="filters"><input data-nav-p="ara" placeholder="Marka, kişi, @instagram, etiket ara" value="${esc(q.get('ara')||'')}"><select data-nav-p="eksik">${opts([['','Tüm kayıtlar'],['logo','Logosu olmayanlar'],['gorsel','Görseli olmayanlar'],['iletisim','İletişimi eksik olanlar']],gap||'')}</select>
   <select data-nav-p="pazar">${opts([['all','Tüm pazarlar'],...S.d.markets.map(x=>[x.id,x.name])],market)}</select>
   <span class="viewsw"><button class="${S.view==='grid'?'on':''}" data-act="view" data-v="grid">Kartlar</button><button class="${S.view==='table'?'on':''}" data-act="view" data-v="table">Tablo${bulk?' · toplu işlem':''}</button><button class="${S.view==='liste'?'on':''}" data-act="view" data-v="liste">Liste</button></span></div>
@@ -1121,6 +1122,15 @@ const actions={
   'part-save-stay':()=>act(()=>call('PUT',`/api/participants/${route().id}`,formData($('#part-form'))),'Katılımcı kaydedildi'),
   'sel-all':el=>{for(const id of S.listIds||[])el.checked?S.sel.add(id):S.sel.delete(id);render()},
   'bulk-clear':()=>{S.sel.clear();render()},
+  // Ana kullanıcının toplu araçları: filtrelenmiş listedeki markaların tümüne uygulanır.
+  'ana-selall':()=>{for(const id of S.listIds||[])S.sel.add(id);S.view='table';store.set('fp-view','table');render()},
+  'ana-bulk':el=>{
+    const op=el.dataset.v,ids=[...(S.listIds||[])],mid=$('#ana-market')?.value,mname=mk(mid)?.name||'';if(!ids.length)return;
+    const ask={addMarket:`Listedeki ${ids.length} marka “${mname}” pazarına eklensin mi?`,removeMarket:`Listedeki ${ids.length} marka “${mname}” pazarından çıkarılsın mı?`}[op];
+    if(ask&&!confirm(ask))return;
+    if(op==='delete'){const w=prompt(`Listedeki ${ids.length} marka kalıcı olarak silinecek. Görselleri depoda kalır.\nOnaylamak için SİL yaz:`);if((w||'').trim().toLocaleUpperCase('tr')!=='SİL')return toast('Silme iptal edildi',true)}
+    act(async()=>{const r=await call('POST','/api/participants/bulk',{ids,op,marketId:mid});if(op==='delete')S.sel.clear();return r},op==='delete'?`${ids.length} katılımcı silindi`:`${ids.length} katılımcıya uygulandı`);
+  },
   bulk:el=>{
     const op=el.dataset.v,ids=[...S.sel],body={ids,op,marketId:$('#bulk-market')?.value,category:$('#bulk-cat')?.value};
     if(op==='category'&&!body.category)return toast('Önce kategori seç',true);
