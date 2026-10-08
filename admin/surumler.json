@@ -1,5 +1,12 @@
 [
  {
+  "v": "2.10.1",
+  "date": "2026-10-08",
+  "notes": [
+   "Mesajlar: sohbet alanının zemini beyazdan ayrıldı (açık bej, çerçeveli); mesaj kutuları üzerinde net görünüyor."
+  ]
+ },
+ {
   "v": "2.10.0",
   "date": "2026-10-08",
   "notes": [

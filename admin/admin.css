@@ -383,3 +383,4 @@ table.tiers{width:auto;margin-top:6px}table.tiers td{padding:3px 6px 3px 0}table
 .chips.sm{align-items:center}.chips.sm .mono{font-size:9px;margin-right:4px}
 .poll-edit{display:flex;flex-wrap:wrap;gap:6px;border:1px dashed var(--orange);padding:10px}.poll-edit input{border:0;border-bottom:1px solid var(--ink);padding:4px;min-width:120px}.poll-edit input[name=pq]{flex-basis:100%;font-weight:800}
 @media(max-width:800px){.how{grid-template-columns:1fr}.how>i{display:none}.knobs{grid-template-columns:1fr 1fr}.head-side{justify-items:start}.bsum{min-width:0}}
+.chat{background:#f1ede3;border:1px solid var(--ink);border-radius:18px;padding:20px}.chat-list{border-bottom-color:#15151533;padding:6px 6px 16px}.chat .bubble{background:#fff}.chat .msg.mine .bubble{background:var(--yellow)}.chat .composer{background:transparent}.chat .comp-in textarea{background:#fff}
