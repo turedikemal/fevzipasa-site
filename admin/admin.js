@@ -191,6 +191,9 @@ function render(){
   if(focusId==='q'){const q=$('#q');q.focus();q.setSelectionRange(q.value.length,q.value.length);showResults()}
   const base=h=>(h||'').split('?')[0];if(base(render.last)===base(location.hash))window.scrollTo(0,scrollY);else window.scrollTo(0,0);
   render.last=location.hash;
+  // Sohbet hep en yeni mesajda durur; sayfa yerinden oynamaz, yazma kutusu odakta kalır.
+  const cl=$('.chat-list');if(cl)cl.scrollTop=cl.scrollHeight;
+  if(focusId==='msg-text'||S.msgFocus){S.msgFocus=false;$('#msg-text')?.focus({preventScroll:true})}
   syncBulk();
 }
 
@@ -1223,7 +1226,7 @@ document.addEventListener('submit',async e=>{
   if(f.id==='loyalty-form'){e.preventDefault();const d=formData(f),tiers=[];for(let i=0;i<10;i++)if(d['pct'+i])tiers.push({min:+d['min'+i]||0,pct:+d['pct'+i]});act(()=>call('PUT','/api/settings/loyalty',{...d,tiers}),'Ayarlar kaydedildi');return}
   if(f.id==='msg-form'){e.preventDefault();const d=formData(f),r=route().q.get('ref');let ref=null;if(r){const [type,id]=r.split(':');ref={type,id,label:refLabel(type,id),mediaId:refMedia(type,id)}}
     const poll=S.pollDraft?{question:d.pq,options:Object.keys(d).filter(k=>/^po\d+$/.test(k)).map(k=>d[k])}:null;
-    act(async()=>{await call('POST','/api/messages',{text:d.text,ref,poll});S.pollDraft=null;S.msgDraft='';if(r)location.hash='#/mesajlar';setTimeout(()=>$('.chat-list')?.lastElementChild?.scrollIntoView({block:'end'}),50)});return}
+    act(async()=>{await call('POST','/api/messages',{text:d.text,ref,poll});S.pollDraft=null;S.msgDraft='';S.msgFocus=true;if(r)location.hash='#/mesajlar'});return}
   if(f.id==='me-form'){e.preventDefault();act(()=>call('PUT','/api/admins/me',formData(f)),'Hesap güncellendi')}
 });
 document.addEventListener('input',e=>{

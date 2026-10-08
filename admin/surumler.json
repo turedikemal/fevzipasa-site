@@ -1,5 +1,12 @@
 [
  {
+  "v": "2.15.3",
+  "date": "2026-10-08",
+  "notes": [
+   "Mesajlar: mesaj gönderince sayfa artık yukarı kaymıyor; sohbet en yeni mesajda açılıyor ve yazma kutusu odakta kalıyor."
+  ]
+ },
+ {
   "v": "2.15.2",
   "date": "2026-10-08",
   "notes": [
