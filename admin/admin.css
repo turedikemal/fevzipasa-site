@@ -384,3 +384,10 @@ table.tiers{width:auto;margin-top:6px}table.tiers td{padding:3px 6px 3px 0}table
 .poll-edit{display:flex;flex-wrap:wrap;gap:6px;border:1px dashed var(--orange);padding:10px}.poll-edit input{border:0;border-bottom:1px solid var(--ink);padding:4px;min-width:120px}.poll-edit input[name=pq]{flex-basis:100%;font-weight:800}
 @media(max-width:800px){.how{grid-template-columns:1fr}.how>i{display:none}.knobs{grid-template-columns:1fr 1fr}.head-side{justify-items:start}.bsum{min-width:0}}
 .chat{background:#f1ede3;border:1px solid var(--ink);border-radius:18px;padding:20px}.chat-list{border-bottom-color:#15151533;padding:6px 6px 16px}.chat .bubble{background:#fff}.chat .msg.mine .bubble{background:var(--yellow)}.chat .composer{background:transparent}.chat .comp-in textarea{background:#fff}
+.import-result{display:grid;gap:6px;border:1px solid var(--ink);border-radius:12px}
+.import-result.checking{background:#f1ede3}
+.import-result.checking b::before{content:'';display:inline-block;width:10px;height:10px;margin-right:8px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:imp-spin .8s linear infinite;vertical-align:-1px}
+@keyframes imp-spin{to{transform:rotate(360deg)}}
+.import-result.bad{background:#ffe1d6}
+.import-result.ok{background:var(--yellow)}
+.import-result small{color:inherit;opacity:.8}

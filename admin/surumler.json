@@ -1,5 +1,15 @@
 [
  {
+  "v": "2.12.0",
+  "date": "2026-10-08",
+  "notes": [
+   "Sunucu yeniden başlatılınca artık oturum kapanmıyor: girişler data/sessions.json dosyasında saklanıyor. İçe aktarırken çıkan “Oturum kapandı” hatası bundandı.",
+   "İçe aktarma önce kontrol eder: “Kontrol ediliyor…” yazar, her satırı dener ama hiçbir şey kaydetmez. Hepsi doğruysa içe aktarır.",
+   "Hata varsa hiçbir şey içe aktarılmaz; “Hatalı Excel ↓” ile dosyanın kendisi iner, en sağdaki HATA sütununda her satırın hatası yazar. Düzeltip yeniden yüklenir.",
+   "Kontrol edilenler: boş zorunlu alanlar, tanınmayan tarih, sayı ve e-posta, bulunamayan pazar ya da marka, form sorularında geçersiz tip, Zorunlu ve Katılımcı alanı değerleri. Tamamen boş satırlar atlanır."
+  ]
+ },
+ {
   "v": "2.11.2",
   "date": "2026-10-08",
   "notes": [

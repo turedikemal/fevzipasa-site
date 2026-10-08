@@ -686,14 +686,24 @@ function importModal(kind){
   <div class="actions"><span class="row" style="margin-left:auto"><button type="button" class="btn ghost" data-act="close">Kapat</button><button class="btn primary">İçe aktar ↑</button></span></div>`,
   async(d,form)=>{
     const file=form.querySelector('[name=file]').files[0];if(!file)throw new Error('Dosya seç');
-    const btn=form.querySelector('.btn.primary');btn.textContent='Aktarılıyor…';btn.disabled=true;
+    const btn=form.querySelector('.btn.primary'),out=$('#import-out');btn.textContent='Kontrol ediliyor…';btn.disabled=true;
+    out.innerHTML='<div class="import-result checking"><b>Kontrol ediliyor…</b><small>Dosyadaki her satır içe aktarmadan önce kontrol ediliyor. Hiçbir şey henüz kaydedilmedi.</small></div>';
     try{
       const [data]=await readFiles([file]);
-      const r=await call('POST',`/api/import/${kind}`,{filename:file.name,data:data.data,marketId:d.marketId,strict:d.strict,title:d.title});
+      const body={filename:file.name,data:data.data,marketId:d.marketId,strict:d.strict,title:d.title};
+      const c=await call('POST',`/api/import/${kind}`,{...body,check:true});
+      if(!c.ok){
+        const url=URL.createObjectURL(new Blob([Uint8Array.from(atob(c.file),ch=>ch.charCodeAt(0))],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}));
+        out.innerHTML=`<div class="import-result bad"><b>${c.bad} satırda hata var · hiçbir şey içe aktarılmadı</b><small>Hatalı Excel'i indir: hatalar en sağdaki “HATA” sütununda yazıyor. Düzeltip aynı dosyayı yeniden yükle.</small><ul>${c.errors.map(e=>`<li>${esc(e)}</li>`).join('')}</ul>${c.bad>c.errors.length?`<small>+${c.bad-c.errors.length} hatalı satır daha (hepsi Excel'de)</small>`:''}<div><a class="btn sm dark" href="${url}" download="${esc(c.filename)}">Hatalı Excel ↓</a></div></div>`;
+        toast('Dosyada hata var, içe aktarılmadı',true);return;
+      }
+      btn.textContent='Aktarılıyor…';
+      out.innerHTML=`<div class="import-result checking"><b>Kontrol tamam: ${c.total} satır doğru · içe aktarılıyor…</b></div>`;
+      const r=await call('POST',`/api/import/${kind}`,body);
       await refresh();
       if(r.formId){closeModal();toast('Form oluşturuldu');location.hash=`#/formlar/${r.formId}`;return}
       render();
-      $('#import-out').innerHTML=`<div class="import-result"><b>${r.created} yeni · ${r.updated} güncellendi${r.skipped?` · ${r.skipped} atlandı`:''}</b>${r.errors.length?`<ul>${r.errors.slice(0,12).map(e=>`<li>${esc(e)}</li>`).join('')}</ul>${r.errors.length>12?`<small>+${r.errors.length-12} satır daha</small>`:''}`:''}</div>`;
+      $('#import-out').innerHTML=`<div class="import-result ok"><b>Kontrol tamam, içe aktarıldı · ${r.created} yeni · ${r.updated} güncellendi${r.skipped?` · ${r.skipped} atlandı`:''}</b>${r.errors.length?`<ul>${r.errors.slice(0,12).map(e=>`<li>${esc(e)}</li>`).join('')}</ul>${r.errors.length>12?`<small>+${r.errors.length-12} satır daha</small>`:''}`:''}</div>`;
       toast('İçe aktarıldı');
     }finally{btn.textContent='İçe aktar ↑';btn.disabled=false}
   },'wide');
