@@ -25,16 +25,39 @@
     view.querySelector('.sv-cap').textContent=shots[i][1];
   };
   const key=e=>{if(e.key==='Escape')close();else if(e.key==='ArrowRight')show(i+1);else if(e.key==='ArrowLeft')show(i-1)};
+  // İniş: fotoğraf karttan tam ekrana açılır, işaretli noktaya yaklaşır, sonra yatarak
+  // (perspektif) yere alçalır; en sonda sokak fotoğrafı yukarıdan bakıştan göz hizasına oturur.
+  const P={x:.53,y:.4};let fly=null;
+  const flight=()=>{
+    const r=media.getBoundingClientRect(),W=innerWidth,H=innerHeight,px=r.width*P.x,py=r.height*P.y;
+    fly=document.createElement('div');fly.className='sv-fly';
+    fly.innerHTML=`<div class="sv-sky"></div><img class="sv-ground" src="${media.querySelector('.hero-photo').currentSrc||media.querySelector('.hero-photo').src}" alt="">`;
+    document.body.append(fly);
+    const g=fly.querySelector('.sv-ground');Object.assign(g.style,{left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px',transformOrigin:`${px}px ${py}px`});
+    const dx=W/2-(r.left+px),dy=H*.55-(r.top+py),fill=Math.max(W/r.width,H/r.height);
+    return {g,dx,dy,fill};
+  };
   function open(){
     if(busy||view?.classList.contains('open'))return;busy=true;
     if(!view)build();show(0);
-    media.classList.add('diving');
-    setTimeout(()=>{view.classList.add('open');document.documentElement.classList.add('sv-lock');document.addEventListener('keydown',key);view.querySelector('.sv-close').focus();busy=false},calm?0:820);
+    const done=()=>{view.classList.add('open');document.documentElement.classList.add('sv-lock');document.addEventListener('keydown',key);view.querySelector('.sv-close').focus();busy=false};
+    if(calm){done();return}
+    const {g,dx,dy,fill}=flight();media.classList.add('diving');
+    const T='translate(0px,0px) scale(1) rotateX(0deg)';
+    g.animate([{transform:T,filter:'none',opacity:1},
+      {transform:`translate(${dx}px,${dy}px) scale(${fill*1.15}) rotateX(0deg)`,filter:'none',opacity:1,offset:.38},
+      {transform:`translate(${dx}px,${dy}px) scale(${fill*2.6}) rotateX(38deg)`,filter:'blur(1px)',opacity:1,offset:.7},
+      {transform:`translate(${dx}px,${dy}px) scale(${fill*6}) rotateX(72deg)`,filter:'blur(8px) brightness(1.3)',opacity:0}],
+      {duration:1700,easing:'cubic-bezier(.45,0,.55,1)',fill:'forwards'});
+    fly.querySelector('.sv-sky').animate([{opacity:0},{opacity:0,offset:.3},{opacity:1}],{duration:1700,fill:'forwards'});
+    setTimeout(()=>{view.classList.add('landing');done();setTimeout(()=>{fly?.remove();fly=null;view.classList.remove('landing')},1200)},1350);
   }
   function close(){
     if(!view?.classList.contains('open'))return;
     view.classList.remove('open');document.documentElement.classList.remove('sv-lock');document.removeEventListener('keydown',key);
-    media.classList.remove('diving');media.classList.add('rising');setTimeout(()=>media.classList.remove('rising'),calm?0:900);pin?.focus({preventScroll:true});
+    media.classList.remove('diving');
+    if(!calm){media.classList.add('rising');setTimeout(()=>media.classList.remove('rising'),1100)}
+    pin?.focus({preventScroll:true});
   }
   media.addEventListener('click',e=>{if(e.target.closest('a'))return;open()});
   pin?.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open()}});

@@ -1,5 +1,12 @@
 [
  {
+  "v": "2.18.1",
+  "date": "2026-10-09",
+  "notes": [
+   "Ana sayfa: “Sokağa in” işareti stantların arasındaki sokağa taşındı. İniş artık tam ekranda: fotoğraf o noktaya yaklaşıp yatarak yere alçalıyor, sokak fotoğrafı yukarıdan göz hizasına oturuyor."
+  ]
+ },
+ {
   "v": "2.18.0",
   "date": "2026-10-08",
   "notes": [
