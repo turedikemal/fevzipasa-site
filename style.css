@@ -36,7 +36,7 @@ a.name-pill{cursor:pointer}
 .name-cloud.dim .name-pill{opacity:.3;filter:blur(1.5px)}
 .name-cloud.dim .name-pill.hot{opacity:1;filter:none;background:var(--yellow);transform:scale(1.08)}
 .motion .name-cloud .name-lane{opacity:0;transform:translateX(40px);transition:opacity .8s var(--ease),transform 1s var(--ease)}
-.motion .name-cloud .name-lane+.name-lane{transform:translateX(-40px)}
+.motion .name-cloud .name-lane:nth-child(even){transform:translateX(-40px)}
 .motion .name-cloud.shown .name-lane{opacity:1;transform:none}
 .motion .name-cloud.shown .name-lane+.name-lane{transition-delay:.15s}
 .name-empty{font-size:18px;font-weight:600;color:var(--ink);margin:0;padding-inline:5%}

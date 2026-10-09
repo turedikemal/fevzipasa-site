@@ -1,5 +1,12 @@
 [
  {
+  "v": "2.19.2",
+  "date": "2026-10-09",
+  "notes": [
+   "Sitede Katılımcılar: isim şeritleri sırayla ters yöne kayıyor (sol, sağ, sol, sağ); bütün pazarlarda ve “Tüm katılımcılar”da aynı düzen."
+  ]
+ },
+ {
   "v": "2.19.1",
   "date": "2026-10-09",
   "notes": [

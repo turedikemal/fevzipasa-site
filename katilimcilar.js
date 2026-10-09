@@ -30,7 +30,7 @@ function names(box,list){
     // Daha kalabalık görünsün diye 3 şerit (çok katılımcıda 4). Az isim varsa her şerit listeyi farklı sırayla tekrarlar.
     const n=list.length>=24?4:3,rot=(a,k)=>a.slice(k).concat(a.slice(0,k));
     const rows=list.length<n*4?Array.from({length:n},(_,k)=>rot(k%2?[...list].reverse():list,Math.floor(k*list.length/n))):Array.from({length:n},(_,k)=>list.filter((_,i)=>i%n===k));
-    box.innerHTML=rows.map((r,i)=>`<div class="name-lane"><div class="name-track${i?' rev':''}">${r.map(p=>pill(p)).join('')}</div></div>`).join('');
+    box.innerHTML=rows.map((r,i)=>`<div class="name-lane"><div class="name-track${i%2?' rev':''}">${r.map(p=>pill(p)).join('')}</div></div>`).join('');
     box.querySelectorAll('.name-track').forEach((t,i)=>{const copy=rows[i].map(p=>pill(p,1)).join('');const n=Math.max(1,Math.ceil(innerWidth*1.2/(t.scrollWidth||1)));
       t.innerHTML+=copy.repeat(n-1)+copy.repeat(n);t.style.setProperty('--dur',Math.max(20,t.scrollWidth/2/45)+'s')})}
   const pills=[...box.querySelectorAll('.name-pill')];
