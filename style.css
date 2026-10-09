@@ -86,7 +86,7 @@ a.name-pill{cursor:pointer}
 .hero-media[data-dive]:hover .dive{transform:scale(1.35)}
 .hero-media.diving .dive{opacity:0;transition:opacity .2s}
 .hero-media.rising .dive{animation:sv-rise .9s cubic-bezier(.1,.6,.3,1) both}
-@keyframes sv-rise{from{transform:scale(3.2) perspective(900px) rotateX(35deg);filter:blur(5px);opacity:0}40%{opacity:1}to{transform:none;filter:none;opacity:1}}
+@keyframes sv-rise{from{transform:scale(3.2) rotate(60deg);filter:blur(6px);opacity:0}40%{opacity:1}to{transform:none;filter:none;opacity:1}}
 .street-pin{position:absolute;left:53%;top:40%;transform:translate(-50%,-100%);display:flex;flex-direction:column;align-items:center;gap:8px;background:none;border:0;padding:0;cursor:zoom-in;color:var(--ink);font:inherit;transition:opacity .3s,transform .3s var(--ease)}
 .street-pin b{order:-1;background:var(--yellow);border:2px solid var(--ink);border-radius:999px;padding:7px 14px;font-size:13px;letter-spacing:.04em;white-space:nowrap;box-shadow:3px 3px 0 var(--ink);transition:transform .3s var(--ease)}
 .pin-dot{width:18px;height:18px;border-radius:50%;background:var(--orange);border:3px solid #fff;box-shadow:0 0 0 0 #df430999;animation:sv-ping 1.8s infinite}
@@ -113,8 +113,8 @@ a.name-pill{cursor:pointer}
 @media(hover:none){.hero-media[data-dive]:hover .dive{transform:none}}
 @media(prefers-reduced-motion:reduce){.dive,.sv-shot{transition:none!important;animation:none!important}.hero-media.diving .dive{transform:none;filter:none}.pin-dot{animation:none}}
 /* İniş katmanı: kuşbakışından sokağa alçalma */
-.sv-fly{position:fixed;inset:0;z-index:299;perspective:900px;perspective-origin:50% 55%;pointer-events:none;overflow:hidden}
-.sv-sky{position:absolute;inset:0;background:linear-gradient(#fdf6e3,#111 75%);opacity:0}
+.sv-fly{position:fixed;inset:0;z-index:299;pointer-events:none;overflow:hidden}
+.sv-sky{position:absolute;inset:0;background:#111;opacity:0}
 .sv-ground{position:absolute;max-width:none;object-fit:cover;will-change:transform;backface-visibility:hidden}
 .street-view.landing .sv-shot.on{animation:sv-land 1.2s cubic-bezier(.15,.75,.25,1) both}
-@keyframes sv-land{from{transform:perspective(900px) translateY(-18%) rotateX(-32deg) scale(1.45);filter:blur(8px);opacity:0}35%{opacity:1}to{transform:none;filter:none;opacity:1}}
+@keyframes sv-land{from{transform:scale(1.6) rotate(-25deg);filter:blur(10px);opacity:0}35%{opacity:1}to{transform:none;filter:none;opacity:1}}

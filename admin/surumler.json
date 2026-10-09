@@ -1,5 +1,12 @@
 [
  {
+  "v": "2.18.2",
+  "date": "2026-10-09",
+  "notes": [
+   "Sokağa in: fotoğraf önce karttan tam ekrana açılıyor, sonra işaretli noktaya spiral dalışla iniyor. Sokakta ilk olarak kitap standının fotoğrafı açılıyor."
+  ]
+ },
+ {
   "v": "2.18.1",
   "date": "2026-10-09",
   "notes": [
