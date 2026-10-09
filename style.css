@@ -122,13 +122,13 @@ a.name-pill{cursor:pointer}
 .mk-list .name-cloud{gap:6px}.mk-list .name-lane{padding-block:3px}
 .mk-all .mk-no{font-size:22px;color:var(--orange)}.mk-all .mk-row:hover .mk-no,.mk-all.open .mk-no{color:var(--yellow)}
 
-/* Sokak fotoğrafları: Kış Pazarı arşiv etiketi */
+/* Sokak fotoğrafları: mevcut galeri etiketiyle pazar adı ve tarihi */
 .sv-top{align-items:flex-start;padding-top:max(22px,env(safe-area-inset-top));padding-left:max(4vw,env(safe-area-inset-left));padding-right:max(4vw,env(safe-area-inset-right))}
-.sv-archive{display:flex;flex-direction:column;align-items:flex-start;gap:14px;min-width:0;pointer-events:none}
-.sv-archive .sv-place{font-family:'Roboto Mono',monospace;font-size:11px;letter-spacing:.06em;background:var(--ink);color:#fff;line-height:1.5}
-.sv-market{display:flex;flex-direction:column;align-items:flex-start;gap:9px;padding:16px 22px;background:var(--yellow);color:var(--ink);border:2px solid var(--ink);border-radius:4px;box-shadow:5px 5px 0 var(--ink);max-width:100%}
-.sv-market strong{font-size:clamp(28px,4vw,52px);font-weight:800;letter-spacing:-.045em;line-height:1;white-space:nowrap}
-.sv-market-date{font-family:'Roboto Mono',monospace;font-size:clamp(12px,1.2vw,15px);font-weight:500;line-height:1.5}
+.sv-archive{display:flex;flex-direction:column;align-items:flex-start;gap:10px;min-width:0;pointer-events:none}
+.sv-archive .sv-place{background:none;color:#fff;border-radius:0;padding:0;font-family:'Roboto Mono',monospace;font-size:10px;letter-spacing:2px;line-height:1.6}
+.sv-market{display:flex;align-items:center;flex-wrap:wrap;gap:6px 14px;background:var(--yellow);color:var(--ink);padding:9px 16px;border-radius:999px;max-width:100%}
+.sv-market strong{font-size:16px;font-weight:800;letter-spacing:-.025em;line-height:1.3;white-space:nowrap}
+.sv-market-date{font-family:'Roboto Mono',monospace;font-size:11px;font-weight:400;line-height:1.5}
 .sv-market-date[hidden]{display:none}
 .sv-close{flex-shrink:0}
-@media(max-width:640px){.sv-archive{gap:10px}.sv-archive .sv-place{font-size:10px;padding:6px 10px}.sv-market{padding:13px 16px;gap:7px;box-shadow:3px 3px 0 var(--ink)}.sv-close{width:44px;height:44px}.sv-top{gap:12px}}
+@media(max-width:640px){.sv-archive{gap:8px}.sv-archive .sv-place{font-size:9px;letter-spacing:1px}.sv-market{padding:8px 13px;column-gap:10px}.sv-market strong{font-size:14px}.sv-market-date{font-size:10px}.sv-close{width:44px;height:44px}.sv-top{gap:12px}}
