@@ -1,5 +1,12 @@
 [
  {
+  "v": "2.19.0",
+  "date": "2026-10-09",
+  "notes": [
+   "Sitede Katılımcılar: pazarlardan hemen sonra “Tüm katılımcılar” bölümü eklendi (her marka bir kez, alfabetik). Her pazar 3 şerit (çok katılımcıda 4) kayıyor, daha kalabalık görünüyor. Sayfa açılınca bütün pazarlar açık geliyor."
+  ]
+ },
+ {
   "v": "2.18.9",
   "date": "2026-10-09",
   "notes": [

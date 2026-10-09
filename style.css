@@ -118,3 +118,6 @@ a.name-pill{cursor:pointer}
 .sv-ground{position:absolute;overflow:hidden;will-change:transform,filter;backface-visibility:hidden}.sv-ground img{width:100%;height:100%;object-fit:cover;max-width:none;transform-origin:50% 50%}
 .street-view.landing{transition:none;background:transparent}.street-view.landing .sv-shot.on{animation:sv-land .35s linear both}
 @keyframes sv-land{from{opacity:0}to{opacity:1}}
+/* Katılımcılar: daha kalabalık şeritler ve "Tüm katılımcılar" */
+.mk-list .name-cloud{gap:6px}.mk-list .name-lane{padding-block:3px}
+.mk-all .mk-no{font-size:22px;color:var(--orange)}.mk-all .mk-row:hover .mk-no,.mk-all.open .mk-no{color:var(--yellow)}
