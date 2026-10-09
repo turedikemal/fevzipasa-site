@@ -35,31 +35,23 @@
     document.body.append(fly);
     const g=fly.querySelector('.sv-ground');Object.assign(g.style,{left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px',transformOrigin:`${px}px ${py}px`});
     const dx=W/2-(r.left+px),dy=H*.5-(r.top+py),fill=Math.max(W/r.width,H/r.height);
-    return {g,dx,dy,fill,W,H};
+    return {g,dx,dy,fill};
   };
   function open(){
     if(busy||view?.classList.contains('open'))return;busy=true;
     if(!view)build();show(0);
     const done=()=>{view.classList.add('open');document.documentElement.classList.add('sv-lock');document.addEventListener('keydown',key);view.querySelector('.sv-close').focus();busy=false};
     if(calm){done();return}
-    const {g,dx,dy,fill,W,H}=flight();media.classList.add('diving');
-    // Tek, kesintisiz eğri: kart yerinden tam ekrana açılırken dar bir spiralle dönerek
-    // işaretli noktaya dalar. Yalnızca transform ve opacity değişir (ekran kartı çizer, takılmaz).
-    const D=2100,R=Math.min(W,H)*.06,turn=1.15,zEnd=fill*5,t0=performance.now(),sky=fly.querySelector('.sv-sky');
-    const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2,smooth=(a,b,t)=>{t=Math.min(1,Math.max(0,(t-a)/(b-a)));return t*t*(3-2*t)};
-    let landed=false;
-    const step=now=>{
-      if(!fly)return;
-      const t=Math.min(1,(now-t0)/D),e=ease(t),m=smooth(0,.35,t);
-      const ang=e*turn*360,rad=R*Math.sin(Math.PI*Math.min(1,t*1.1))*(1-e),th=e*turn*2*Math.PI;
-      const sc=Math.exp(Math.log(zEnd)*e);
-      const x=dx*m+rad*Math.cos(th),y=dy*m+rad*Math.sin(th);
-      g.style.transform=`translate3d(${x}px,${y}px,0) scale(${sc}) rotate(${ang}deg)`;
-      g.style.opacity=1-smooth(.72,1,t);sky.style.opacity=smooth(0,.3,t);
-      if(!landed&&t>=.74){landed=true;view.classList.add('landing');done()}
-      if(t<1)requestAnimationFrame(step);else setTimeout(()=>{fly?.remove();fly=null;view.classList.remove('landing')},700);
-    };
-    g.decode?.().catch(()=>{}).finally(()=>requestAnimationFrame(step))||requestAnimationFrame(step);
+    const {g,dx,dy,fill}=flight();media.classList.add('diving');
+    const T='translate(0px,0px) scale(1) rotate(0deg)';
+    // 1) Kart yerinden tam ekrana açılır, 2) işaretli noktaya dönerek (spiral) dalar.
+    g.animate([{transform:T,filter:'none',opacity:1},
+      {transform:`translate(${dx}px,${dy}px) scale(${fill*1.05}) rotate(0deg)`,filter:'none',opacity:1,offset:.32},
+      {transform:`translate(${dx}px,${dy}px) scale(${fill*2.6}) rotate(40deg)`,filter:'blur(1px)',opacity:1,offset:.66},
+      {transform:`translate(${dx}px,${dy}px) scale(${fill*9}) rotate(95deg)`,filter:'blur(10px)',opacity:0}],
+      {duration:1900,easing:'cubic-bezier(.5,0,.6,1)',fill:'forwards'});
+    fly.querySelector('.sv-sky').animate([{opacity:0},{opacity:1,offset:.3},{opacity:1}],{duration:1900,fill:'forwards'});
+    setTimeout(()=>{view.classList.add('landing');done();setTimeout(()=>{fly?.remove();fly=null;view.classList.remove('landing')},1100)},1500);
   }
   function close(){
     if(!view?.classList.contains('open'))return;
