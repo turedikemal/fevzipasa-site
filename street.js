@@ -47,9 +47,10 @@
     const {g,cover}=flight();media.classList.add('diving');
     // Dümdüz iniş: yana kayma yok, işaretli nokta olduğu yerde kalır ve fotoğraf ona doğru büyür.
     // Tek eğri: yavaş başlar, hızlanarak biter (sonda yavaşlama yok).
-    const D=1800,tf=getComputedStyle(media.querySelector('.dive')).transform,s0=tf&&tf!=='none'?new DOMMatrix(tf).a:1;
-    g.animate([{transform:`scale(${s0})`,filter:'blur(0px)'},{transform:`scale(${cover*3})`,filter:'blur(3px)'}],{duration:D,easing:'cubic-bezier(.6,0,.95,.55)',fill:'forwards'});
-    setTimeout(()=>{view.classList.add('landing');done();setTimeout(()=>{fly?.remove();fly=null;view.classList.remove('landing')},600)},D*.82);
+    const D=1500,tf=getComputedStyle(media.querySelector('.dive')).transform,s0=tf&&tf!=='none'?new DOMMatrix(tf).a:1;
+    // Büyütme üstel kareler halinde verilir: göz sabit hızla dalıyormuş gibi algılar; eğri yalnızca hızlanır, hiç yavaşlamaz.
+    const end=cover*3,K=24;g.animate(Array.from({length:K+1},(_,i)=>({transform:`scale(${s0*Math.pow(end/s0,i/K)})`})),{duration:D,easing:'cubic-bezier(.4,0,1,1)',fill:'forwards'});
+    setTimeout(()=>{view.classList.add('landing');done();setTimeout(()=>{fly?.remove();fly=null;view.classList.remove('landing')},600)},D*.75);
   }
   function close(){
     if(!view?.classList.contains('open'))return;

@@ -1,5 +1,12 @@
 [
  {
+  "v": "2.18.9",
+  "date": "2026-10-09",
+  "notes": [
+   "Sokağa in: inişte hiç yavaşlama yok. Büyütme sürekli hızlanıyor, sokak fotoğrafı iniş bitmeden beliriyor; bulanıklık kaldırıldığı için takılma da azaldı."
+  ]
+ },
+ {
   "v": "2.18.8",
   "date": "2026-10-09",
   "notes": [

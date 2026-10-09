@@ -116,5 +116,5 @@ a.name-pill{cursor:pointer}
 .sv-fly{position:fixed;inset:0;z-index:299;perspective:900px;perspective-origin:50% 55%;pointer-events:none;overflow:hidden}
 .sv-sky{display:none}
 .sv-ground{position:absolute;overflow:hidden;will-change:transform,filter;backface-visibility:hidden}.sv-ground img{width:100%;height:100%;object-fit:cover;max-width:none;transform-origin:50% 50%}
-.street-view.landing{transition:none;background:transparent}.street-view.landing .sv-shot.on{animation:sv-land .45s linear both}
+.street-view.landing{transition:none;background:transparent}.street-view.landing .sv-shot.on{animation:sv-land .35s linear both}
 @keyframes sv-land{from{opacity:0}to{opacity:1}}
