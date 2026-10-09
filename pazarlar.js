@@ -14,12 +14,15 @@
  const winter=m=>/kış|kis/i.test(m.name)||Number(m.edition)===2;
  const cover=m=>m.poster?`<img src="/media/${encodeURIComponent(m.poster)}" alt="${escape(m.name)} afişi" loading="lazy">`:`<div class="market-cover-empty"><strong>${escape(m.name)}</strong><small>FEVZİPAŞA / TASARIM PAZARI</small><span class="cover-symbol" aria-hidden="true">✳</span></div>`;
  const link=(m,text,cls='')=>`<a class="${cls}" data-market-link href="${href(m)}">${text}</a>`;
+ const displayName=m=>m.name.replace(/fevzipaşa\s*/ig,'').replace(/^\d+\.\s*/,'').trim()||m.name;
+ const heading=m=>displayName(m).split(/\s+/).map(word=>`<span>${escape(word)}</span>`).join('');
  function listing(){
   document.title='Pazarlar | Fevzipaşa';
-  host.innerHTML=`<section class="market-intro"><p class="eyebrow">FEVZİPAŞA / TASARIM PAZARLARI / 25–26</p><p>Bir sokak. Birçok buluşma.<br>Her pazarın kendi hikâyesi.</p></section><div class="market-index">${markets.map((m,i)=>`<section class="market-chapter"><div class="market-word"><span class="market-number">${String(i+1).padStart(2,'0')} / ${escape(state(m))}</span><h2>${link(m,escape(m.name))}</h2><p>${escape(dates(m))}<br>${escape(m.location||'Fevzipaşa / Çanakkale')}</p>${link(m,past(m)?'Bu buluşmaya dön ↗':'Pazarı keşfet ↗','text-link')}</div>${link(m,cover(m)+`<span class="market-cover-label"><span>${escape(m.name)}</span><span aria-hidden="true">↗</span></span>`,'market-cover'+(past(m)?' is-archive':''))}</section>`).join('')}</div><section class="market-all"><p class="eyebrow">FEVZİPAŞA’DA BİRİKEN HİKÂYELER</p><div><h2>TÜM TASARIM<br>PAZARLARIMIZ.</h2><span class="market-years">25–26</span></div><ul class="market-all-links">${markets.map(m=>`<li>${link(m,escape(m.name)+' ↗')}</li>`).join('')}</ul></section>`;
-  updateNav();drift();
+  host.innerHTML=`<section class="market-composition" aria-label="Fevzipaşa pazarları"><div class="market-orbit" aria-label="Pazar afişleri">${markets.map((m,i)=>link(m,cover(m)+`<span class="orbit-caption">${escape(m.name)} ↗</span>`,'market-orbit-card'+(past(m)?' is-archive':''))).join('')}<button class="orbit-toggle" aria-pressed="false" aria-label="Afiş hareketini duraklat">Hareketi duraklat Ⅱ</button></div><div class="market-editorial"><div class="market-location"><span>FEVZİPAŞA<br>ÇANAKKALE</span><span>Tasarımın<br>buluşma yeri.</span></div><h1 class="visually-hidden">Fevzipaşa Tasarım Pazarları</h1><div class="market-index">${markets.map((m,i)=>`<section class="market-chapter" style="--column:${[3,2,3,2,4,3][i%6]}"><div class="market-word"><span class="market-number">${String(i+1).padStart(2,'0')} / ${escape(state(m))}</span><h2>${link(m,heading(m),'market-title-link')}</h2><p>${escape(dates(m))}</p></div></section>`).join('')}</div><div class="market-editorial-note"><p>Bir sokak.<br>Birçok buluşma.<br>Her pazarın kendi hikâyesi.</p><span>© ’26</span></div></div><div class="market-edge" aria-hidden="true"><span>fevzi</span><span>paşa</span></div></section><section class="market-all" id="tum-pazarlar"><h2>Tüm tasarım<br>pazarlarımız <span>25–26</span></h2><div class="market-globe" aria-label="Tüm pazar afişleri">${markets.map((m,i)=>link(m,cover(m)+`<span class="orbit-caption">${escape(m.name)} ↗</span>`,'market-globe-card')).join('')}</div><ul class="market-all-links">${markets.map(m=>`<li>${link(m,escape(m.name)+' ↗')}</li>`).join('')}</ul></section>`;
+  updateNav();startOrbit();
  }
  function detail(m){
+  stopOrbit();
   document.title=m.name+' | Fevzipaşa';const i=markets.indexOf(m),next=markets[i+1]||markets[0];
   const isPast=past(m),people=Array.isArray(m.participants)?m.participants:[];
   host.innerHTML=`<article><section class="market-detail-head"><a href="/pazarlar" data-market-back class="market-detail-back">← Tüm pazarlar</a><div class="market-detail-top"><div><p class="eyebrow">${escape(state(m))} / FEVZİPAŞA</p><h1 tabindex="-1">${escape(m.name)}</h1></div><div class="market-detail-facts"><p>${escape(dates(m))}</p>${m.hours?`<p>${escape(m.hours)}</p>`:''}<p>${escape(m.location||'Fevzipaşa / Çanakkale')}</p>${isPast?'<p>Bu buluşma sona erdi.<br>Hikâyesi burada devam ediyor.</p>':''}</div></div></section><div class="market-detail-visual">${cover(m)}</div><section class="market-memory"><h2>${isPast?'SOKAKTA<br>BİRİKENLER.':'YENİ BİR<br>BULUŞMA.'}</h2><div><p class="eyebrow">${escape(m.name)}</p><p>${isPast?'Bu sayfa, '+escape(m.name)+'’nın arşivi. O buluşmanın afişini ve katılımcılarını bir arada tutuyoruz.':'Fevzipaşa’da tasarımın, üretimin ve karşılaşmaların bir araya geldiği yeni bir buluşma. Pazarın tarihi, yeri ve katılımcıları burada.'}</p><p>${isPast?'Bir ürüne yakından bakmak, onu yapan kişiyle tanışmak, sokakta yeni bir hikâyeye rastlamak. Fevzipaşa’daki buluşmaların ortak noktası bu.':'Üreticileri tanımak ve pazarı keşfetmek için aşağıya devam et.'}</p></div></section>${winter(m)?`<section class="market-gallery"><p class="eyebrow">KIŞ PAZARINDAN / SOKAĞIN İÇİNDEN</p><h2>BİR BULUŞMANIN İZLERİ.</h2><div class="market-gallery-grid">${[['sokak-kitap','Kitaplar ve karşılaşmalar'],['sokak-tekstil','Dokular ve üreticiler'],['sokak-taki','Küçük detaylar']].map(([file,caption])=>`<button class="market-photo" data-market-photo="/assets/${file}.webp" data-caption="${caption}" aria-label="${caption} fotoğrafını büyüt"><img src="/assets/${file}.webp" alt="Kış Pazarı — ${caption}" loading="lazy"><span>${caption} ↗</span></button>`).join('')}</div></section>`:''}<section class="market-people"><p class="eyebrow">${isPast?'BU PAZARDA BİZİMLEYDİLER':'BU PAZARIN KATILIMCILARI'}</p><h2>TASARIMIN İNSANLARI.</h2>${people.length?`<ul>${people.map(p=>`<li>${p.instagram?`<a href="https://www.instagram.com/${encodeURIComponent(p.instagram)}/" target="_blank" rel="noopener noreferrer">${escape(p.name)} ↗</a>`:escape(p.name)}</li>`).join('')}</ul>`:'<p>Bu pazarın katılımcı listesi henüz yayınlanmadı.</p>'}</section>${next&&next!==m?`<section class="market-next"><div><p class="eyebrow">BİR SONRAKİ HİKÂYE</p><h2>${escape(next.name)}</h2></div>${link(next,'Pazarı keşfet ↗','text-link')}</section>`:''}</article>`;
@@ -27,8 +30,42 @@
  }
  function updateNav(){document.querySelectorAll('nav a').forEach(a=>{if(a.getAttribute('href')==='/pazarlar')a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')})}
  function route(focus=false){const path=location.pathname.replace(/\/$/,'');if(path==='/pazarlar'){listing();if(focus)main.focus({preventScroll:true});return}const key=path.split('/')[2],m=markets.find(x=>x.id===key);if(m){detail(m);if(focus)host.querySelector('h1').focus({preventScroll:true})}else{host.innerHTML='<section class="market-error"><h1>Pazar bulunamadı.</h1><a href="/pazarlar" data-market-back class="text-link">Tüm pazarlara dön ↗</a></section>';updateNav()}}
- function drift(){frame=0;if(motion.matches)return;host.querySelectorAll('.market-cover').forEach(el=>{const r=el.getBoundingClientRect();if(r.bottom<0||r.top>innerHeight)return;const p=(r.top+r.height/2-innerHeight/2)/innerHeight;el.style.setProperty('--drift',Math.max(-65,Math.min(65,-p*90))+'px')})}
+ let orbitFrame=0,orbitTime=0,orbitLast=0,orbitPaused=false,orbitHovered=false;
+ function stopOrbit(){cancelAnimationFrame(orbitFrame);orbitFrame=0;orbitLast=0}
+ function startOrbit(){
+  stopOrbit();const wrap=host.querySelector('.market-orbit'),toggle=host.querySelector('.orbit-toggle');
+  if(!wrap)return;
+  wrap.addEventListener('pointerenter',()=>orbitHovered=true);wrap.addEventListener('pointerleave',()=>{orbitHovered=false;orbitLast=0});
+  wrap.addEventListener('focusin',()=>orbitHovered=true);wrap.addEventListener('focusout',e=>{if(!wrap.contains(e.relatedTarget)){orbitHovered=false;orbitLast=0}});
+  toggle.addEventListener('click',()=>{orbitPaused=!orbitPaused;toggle.setAttribute('aria-pressed',String(orbitPaused));toggle.textContent=orbitPaused?'Hareketi sürdür ▶':'Hareketi duraklat Ⅱ';orbitLast=0});
+  orbitHovered=false;orbitTime=0;paintOrbit();if(!motion.matches)orbitFrame=requestAnimationFrame(tickOrbit);
+ }
+ function tickOrbit(t){
+  orbitFrame=0;if(!host.querySelector('.market-composition'))return;
+  const dt=orbitLast?Math.min(50,t-orbitLast):0;orbitLast=t;
+  if(!document.hidden&&!busy&&!orbitPaused&&!orbitHovered)orbitTime+=dt*.00013;
+  paintOrbit();orbitFrame=requestAnimationFrame(tickOrbit);
+ }
+ function paintOrbit(){
+  const wrap=host.querySelector('.market-orbit'),intro=host.querySelector('.market-composition');if(!wrap||!intro)return;
+  const small=innerWidth<=640,rect=intro.getBoundingClientRect(),vh=innerHeight;
+  const cards=[...wrap.querySelectorAll('.market-orbit-card')];
+  if(motion.matches){cards.forEach(el=>{el.style.transform='';el.style.filter=''});return}
+  const scroll=-rect.top/Math.max(vh,1),base=orbitTime+scroll*.36;
+  const rx=innerWidth*(small?.27:.24),ry=Math.min(vh*.4,innerWidth*.3);
+  cards.forEach((el,i)=>{
+   const theta=i*Math.PI*2/Math.max(1,cards.length)-Math.PI/2+base;
+   const depth=(Math.sin(theta)+1)/2,scale=.25+depth*.75;
+   const x=Math.cos(theta)*rx,y=Math.sin(theta)*ry*(1-depth*.55);
+   el.style.transform=`translate(-50%,-50%) translate(${x}px,${y}px) scale(${scale})`;
+   el.style.filter=`blur(${(1-depth)*11}px) brightness(${.45+depth*.55})`;
+   el.style.zIndex=String(Math.round(depth*100)+2);el.style.setProperty('--depth',depth.toFixed(3));
+  });
+  const globe=host.querySelector('.market-globe');if(globe){const r=globe.getBoundingClientRect(),g=Math.max(0,Math.min(1,(vh-r.top)/(vh+r.height)));[...globe.children].forEach((el,i)=>{const angle=i*2.39996+g*.6,x=Math.cos(angle)*(.18+ i%3*.08)*r.width,y=Math.sin(angle)*(.2+i%2*.1)*r.height;el.style.transform=`translate(-50%,-50%) translate(${x}px,${y}px) rotate(${Math.sin(angle)*8}deg)`})}
+ }
+ function drift(){frame=0;paintOrbit()}
  addEventListener('scroll',()=>{if(!frame)frame=requestAnimationFrame(drift)},{passive:true});addEventListener('resize',drift);
+ motion.addEventListener('change',()=>{if(location.pathname==='/pazarlar')listing()});
  async function go(url,m,back=false){
   if(busy)return;busy=true;const run=++generation;let watchdog;
   const finish=()=>{if(run!==generation){clearTimeout(watchdog);return}animations.forEach(a=>a.cancel());animations=[];overlay.classList.remove('active');document.body.classList.remove('is-changing');busy=false;clearTimeout(watchdog)};
