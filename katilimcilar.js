@@ -56,8 +56,6 @@ fetch('/api/public/markets',{cache:'no-store'}).then(r=>r.ok?r.json():Promise.re
   const toggle=li=>{const open=!li.classList.contains('open');li.classList.toggle('open',open);li.querySelector('.mk-row').setAttribute('aria-expanded',open);
     const box=li.querySelector('.name-cloud');if(open&&!box.dataset.done){box.dataset.done=1;names(box,groups[li.dataset.i].participants)}};
   list.addEventListener('click',e=>{const r=e.target.closest('.mk-row');if(r)toggle(r.parentElement)});
-  // Bütün pazarlar ve "Tüm katılımcılar" açık başlar.
-  items.forEach(toggle);
 
   // Afiş imleci takip eder (yalnızca fareyle; dokunmatikte afiş açılan alanın içinde görünür).
   if(!fl||!matchMedia('(hover:hover)').matches)return;
