@@ -132,3 +132,6 @@ a.name-pill{cursor:pointer}
 .sv-market-date[hidden]{display:none}
 .sv-close{flex-shrink:0}
 @media(max-width:640px){.sv-archive{gap:8px}.sv-archive .sv-place{font-size:9px;letter-spacing:1px}.sv-market{padding:14px 16px;gap:9px}.sv-market strong{font-size:28px}.sv-market-date{font-size:11px}.sv-close{width:44px;height:44px}.sv-top{gap:12px}}
+
+/* Fit the added Pazarlar navigation item at laptop widths. */
+@media(min-width:901px) and (max-width:1200px){header{padding-inline:3%}nav{gap:15px;font-size:11px}.nav-pill{padding:10px 16px;gap:20px}}
