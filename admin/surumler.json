@@ -1,5 +1,12 @@
 [
  {
+  "v": "2.19.4",
+  "date": "2026-10-09",
+  "notes": [
+   "Sitede Katılımcılar: her pazar 6 şerit, “Tüm katılımcılar” 10 şerit; şeritler sırayla ters yöne kayıyor."
+  ]
+ },
+ {
   "v": "2.19.3",
   "date": "2026-10-09",
   "notes": [

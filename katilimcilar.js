@@ -27,8 +27,8 @@ function names(box,list,lanes){
   if(!list.length){box.innerHTML='<p class="name-empty">Bu pazarın katılımcı listesi çok yakında burada.</p>';return}
   if(still){box.innerHTML=`<div class="name-static">${list.map(p=>pill(p)).join('')}</div>`}
   else{
-    // Daha kalabalık görünsün diye 3 şerit (çok katılımcıda 4, “Tüm katılımcılar”da 6). Az isim varsa her şerit listeyi farklı sırayla tekrarlar.
-    const n=lanes||(list.length>=24?4:3),rot=(a,k)=>a.slice(k).concat(a.slice(0,k));
+    // Daha kalabalık görünsün diye 6 şerit (“Tüm katılımcılar”da 10). Az isim varsa her şerit listeyi farklı sırayla tekrarlar.
+    const n=lanes||6,rot=(a,k)=>a.slice(k).concat(a.slice(0,k));
     const rows=list.length<n*4?Array.from({length:n},(_,k)=>rot(k%2?[...list].reverse():list,Math.floor(k*list.length/n))):Array.from({length:n},(_,k)=>list.filter((_,i)=>i%n===k));
     box.innerHTML=rows.map((r,i)=>`<div class="name-lane"><div class="name-track${i%2?' rev':''}">${r.map(p=>pill(p)).join('')}</div></div>`).join('');
     box.querySelectorAll('.name-track').forEach((t,i)=>{const copy=rows[i].map(p=>pill(p,1)).join('');const n=Math.max(1,Math.ceil(innerWidth*1.2/(t.scrollWidth||1)));
@@ -54,7 +54,7 @@ fetch('/api/public/markets',{cache:'no-store'}).then(r=>r.ok?r.json():Promise.re
     <div class="mk-panel" id="mk-${i}"><div><div class="mk-inner"><p class="mk-meta">${[date,m.location,m.participants.length?m.participants.length+' katılımcı':''].filter(Boolean).map(x=>`<span>${esc(up(x))}</span>`).join('')}</p><div class="mk-poster-inline">${poster(m,i)}</div><div class="name-cloud"></div></div></div></div></li>`}).join('');
   const items=[...list.children];
   const toggle=li=>{const open=!li.classList.contains('open');li.classList.toggle('open',open);li.querySelector('.mk-row').setAttribute('aria-expanded',open);
-    const box=li.querySelector('.name-cloud');if(open&&!box.dataset.done){box.dataset.done=1;names(box,groups[li.dataset.i].participants,groups[li.dataset.i].all?6:0)}};
+    const box=li.querySelector('.name-cloud');if(open&&!box.dataset.done){box.dataset.done=1;names(box,groups[li.dataset.i].participants,groups[li.dataset.i].all?10:0)}};
   list.addEventListener('click',e=>{const r=e.target.closest('.mk-row');if(r)toggle(r.parentElement)});
 
   // Afiş imleci takip eder (yalnızca fareyle; dokunmatikte afiş açılan alanın içinde görünür).
