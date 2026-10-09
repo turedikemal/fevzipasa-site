@@ -20,7 +20,7 @@
  const heading=m=>displayName(m).split(/\s+/).map(word=>`<span>${escape(word)}</span>`).join('');
  function listing(){
   document.title='Pazarlar | Fevzipaşa';
-  host.innerHTML=`<section class="market-composition" aria-label="Fevzipaşa pazarları"><div class="market-orbit" aria-label="Pazarlardan görseller">${markets.flatMap(m=>images(m).map(src=>link(m,photo(m,src)+`<span class="orbit-caption">${escape(m.name)} ↗</span>`,'market-orbit-card'+(past(m)?' is-archive':'')))).join('')}<button class="orbit-toggle" aria-pressed="false" aria-label="Afiş hareketini duraklat">Hareketi duraklat Ⅱ</button></div><div class="market-editorial"><div class="market-location"><span>FEVZİPAŞA<br>ÇANAKKALE</span><span>Tasarımın<br>buluşma yeri.</span></div><h1 class="visually-hidden">Fevzipaşa Tasarım Pazarları</h1><div class="market-index">${markets.map((m,i)=>`<section class="market-chapter" style="--column:${[3,2,3,2,4,3][i%6]}"><div class="market-word"><span class="market-number">${String(i+1).padStart(2,'0')} / ${escape(state(m))}</span><h2>${link(m,heading(m),'market-title-link')}</h2><p>${escape(dates(m))}</p></div></section>`).join('')}</div><div class="market-editorial-note"><p>Bir sokak.<br>Birçok buluşma.<br>Her pazarın kendi hikâyesi.</p><span>© ’26</span></div></div><div class="market-edge" aria-hidden="true"><span>fevzi</span><span>paşa</span></div></section><section class="market-all" id="tum-pazarlar"><h2>Tüm tasarım<br>pazarlarımız <span>25–26</span></h2><div class="market-globe" aria-label="Tüm pazarlar">${markets.map(m=>link(m,(images(m).length?photo(m,images(m)[0]):`<span class="market-globe-name">${heading(m)}</span>`)+`<span class="orbit-caption">${escape(m.name)} ↗</span>`,'market-globe-card'+(images(m).length?'':' text-only'))).join('')}</div><ul class="market-all-links">${markets.map(m=>`<li>${link(m,escape(m.name)+' ↗')}</li>`).join('')}</ul></section>`;
+  host.innerHTML=`<section class="market-composition" aria-label="Fevzipaşa pazarları"><div class="market-orbit" aria-label="Pazarlardan görseller">${markets.flatMap(m=>images(m).map(src=>link(m,photo(m,src)+`<span class="orbit-caption">${escape(m.name)} ↗</span>`,'market-orbit-card'+(past(m)?' is-archive':'')))).join('')}<button class="orbit-toggle" aria-pressed="false" aria-label="Afiş hareketini duraklat">Hareketi duraklat Ⅱ</button></div><div class="market-cursor-reveal" aria-hidden="true"></div><div class="market-editorial"><div class="market-location"><span>FEVZİPAŞA<br>ÇANAKKALE</span><span>Tasarımın<br>buluşma yeri.</span></div><h1 class="visually-hidden">Fevzipaşa Tasarım Pazarları</h1><div class="market-index">${markets.map((m,i)=>`<section class="market-chapter" style="--column:${[3,2,3,2,4,3][i%6]}"><div class="market-word"><span class="market-number">${String(i+1).padStart(2,'0')} / ${escape(state(m))}</span><h2>${link(m,heading(m),'market-title-link')}</h2><p>${escape(dates(m))}</p></div></section>`).join('')}</div><div class="market-editorial-note"><p>Bir sokak.<br>Birçok buluşma.<br>Her pazarın kendi hikâyesi.</p></div><div class="market-signoff"><span>© ’26</span></div></div><div class="market-edge" aria-hidden="true"><span>fevzi</span><span>paşa</span></div></section><section class="market-all" id="tum-pazarlar"><div class="market-all-stage"><h2><span class="market-all-title">Tüm tasarım<br>pazarlarımız</span><span class="market-years">25–26</span></h2><div class="market-globe" aria-label="Tüm pazarlar">${markets.map(m=>link(m,(images(m).length?photo(m,images(m)[0]):`<span class="market-globe-name">${heading(m)}</span>`)+`<span class="orbit-caption">${escape(m.name)} ↗</span>`,'market-globe-card'+(images(m).length?'':' text-only'))).join('')}</div><a class="market-all-action" href="#market-directory">Tüm pazarlar ↗</a></div></section><section class="market-directory" id="market-directory"><p class="eyebrow">PAZARLAR / 25–26</p><ul class="market-all-links">${markets.map((m,i)=>`<li>${link(m,`<span>${String(i+1).padStart(2,'0')}</span><strong>${escape(m.name)}</strong><small>${escape(dates(m))}</small><span aria-hidden="true">↗</span>`)}</li>`).join('')}</ul></section>`;
   updateNav();startOrbit();
  }
  function detail(m){
@@ -33,14 +33,14 @@
  function updateNav(){document.querySelectorAll('nav a').forEach(a=>{if(a.getAttribute('href')==='/pazarlar')a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')})}
  function route(focus=false){const path=location.pathname.replace(/\/$/,'');if(path==='/pazarlar'){listing();if(focus)main.focus({preventScroll:true});return}const key=path.split('/')[2],m=markets.find(x=>x.id===key);if(m){detail(m);if(focus)host.querySelector('h1').focus({preventScroll:true})}else{host.innerHTML='<section class="market-error"><h1>Pazar bulunamadı.</h1><a href="/pazarlar" data-market-back class="text-link">Tüm pazarlara dön ↗</a></section>';updateNav()}}
  let orbitFrame=0,orbitTime=0,orbitLast=0,orbitPaused=false,orbitHovered=false;
- function stopOrbit(){cancelAnimationFrame(orbitFrame);orbitFrame=0;orbitLast=0}
+ function stopOrbit(){cancelAnimationFrame(orbitFrame);orbitFrame=0;orbitLast=0;clearCursor()}
  function startOrbit(){
-  stopOrbit();const wrap=host.querySelector('.market-orbit'),toggle=host.querySelector('.orbit-toggle');
+  stopOrbit();previousPointer=null;const wrap=host.querySelector('.market-orbit'),toggle=host.querySelector('.orbit-toggle');
   if(!wrap)return;
   wrap.addEventListener('pointerenter',()=>orbitHovered=true);wrap.addEventListener('pointerleave',()=>{orbitHovered=false;orbitLast=0});
   wrap.addEventListener('focusin',()=>orbitHovered=true);wrap.addEventListener('focusout',e=>{if(!wrap.contains(e.relatedTarget)){orbitHovered=false;orbitLast=0}});
   toggle.addEventListener('click',()=>{orbitPaused=!orbitPaused;toggle.setAttribute('aria-pressed',String(orbitPaused));toggle.textContent=orbitPaused?'Hareketi sürdür ▶':'Hareketi duraklat Ⅱ';orbitLast=0});
-  orbitHovered=false;orbitTime=0;paintOrbit();if(!motion.matches)orbitFrame=requestAnimationFrame(tickOrbit);
+  orbitPaused=false;orbitHovered=false;orbitTime=0;paintOrbit();if(!motion.matches)orbitFrame=requestAnimationFrame(tickOrbit);
  }
  function tickOrbit(t){
   orbitFrame=0;if(!host.querySelector('.market-composition'))return;
@@ -63,19 +63,43 @@
    el.style.filter=`blur(${(1-depth)*11}px) brightness(${.45+depth*.55})`;
    el.style.zIndex=String(Math.round(depth*100)+2);el.style.setProperty('--depth',depth.toFixed(3));
   });
-  const globe=host.querySelector('.market-globe');if(globe){
-   const r=globe.getBoundingClientRect(),g=Math.max(0,Math.min(1,(vh-r.top)/(vh+r.height))),items=[...globe.children];
+  const globe=host.querySelector('.market-globe'),all=host.querySelector('.market-all');if(globe&&all){
+   const ar=all.getBoundingClientRect(),headerHeight=document.querySelector('header')?.offsetHeight||90,g=Math.max(0,Math.min(1,(headerHeight-ar.top)/Math.max(1,all.offsetHeight-vh+headerHeight))),r=globe.getBoundingClientRect(),items=[...globe.children];
+   all.style.setProperty('--spread',String(Math.max(0,Math.min(1,(g-.12)/.5))));
+   const exit=Math.max(0,Math.min(1,(g-.7)/.3)),spread=Math.max(0,Math.min(1,(g-.12)/.5));
+   all.style.setProperty('--exit',String(exit));
+   globe.classList.toggle('is-visible',spread>.05&&exit<.98);globe.inert=spread<=.05||exit>=.98;
+   const action=host.querySelector('.market-all-action');action.classList.toggle('is-visible',exit>.25);action.inert=exit<=.25;
    items.forEach((el,i)=>{
     const lat=Math.acos(1-2*(i+.5)/Math.max(1,items.length)),lon=i*2.39996+g*1.2+orbitTime*.35;
     const x=Math.sin(lat)*Math.cos(lon),y=Math.cos(lat),z=Math.sin(lat)*Math.sin(lon),depth=(z+1)/2,scale=.55+depth*.45;
-    el.style.transform=`translate(-50%,-50%) translate(${x*r.width*.34}px,${y*r.height*.34}px) scale(${scale})`;
+    el.style.transform=`translate(-50%,-50%) translate(${x*r.width*.34}px,${y*r.height*.34}px) scale(${scale}) rotateY(${Math.asin(x)*45}deg) rotateX(${-y*18}deg)`;
     el.style.zIndex=String(Math.round(depth*100));el.style.opacity=String(.45+depth*.55);
    })
   }
  }
- function drift(){frame=0;paintOrbit()}
+ function drift(){frame=0;paintOrbit();clearCursor()}
  addEventListener('scroll',()=>{if(!frame)frame=requestAnimationFrame(drift)},{passive:true});addEventListener('resize',drift);
  motion.addEventListener('change',()=>{if(location.pathname==='/pazarlar')listing()});
+ let cursorPoints=[],cursorTimer,previousPointer=null,cursorIndex=0;
+ const finePointer=matchMedia('(hover: hover) and (pointer: fine)');
+ function clearCursor(){clearTimeout(cursorTimer);host.querySelector('.market-cursor-reveal')?.replaceChildren();cursorPoints=[];previousPointer=null}
+ document.addEventListener('pointermove',e=>{
+  if(motion.matches||!finePointer.matches||busy||e.pointerType==='touch')return;
+  const composition=host.querySelector('.market-composition'),layer=host.querySelector('.market-cursor-reveal');if(!composition||!layer)return;
+  const bounds=composition.getBoundingClientRect();if(e.clientY<Math.max(document.querySelector('header')?.offsetHeight||90,bounds.top)||e.clientY>bounds.bottom){clearCursor();return}
+  if(e.target.closest('header,button'))return;
+  const pool=markets.flatMap(m=>images(m).map(src=>({m,src})));if(!pool.length)return;
+  const moved=!previousPointer||Math.hypot(e.clientX-previousPointer.x,e.clientY-previousPointer.y)>85;
+  if(moved){
+   previousPointer={x:e.clientX,y:e.clientY};const item=pool[cursorIndex++%pool.length],el=document.createElement('div');el.className='market-cursor-image';
+   const img=document.createElement('img');img.src=item.src;img.alt='';el.append(img);el.style.left=e.clientX-bounds.left+'px';el.style.top=e.clientY-bounds.top+'px';el.style.setProperty('--turn',((cursorIndex%3)-1)*7+'deg');layer.append(el);cursorPoints.push(el);
+   while(cursorPoints.length>3)cursorPoints.shift().remove();
+   el.animate([{opacity:0,transform:'translate(-50%,-50%) scale(.6)'},{opacity:.95,transform:'translate(-50%,-50%) scale(1)'},{opacity:0,transform:'translate(-50%,-50%) scale(.85)'}],{duration:1500,easing:'ease-out',fill:'forwards'}).finished.then(()=>el.remove()).catch(()=>{});
+  }
+  clearTimeout(cursorTimer);cursorTimer=setTimeout(clearCursor,1600);
+ },{passive:true});
+ document.addEventListener('pointerleave',clearCursor);
  async function go(url,m,back=false){
   if(busy)return;busy=true;const run=++generation;let watchdog;
   const finish=()=>{if(run!==generation){clearTimeout(watchdog);return}animations.forEach(a=>a.cancel());animations=[];overlay.classList.remove('active');document.body.classList.remove('is-changing');busy=false;clearTimeout(watchdog)};
