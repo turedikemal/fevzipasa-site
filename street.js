@@ -46,10 +46,10 @@
     if(calm){done();return}
     const {g,cover}=flight();media.classList.add('diving');
     // Dümdüz iniş: yana kayma yok, işaretli nokta olduğu yerde kalır ve fotoğraf ona doğru büyür.
-    // Tek bir yavaş-hızlı-yavaş eğri.
-    const D=2200,tf=getComputedStyle(media.querySelector('.dive')).transform,s0=tf&&tf!=='none'?new DOMMatrix(tf).a:1;
-    g.animate([{transform:`scale(${s0})`,filter:'blur(0px)'},{transform:`scale(${cover*3})`,filter:'blur(3px)'}],{duration:D,easing:'cubic-bezier(.65,0,.35,1)',fill:'forwards'});
-    setTimeout(()=>{view.classList.add('landing');done();setTimeout(()=>{fly?.remove();fly=null;view.classList.remove('landing')},1300)},D*.72);
+    // Tek eğri: yavaş başlar, hızlanarak biter (sonda yavaşlama yok).
+    const D=1800,tf=getComputedStyle(media.querySelector('.dive')).transform,s0=tf&&tf!=='none'?new DOMMatrix(tf).a:1;
+    g.animate([{transform:`scale(${s0})`,filter:'blur(0px)'},{transform:`scale(${cover*3})`,filter:'blur(3px)'}],{duration:D,easing:'cubic-bezier(.6,0,.95,.55)',fill:'forwards'});
+    setTimeout(()=>{view.classList.add('landing');done();setTimeout(()=>{fly?.remove();fly=null;view.classList.remove('landing')},600)},D*.82);
   }
   function close(){
     if(!view?.classList.contains('open'))return;

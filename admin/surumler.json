@@ -1,5 +1,12 @@
 [
  {
+  "v": "2.18.8",
+  "date": "2026-10-09",
+  "notes": [
+   "Sokağa in: sondaki yavaşlama kaldırıldı. İniş yavaş başlıyor, hızlanarak bitiyor; sokak fotoğrafı yavaşça yaklaşmadan, doğrudan beliriyor."
+  ]
+ },
+ {
   "v": "2.18.7",
   "date": "2026-10-09",
   "notes": [
