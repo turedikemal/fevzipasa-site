@@ -121,3 +121,14 @@ a.name-pill{cursor:pointer}
 /* Katılımcılar: daha kalabalık şeritler ve "Tüm katılımcılar" */
 .mk-list .name-cloud{gap:6px}.mk-list .name-lane{padding-block:3px}
 .mk-all .mk-no{font-size:22px;color:var(--orange)}.mk-all .mk-row:hover .mk-no,.mk-all.open .mk-no{color:var(--yellow)}
+
+/* Sokak fotoğrafları: Kış Pazarı arşiv etiketi */
+.sv-top{align-items:flex-start;padding-top:max(22px,env(safe-area-inset-top));padding-left:max(4vw,env(safe-area-inset-left));padding-right:max(4vw,env(safe-area-inset-right))}
+.sv-archive{display:flex;flex-direction:column;align-items:flex-start;gap:14px;min-width:0;pointer-events:none}
+.sv-archive .sv-place{font-family:'Roboto Mono',monospace;font-size:11px;letter-spacing:.06em;background:var(--ink);color:#fff;line-height:1.5}
+.sv-market{display:flex;flex-direction:column;align-items:flex-start;gap:9px;padding:16px 22px;background:var(--yellow);color:var(--ink);border:2px solid var(--ink);border-radius:4px;box-shadow:5px 5px 0 var(--ink);max-width:100%}
+.sv-market strong{font-size:clamp(28px,4vw,52px);font-weight:800;letter-spacing:-.045em;line-height:1;white-space:nowrap}
+.sv-market-date{font-family:'Roboto Mono',monospace;font-size:clamp(12px,1.2vw,15px);font-weight:500;line-height:1.5}
+.sv-market-date[hidden]{display:none}
+.sv-close{flex-shrink:0}
+@media(max-width:640px){.sv-archive{gap:10px}.sv-archive .sv-place{font-size:10px;padding:6px 10px}.sv-market{padding:13px 16px;gap:7px;box-shadow:3px 3px 0 var(--ink)}.sv-close{width:44px;height:44px}.sv-top{gap:12px}}

@@ -4,15 +4,38 @@
   const media=document.querySelector('[data-dive]');if(!media)return;
   const layer=media.querySelector('.dive'),pin=media.querySelector('.street-pin');
   const shots=[['/assets/sokak-kitap.webp','Kitaplar, plaklar ve illüstrasyonlar'],['/assets/sokak-tekstil.webp','El emeği tekstil ve örgü stantları'],['/assets/sokak-taki.webp','Takı, seramik ve tasarım objeleri']];
+  // Pazar tarihi yerel panelden gelir; fotoğraflar Kış Pazarı arşividir.
+  const winterDates=async()=>{
+    try{
+      const response=await fetch('/api/public/markets',{cache:'no-store'});
+      if(!response.ok)return '';
+      const data=await response.json();
+      const market=(data.markets||[]).filter(m=>/kış/u.test(String(m.name).toLocaleLowerCase('tr-TR'))).sort((a,b)=>(b.startDate||'').localeCompare(a.startDate||''))[0];
+      if(!market)return '';
+      const parse=value=>{
+        if(!/^\d{4}-\d{2}-\d{2}$/.test(value||''))return null;
+        const date=new Date(value+'T12:00:00');
+        return Number.isNaN(date.getTime())?null:date;
+      };
+      const start=parse(market.startDate),end=parse(market.endDate);
+      const format=date=>date.toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'});
+      if(!start)return end?format(end):'';
+      if(!end||market.endDate===market.startDate)return format(start);
+      if(start.getFullYear()===end.getFullYear()&&start.getMonth()===end.getMonth())return start.getDate()+'–'+format(end);
+      if(start.getFullYear()===end.getFullYear())return start.toLocaleDateString('tr-TR',{day:'numeric',month:'long'})+' – '+format(end);
+      return format(start)+' – '+format(end);
+    }catch{return ''}
+  };
   const calm=matchMedia('(prefers-reduced-motion: reduce)').matches;
   let view=null,i=0,busy=false;
   const build=()=>{
     view=document.createElement('div');view.className='street-view';view.setAttribute('role','dialog');view.setAttribute('aria-modal','true');view.setAttribute('aria-label','Pazar sokağı fotoğrafları');
     view.innerHTML=`${shots.map(([src,alt],n)=>`<img class="sv-shot" src="${src}" alt="${alt}" ${n?'loading="lazy"':''}>`).join('')}
-      <div class="sv-top"><span class="sv-place">FEVZİPAŞA SOKAĞI · ÇANAKKALE</span><button class="sv-close" aria-label="Kapat, yukarı çık">×</button></div>
+      <div class="sv-top"><div class="sv-archive"><span class="sv-place">FEVZİPAŞA · ÇANAKKALE</span><div class="sv-market" role="status" aria-atomic="true"><strong>Kış Pazarı</strong><span class="sv-market-date" hidden></span></div></div><button class="sv-close" aria-label="Kapat, yukarı çık">×</button></div>
       <button class="sv-nav sv-prev" aria-label="Önceki">‹</button><button class="sv-nav sv-next" aria-label="Sonraki">›</button>
       <div class="sv-bottom"><p class="sv-cap"></p><div class="sv-dots">${shots.map((_,n)=>`<button aria-label="${n+1}. fotoğraf"></button>`).join('')}</div><button class="sv-up">↑ Kuşbakışına dön</button></div>`;
     document.body.append(view);
+    winterDates().then(date=>{if(!date)return;const label=view.querySelector('.sv-market-date');label.textContent=date;label.hidden=false;});
     view.querySelector('.sv-close').onclick=close;view.querySelector('.sv-up').onclick=close;
     view.querySelector('.sv-prev').onclick=()=>show(i-1);view.querySelector('.sv-next').onclick=()=>show(i+1);
     view.querySelectorAll('.sv-dots button').forEach((b,n)=>b.onclick=()=>show(n));
