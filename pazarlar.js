@@ -12,13 +12,15 @@
  const date=d=>{if(!/^\d{4}-\d{2}-\d{2}$/.test(d||''))return '';const v=new Date(d+'T12:00:00Z');return Number.isNaN(v.getTime())?'':new Intl.DateTimeFormat('tr-TR',{day:'numeric',month:'long',year:'numeric',timeZone:'Europe/Istanbul'}).format(v)};
  const dates=m=>[date(m.startDate),m.endDate!==m.startDate?date(m.endDate):''].filter(Boolean).join(' — ')||'Tarih bilgisi eklenecek';
  const winter=m=>/kış|kis/i.test(m.name)||Number(m.edition)===2;
- const cover=m=>m.poster?`<img src="/media/${encodeURIComponent(m.poster)}" alt="${escape(m.name)} afişi" loading="lazy">`:`<div class="market-cover-empty"><strong>${escape(m.name)}</strong><small>FEVZİPAŞA / TASARIM PAZARI</small><span class="cover-symbol" aria-hidden="true">✳</span></div>`;
+ const images=m=>m.poster?[`/media/${encodeURIComponent(m.poster)}`]:winter(m)?['/assets/sokak-kitap.webp','/assets/sokak-tekstil.webp','/assets/sokak-taki.webp']:[];
+ const photo=(m,src)=>`<img src="${src}" alt="${escape(m.name)}${m.poster?' afişi':' fotoğrafı'}" loading="lazy">`;
+ const cover=m=>images(m).length?photo(m,images(m)[0]):'<p class="market-no-cover">Bu pazarın afişi henüz yayınlanmadı.</p>';
  const link=(m,text,cls='')=>`<a class="${cls}" data-market-link href="${href(m)}">${text}</a>`;
  const displayName=m=>m.name.replace(/fevzipaşa\s*/ig,'').replace(/^\d+\.\s*/,'').trim()||m.name;
  const heading=m=>displayName(m).split(/\s+/).map(word=>`<span>${escape(word)}</span>`).join('');
  function listing(){
   document.title='Pazarlar | Fevzipaşa';
-  host.innerHTML=`<section class="market-composition" aria-label="Fevzipaşa pazarları"><div class="market-orbit" aria-label="Pazar afişleri">${markets.map((m,i)=>link(m,cover(m)+`<span class="orbit-caption">${escape(m.name)} ↗</span>`,'market-orbit-card'+(past(m)?' is-archive':''))).join('')}<button class="orbit-toggle" aria-pressed="false" aria-label="Afiş hareketini duraklat">Hareketi duraklat Ⅱ</button></div><div class="market-editorial"><div class="market-location"><span>FEVZİPAŞA<br>ÇANAKKALE</span><span>Tasarımın<br>buluşma yeri.</span></div><h1 class="visually-hidden">Fevzipaşa Tasarım Pazarları</h1><div class="market-index">${markets.map((m,i)=>`<section class="market-chapter" style="--column:${[3,2,3,2,4,3][i%6]}"><div class="market-word"><span class="market-number">${String(i+1).padStart(2,'0')} / ${escape(state(m))}</span><h2>${link(m,heading(m),'market-title-link')}</h2><p>${escape(dates(m))}</p></div></section>`).join('')}</div><div class="market-editorial-note"><p>Bir sokak.<br>Birçok buluşma.<br>Her pazarın kendi hikâyesi.</p><span>© ’26</span></div></div><div class="market-edge" aria-hidden="true"><span>fevzi</span><span>paşa</span></div></section><section class="market-all" id="tum-pazarlar"><h2>Tüm tasarım<br>pazarlarımız <span>25–26</span></h2><div class="market-globe" aria-label="Tüm pazar afişleri">${markets.map((m,i)=>link(m,cover(m)+`<span class="orbit-caption">${escape(m.name)} ↗</span>`,'market-globe-card')).join('')}</div><ul class="market-all-links">${markets.map(m=>`<li>${link(m,escape(m.name)+' ↗')}</li>`).join('')}</ul></section>`;
+  host.innerHTML=`<section class="market-composition" aria-label="Fevzipaşa pazarları"><div class="market-orbit" aria-label="Pazarlardan görseller">${markets.flatMap(m=>images(m).map(src=>link(m,photo(m,src)+`<span class="orbit-caption">${escape(m.name)} ↗</span>`,'market-orbit-card'+(past(m)?' is-archive':'')))).join('')}<button class="orbit-toggle" aria-pressed="false" aria-label="Afiş hareketini duraklat">Hareketi duraklat Ⅱ</button></div><div class="market-editorial"><div class="market-location"><span>FEVZİPAŞA<br>ÇANAKKALE</span><span>Tasarımın<br>buluşma yeri.</span></div><h1 class="visually-hidden">Fevzipaşa Tasarım Pazarları</h1><div class="market-index">${markets.map((m,i)=>`<section class="market-chapter" style="--column:${[3,2,3,2,4,3][i%6]}"><div class="market-word"><span class="market-number">${String(i+1).padStart(2,'0')} / ${escape(state(m))}</span><h2>${link(m,heading(m),'market-title-link')}</h2><p>${escape(dates(m))}</p></div></section>`).join('')}</div><div class="market-editorial-note"><p>Bir sokak.<br>Birçok buluşma.<br>Her pazarın kendi hikâyesi.</p><span>© ’26</span></div></div><div class="market-edge" aria-hidden="true"><span>fevzi</span><span>paşa</span></div></section><section class="market-all" id="tum-pazarlar"><h2>Tüm tasarım<br>pazarlarımız <span>25–26</span></h2><div class="market-globe" aria-label="Tüm pazarlar">${markets.map(m=>link(m,(images(m).length?photo(m,images(m)[0]):`<span class="market-globe-name">${heading(m)}</span>`)+`<span class="orbit-caption">${escape(m.name)} ↗</span>`,'market-globe-card'+(images(m).length?'':' text-only'))).join('')}</div><ul class="market-all-links">${markets.map(m=>`<li>${link(m,escape(m.name)+' ↗')}</li>`).join('')}</ul></section>`;
   updateNav();startOrbit();
  }
  function detail(m){
@@ -55,13 +57,21 @@
   const rx=innerWidth*(small?.27:.24),ry=Math.min(vh*.4,innerWidth*.3);
   cards.forEach((el,i)=>{
    const theta=i*Math.PI*2/Math.max(1,cards.length)-Math.PI/2+base;
-   const depth=(Math.sin(theta)+1)/2,scale=.25+depth*.75;
-   const x=Math.cos(theta)*rx,y=Math.sin(theta)*ry*(1-depth*.55);
+   const depth=Math.pow((Math.sin(theta)+1)/2,3),scale=.22+depth*.78;
+   const x=Math.cos(theta)*rx,y=Math.sin(theta)*ry*(1-depth*.65)-vh*.13;
    el.style.transform=`translate(-50%,-50%) translate(${x}px,${y}px) scale(${scale})`;
    el.style.filter=`blur(${(1-depth)*11}px) brightness(${.45+depth*.55})`;
    el.style.zIndex=String(Math.round(depth*100)+2);el.style.setProperty('--depth',depth.toFixed(3));
   });
-  const globe=host.querySelector('.market-globe');if(globe){const r=globe.getBoundingClientRect(),g=Math.max(0,Math.min(1,(vh-r.top)/(vh+r.height)));[...globe.children].forEach((el,i)=>{const angle=i*2.39996+g*.6,x=Math.cos(angle)*(.18+ i%3*.08)*r.width,y=Math.sin(angle)*(.2+i%2*.1)*r.height;el.style.transform=`translate(-50%,-50%) translate(${x}px,${y}px) rotate(${Math.sin(angle)*8}deg)`})}
+  const globe=host.querySelector('.market-globe');if(globe){
+   const r=globe.getBoundingClientRect(),g=Math.max(0,Math.min(1,(vh-r.top)/(vh+r.height))),items=[...globe.children];
+   items.forEach((el,i)=>{
+    const lat=Math.acos(1-2*(i+.5)/Math.max(1,items.length)),lon=i*2.39996+g*1.2+orbitTime*.35;
+    const x=Math.sin(lat)*Math.cos(lon),y=Math.cos(lat),z=Math.sin(lat)*Math.sin(lon),depth=(z+1)/2,scale=.55+depth*.45;
+    el.style.transform=`translate(-50%,-50%) translate(${x*r.width*.34}px,${y*r.height*.34}px) scale(${scale})`;
+    el.style.zIndex=String(Math.round(depth*100));el.style.opacity=String(.45+depth*.55);
+   })
+  }
  }
  function drift(){frame=0;paintOrbit()}
  addEventListener('scroll',()=>{if(!frame)frame=requestAnimationFrame(drift)},{passive:true});addEventListener('resize',drift);
