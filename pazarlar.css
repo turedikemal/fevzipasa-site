@@ -27,12 +27,8 @@
 .market-directory-head h2{margin:0;font-size:clamp(38px,5vw,88px);font-weight:800;letter-spacing:-.06em;line-height:.96;text-wrap:initial}
 .market-directory-head .eyebrow{margin-bottom:24px}
 .market-directory-years{font-size:clamp(48px,7vw,125px);font-weight:800;letter-spacing:-.06em;line-height:.9;white-space:nowrap}
-.market-title-link .market-title-line{display:block;overflow:hidden;padding-bottom:.09em;margin-bottom:-.09em}
+.market-title-link .market-title-line{display:block;overflow:visible}
 .market-title-line>span{display:block}
-.market-chapter.has-entry .market-title-line>span{transform:translateY(110%) rotateX(-22deg) skewY(4deg);filter:blur(7px);opacity:0;transition:transform .95s cubic-bezier(.16,1,.3,1),filter .85s,opacity .65s}
-.market-chapter.has-entry .market-title-line:nth-child(2)>span{transition-delay:90ms}
-.market-chapter.has-entry .market-title-line:nth-child(3)>span{transition-delay:180ms}
-.market-chapter.has-entry.is-entered .market-title-line>span{transform:translateY(0) rotateX(0) skewY(0);filter:blur(0);opacity:1}
 /* Hover and keyboard users always receive readable labels and dates. */
 .market-title-link:focus-visible .market-title-line>span{transform:translateY(0)!important;filter:none!important;opacity:1!important}
 .market-all-links{list-style:none;padding:0;margin:30px 0 0}
@@ -86,7 +82,6 @@
  .market-transition,.market-location{display:none}
  .market-editorial{padding-top:30px}
  .market-photo img{transition:none}
- .market-chapter.has-entry .market-title-line>span{transform:none;filter:none;opacity:1;transition:none}
 }
 
 /* Data-backed entrance status. No fabricated percentage or blocking overlay. */
@@ -95,16 +90,12 @@
 .markets-loading #market-content>p{visibility:hidden}
 .market-loader>span{width:10px;height:10px;border:1px solid currentColor;animation:market-loading-turn 1s linear infinite}
 @keyframes market-loading-turn{to{transform:rotate(180deg)}}
-.market-small-photos{position:absolute;inset:0;pointer-events:none;z-index:1}
-.market-small-photo{position:absolute;left:var(--side);width:clamp(52px,6.4vw,105px);aspect-ratio:1;pointer-events:auto;overflow:hidden}
-.market-small-photo img{object-fit:cover;filter:grayscale(1);transition:filter .45s}
-.market-small-photo:hover img,.market-small-photo:focus-visible img{filter:none}
 /* Perspective lives outside the rotor; faces are real CSS 3D planes. */
 .market-work-scene{height:330svh;background:var(--yellow);color:var(--orange)}
-.market-work-stage{position:sticky;top:90px;height:calc(100svh - 90px);overflow:clip;isolation:isolate;--title-x:-19vw;--year-x:24vw;--roll-y:0px;--roll-angle:0deg;--year-opacity:1;--sphere-opacity:0;--sphere-y:30svh;--spin:0deg}
+.market-work-stage{position:sticky;top:90px;height:calc(100svh - 90px);overflow:clip;isolation:isolate;--title-x:-9vw;--year-x:17vw;--roll-y:0px;--roll-angle:0deg;--year-opacity:1;--sphere-opacity:0;--sphere-y:30svh;--spin:0deg}
 .market-work-title,.market-work-years{position:absolute;left:50%;top:50%;font-weight:800;letter-spacing:-.06em;line-height:.95;white-space:nowrap;z-index:3}
-.market-work-title{font-size:clamp(34px,4.6vw,82px);transform:translate(calc(-50% + var(--title-x)),calc(-50% + var(--roll-y))) rotateX(var(--roll-angle));transform-origin:center}
-.market-work-years{font-size:clamp(42px,6.6vw,118px);transform:translate(calc(-50% + var(--year-x)),calc(-50% + var(--roll-y))) rotateX(calc(-1*var(--roll-angle)));opacity:var(--year-opacity)}
+.market-work-title{font-size:clamp(32px,4.8vw,86px);transform:translate(calc(-50% + var(--title-x)),calc(-50% + var(--roll-y))) rotateX(var(--roll-angle));transform-origin:center}
+.market-work-years{font-size:clamp(32px,4.8vw,86px);transform:translate(calc(-50% + var(--year-x)),calc(-50% + var(--roll-y))) rotateX(calc(-1*var(--roll-angle)));opacity:var(--year-opacity)}
 .market-work-title:hover{color:var(--blue)}
 .market-sphere{position:absolute;left:50%;top:45%;width:min(46vw,650px);aspect-ratio:1;transform:translate(-50%,calc(-50% + var(--sphere-y)));perspective:1100px;opacity:var(--sphere-opacity);visibility:hidden;--sphere-radius:min(19vw,270px)}
 .market-sphere.is-visible{visibility:visible}
@@ -119,11 +110,9 @@
 @media(max-width:640px){
  .market-work-scene{height:290svh}
  .market-work-title{font-size:6vw}
- .market-work-years{font-size:9vw}
+ .market-work-years{font-size:6vw}
  .market-sphere{width:78vw;--sphere-radius:31vw;perspective:800px}
  .market-sphere-tile{width:12vw}
- .market-small-photo{width:12vw}
- .market-small-photo:nth-child(2){left:81%}
 }
 @media(prefers-reduced-motion:reduce){
  .market-loader>span{animation:none}
@@ -132,4 +121,33 @@
  .market-work-stage{position:relative;top:auto;height:auto;display:flex;justify-content:space-between;align-items:center}
  .market-work-title,.market-work-years{position:static;transform:none;font-size:clamp(28px,5vw,65px);opacity:1}
  .market-sphere{display:none}
+}
+
+/* Codrops Wave: animated SVG blur + alpha threshold; independent per text. */
+.market-wave-defs{position:absolute;width:0;height:0;pointer-events:none}
+.market-wave{display:inline-block}
+.market-parallax-gallery{height:150svh;background:var(--yellow);color:var(--orange);position:relative}
+.market-parallax-pin{position:sticky;top:110px;min-height:calc(85svh - 110px);padding:45px 0 55px;overflow:clip}
+.market-parallax-heading{width:73%;margin:0 auto 38px}
+.market-parallax-heading .eyebrow{margin-bottom:18px}
+.market-parallax-heading h2{margin:0;font-size:clamp(36px,4.8vw,80px);font-weight:800;letter-spacing:-.06em;line-height:1}
+.market-parallax-window{width:100%;overflow:clip}
+.market-parallax-track{width:73%;margin:0 auto;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(12px,2vw,30px);will-change:transform}
+.market-parallax-card{position:relative;display:block;aspect-ratio:4/3;overflow:hidden}
+.market-parallax-card img{position:absolute;left:-12.5%;top:0;width:125%;height:100%;object-fit:cover;will-change:transform}
+@media(max-width:900px){.market-parallax-pin{top:95px;min-height:calc(85svh - 95px)}}
+@media(max-width:640px){
+ .market-parallax-gallery{height:110svh}
+ .market-parallax-pin{padding:32px 0;min-height:65svh}
+ .market-parallax-heading,.market-parallax-track{width:88%}
+ .market-parallax-heading{margin-bottom:28px}
+ .market-parallax-heading h2{font-size:9vw}
+ .market-parallax-track{gap:10px}
+}
+@media(prefers-reduced-motion:reduce){
+ .market-parallax-gallery{height:auto}
+ .market-parallax-pin{position:relative;top:auto;min-height:0;padding:55px 0}
+ .market-parallax-track{transform:none!important}
+ .market-parallax-card img{left:0;width:100%;transform:none!important}
+ .market-wave,.market-word h2,.market-parallax-heading h2{filter:none!important;opacity:1!important}
 }
