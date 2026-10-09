@@ -1,5 +1,12 @@
 [
  {
+  "v": "2.18.3",
+  "date": "2026-10-09",
+  "notes": [
+   "Sokağa in: spiral dalış akıcı hale getirildi. Hareket tek ve kesintisiz bir eğri, spiral daha dar; takılmaya yol açan bulanıklık efekti kaldırıldı."
+  ]
+ },
+ {
   "v": "2.18.2",
   "date": "2026-10-09",
   "notes": [
