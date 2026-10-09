@@ -1,5 +1,12 @@
 [
  {
+  "v": "2.18.5",
+  "date": "2026-10-09",
+  "notes": [
+   "Sokağa in: spiral yerine “eğilerek alçalma” kullanılıyor. Fotoğraf karttan tam ekrana açılıyor, noktaya yaklaşıp yatarak sokağa iniyor; ilk fotoğraf kitap standı."
+  ]
+ },
+ {
   "v": "2.18.4",
   "date": "2026-10-09",
   "notes": [
