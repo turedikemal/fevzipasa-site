@@ -28,27 +28,28 @@
   // İniş: fotoğraf karttan tam ekrana açılır ve işaretli noktaya doğru içine çekilir (vertigo).
   const P={x:.53,y:.4};let fly=null;
   const flight=()=>{
-    const r=media.getBoundingClientRect(),W=innerWidth,H=innerHeight,px=r.width*P.x,py=r.height*P.y;
+    const r=media.getBoundingClientRect(),W=innerWidth,H=innerHeight,px=r.width*P.x,py=r.height*P.y,ox=r.left+px,oy=r.top+py;
     fly=document.createElement('div');fly.className='sv-fly';
-    fly.innerHTML=`<div class="sv-sky"></div><img class="sv-ground" src="${media.querySelector('.hero-photo').currentSrc||media.querySelector('.hero-photo').src}" alt="">`;
+    // Ana sayfadaki fotoğrafın o anki hali (yavaş yakınlaşması dahil) aynen alınır, böylece tıklayınca sıçrama olmaz.
+    const ph=media.querySelector('.hero-photo'),itf=getComputedStyle(ph).transform;
+    fly.innerHTML=`<div class="sv-ground"><img src="${ph.currentSrc||ph.src}" alt="" style="transform:${itf==='none'?'none':itf}"></div>`;
     document.body.append(fly);
     const g=fly.querySelector('.sv-ground');Object.assign(g.style,{left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px',transformOrigin:`${px}px ${py}px`});
-    const dx=W/2-(r.left+px),dy=H*.55-(r.top+py),fill=Math.max(W/r.width,H/r.height);
-    return {g,dx,dy,fill};
+    // İşaretli nokta yerinde kalır; fotoğrafın ekranı tamamen kaplaması için gereken büyütme.
+    const cover=Math.max(ox/px,(W-ox)/(r.width-px),oy/py,(H-oy)/(r.height-py),1);
+    return {g,cover};
   };
   function open(){
     if(busy||view?.classList.contains('open'))return;busy=true;
     if(!view)build();show(0);
     const done=()=>{view.classList.add('open');document.documentElement.classList.add('sv-lock');document.addEventListener('keydown',key);view.querySelector('.sv-close').focus();busy=false};
     if(calm){done();return}
-    const {g,dx,dy,fill}=flight();media.classList.add('diving');
-    // Vertigo inişi: kart tam ekrana açılır, kuşbakışı işaretli noktaya doğru içine çekilir;
-    // sokak fotoğrafı tam ekran halinde onun üzerinden belirir (siyah ekran ya da küçük kare yok).
-    g.animate([{transform:'translate(0px,0px) scale(1)',filter:'none',opacity:1},
-      {transform:`translate(${dx}px,${dy}px) scale(${fill*1.05})`,filter:'none',opacity:1,offset:.35},
-      {transform:`translate(${dx}px,${dy}px) scale(${fill*5})`,filter:'blur(6px)',opacity:1}],
-      {duration:1700,easing:'cubic-bezier(.6,0,.4,1)',fill:'forwards'});
-    setTimeout(()=>{view.classList.add('landing');done();setTimeout(()=>{fly?.remove();fly=null;view.classList.remove('landing')},1300)},1050);
+    const {g,cover}=flight();media.classList.add('diving');
+    // Dümdüz iniş: yana kayma yok, işaretli nokta olduğu yerde kalır ve fotoğraf ona doğru büyür.
+    // Tek bir yavaş-hızlı-yavaş eğri.
+    const D=2200,tf=getComputedStyle(media.querySelector('.dive')).transform,s0=tf&&tf!=='none'?new DOMMatrix(tf).a:1;
+    g.animate([{transform:`scale(${s0})`,filter:'blur(0px)'},{transform:`scale(${cover*3})`,filter:'blur(3px)'}],{duration:D,easing:'cubic-bezier(.65,0,.35,1)',fill:'forwards'});
+    setTimeout(()=>{view.classList.add('landing');done();setTimeout(()=>{fly?.remove();fly=null;view.classList.remove('landing')},1300)},D*.72);
   }
   function close(){
     if(!view?.classList.contains('open'))return;
