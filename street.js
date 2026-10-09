@@ -25,8 +25,7 @@
     view.querySelector('.sv-cap').textContent=shots[i][1];
   };
   const key=e=>{if(e.key==='Escape')close();else if(e.key==='ArrowRight')show(i+1);else if(e.key==='ArrowLeft')show(i-1)};
-  // İniş: fotoğraf karttan tam ekrana açılır, işaretli noktaya yaklaşır, sonra yatarak
-  // (perspektif) yere alçalır; en sonda sokak fotoğrafı yukarıdan bakıştan göz hizasına oturur.
+  // İniş: fotoğraf karttan tam ekrana açılır ve işaretli noktaya doğru içine çekilir (vertigo).
   const P={x:.53,y:.4};let fly=null;
   const flight=()=>{
     const r=media.getBoundingClientRect(),W=innerWidth,H=innerHeight,px=r.width*P.x,py=r.height*P.y;
@@ -43,14 +42,13 @@
     const done=()=>{view.classList.add('open');document.documentElement.classList.add('sv-lock');document.addEventListener('keydown',key);view.querySelector('.sv-close').focus();busy=false};
     if(calm){done();return}
     const {g,dx,dy,fill}=flight();media.classList.add('diving');
-    const T='translate(0px,0px) scale(1) rotateX(0deg)';
-    g.animate([{transform:T,filter:'none',opacity:1},
-      {transform:`translate(${dx}px,${dy}px) scale(${fill*1.15}) rotateX(0deg)`,filter:'none',opacity:1,offset:.38},
-      {transform:`translate(${dx}px,${dy}px) scale(${fill*2.6}) rotateX(38deg)`,filter:'blur(1px)',opacity:1,offset:.7},
-      {transform:`translate(${dx}px,${dy}px) scale(${fill*6}) rotateX(72deg)`,filter:'blur(8px) brightness(1.3)',opacity:0}],
-      {duration:1700,easing:'cubic-bezier(.45,0,.55,1)',fill:'forwards'});
-    fly.querySelector('.sv-sky').animate([{opacity:0},{opacity:0,offset:.3},{opacity:1}],{duration:1700,fill:'forwards'});
-    setTimeout(()=>{view.classList.add('landing');done();setTimeout(()=>{fly?.remove();fly=null;view.classList.remove('landing')},1200)},1350);
+    // Vertigo inişi: kart tam ekrana açılır, kuşbakışı işaretli noktaya doğru içine çekilir;
+    // sokak fotoğrafı tam ekran halinde onun üzerinden belirir (siyah ekran ya da küçük kare yok).
+    g.animate([{transform:'translate(0px,0px) scale(1)',filter:'none',opacity:1},
+      {transform:`translate(${dx}px,${dy}px) scale(${fill*1.05})`,filter:'none',opacity:1,offset:.35},
+      {transform:`translate(${dx}px,${dy}px) scale(${fill*5})`,filter:'blur(6px)',opacity:1}],
+      {duration:1700,easing:'cubic-bezier(.6,0,.4,1)',fill:'forwards'});
+    setTimeout(()=>{view.classList.add('landing');done();setTimeout(()=>{fly?.remove();fly=null;view.classList.remove('landing')},1300)},1050);
   }
   function close(){
     if(!view?.classList.contains('open'))return;

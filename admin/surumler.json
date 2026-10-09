@@ -1,5 +1,12 @@
 [
  {
+  "v": "2.18.6",
+  "date": "2026-10-09",
+  "notes": [
+   "Sokağa in: vertigo inişi. Fotoğraf karttan tam ekrana açılıyor ve işaretli noktaya doğru içine çekiliyor; sokak fotoğrafı siyah ekran ya da küçük kare olmadan doğrudan tam ekran beliriyor."
+  ]
+ },
+ {
   "v": "2.18.5",
   "date": "2026-10-09",
   "notes": [
