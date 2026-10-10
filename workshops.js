@@ -72,7 +72,8 @@ if(box){const wid=location.pathname.split('/').filter(Boolean)[1];get('/api/publ
   titles.forEach(title=>{
    const main=title.querySelector('.ws-text-main'),rect=main.getBoundingClientRect();
    const distance=Math.min(main.offsetHeight*.4,innerWidth<=640?64:112);
-   const p=clamp((innerHeight*.45-rect.top)/Math.max(1,innerHeight*.25));
+   const isOpening=title.matches('.ws-hero .hero-title,.ws-detail-copy>h1');
+   const p=isOpening?clamp((scrollY-40)/Math.max(1,innerHeight*.3)):clamp((innerHeight*.45-rect.top)/Math.max(1,innerHeight*.25));
    title.style.paddingBottom=(reduced.matches?0:distance)+'px';
    title.querySelectorAll('.ws-text-copy').forEach((copy,i)=>{
     const rank=7-i,t=reduced.matches?0:clamp((p-rank*.01)/.92);
@@ -88,3 +89,4 @@ if(box){const wid=location.pathname.split('/').filter(Boolean)[1];get('/api/publ
  if(detail)new MutationObserver(()=>{initialize();schedule()}).observe(detail,{childList:true,subtree:true});
  document.fonts?.ready.then(schedule);paint();
 })();
+
