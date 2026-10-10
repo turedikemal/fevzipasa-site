@@ -61,10 +61,18 @@
   paintScene(sceneStart);if(!motion.matches)sceneFrame=requestAnimationFrame(sceneTick);
  }
  function paintDetailText(){
-  host.querySelectorAll('.market-repeat').forEach(el=>{const rect=el.getBoundingClientRect(),p=clamp((innerHeight-rect.top)/Math.max(1,innerHeight+rect.height));
-   if(el.classList.contains('market-list-repeat'))el.style.paddingBottom=(motion.matches?0:el.querySelector('.repeat-main').offsetHeight*1.28)+'px';
+  host.querySelectorAll('.market-repeat').forEach(el=>{
+   const mainLayer=el.querySelector('.repeat-main');if(!mainLayer)return;
+   const height=Math.max(1,mainLayer.offsetHeight),rect=mainLayer.getBoundingClientRect();
+   // Measure the actual text, not the blank space reserved for its copies.
+   const p=clamp((innerHeight-rect.top)/Math.max(1,innerHeight+height));
+   if(el.classList.contains('market-list-repeat'))el.style.paddingBottom=(motion.matches?0:height*1.28)+'px';
    const direction=el.closest('.market-chapter')?.style.getPropertyValue('--column')==='2'?-1:1;
-   el.querySelectorAll('.repeat-copy').forEach((span,i)=>{const rank=8-i,t=motion.matches?0:clamp((p-rank*.01)/.92);span.style.transform=`translate(${direction*rank*2*t}%,${rank*16*t}%)`;span.style.opacity=motion.matches?'0':String(Math.min(i*.15,1)*t)})
+   el.querySelectorAll('.repeat-copy').forEach((span,i)=>{
+    const rank=8-i,t=motion.matches?0:clamp((p-rank*.01)/.92);
+    span.style.transform=`translate3d(${direction*rank*2*t}%,${rank*16*t}%,0)`;
+    span.style.opacity=motion.matches?'0':String(Math.min(i*.15,1)*t);
+   });
   });
  }
  function startDetailText(){paintDetailText();if(!motion.matches)sceneFrame=requestAnimationFrame(sceneTick)}
@@ -81,12 +89,12 @@
   cards.forEach((card,i)=>card.dataset.rank=String(order[i]));
  }
  function paintScene(now=performance.now(),dt=16){
+  paintDetailText();
   const intro=host.querySelector('.market-composition'),editorial=host.querySelector('.market-editorial');if(!intro||!editorial)return;
   const vh=innerHeight,vw=innerWidth,header=document.querySelector('header')?.offsetHeight||90,rect=editorial.getBoundingClientRect(),spine=host.querySelector('.market-spine');
   const spineHeight=Math.max(1,editorial.offsetHeight-(vw<=640?120:180)-15);
   const line=clamp((vh*.88-rect.top-15)/spineHeight),boot=motion.matches?1:ease(clamp((now-sceneStart)/650));
   spine.style.transform=`scaleY(${line*boot})`;
-  paintDetailText();
   host.querySelectorAll('.market-local-photos').forEach(group=>{
    const chapter=group.closest('.market-chapter'),cr=chapter.getBoundingClientRect(),p=clamp((vh-cr.top)/Math.max(1,vh+cr.height));
    const amount=p<.55?1-ease(clamp(p/.55)):ease(clamp((p-.55)/.45)),direction=chapter.style.getPropertyValue('--column')==='2'?-1:1;
@@ -129,6 +137,7 @@
   sphere.inert=sphereOpening<.15;
   sphere.classList.toggle('is-visible',sphereOpening>.01);
  }
+ addEventListener('scroll',paintDetailText,{passive:true});
  addEventListener('resize',()=>{paintScene();paintDetailText()});
  motion.addEventListener('change',()=>route());
  async function go(url,m,back=false,source=null){
