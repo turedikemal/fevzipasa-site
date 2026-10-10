@@ -21,11 +21,11 @@
   document.title='Pazarlar | Fevzipaşa';
   const pool=markets.flatMap(m=>images(m).map(src=>({m,src}))),tiles=[];
   let n=0;
-  for(const [latitude,count] of [[-52,4],[-18,8],[18,8],[52,4]])for(let i=0;i<count;i++){
+  for(const [latitude,count] of [[-50,4],[-16,4],[16,4],[50,4]])for(let i=0;i<count;i++){
    if(!pool.length)break;const item=pool[n++%pool.length];
    tiles.push(link(item.m,`<span class="sphere-front">${photo(item.m,item.src)}</span><span class="sphere-back" aria-hidden="true">${photo(item.m,item.src)}</span>`,'market-sphere-tile').replace('class="market-sphere-tile"',`class="market-sphere-tile" tabindex="-1" aria-label="${escape(item.m.name)}" style="--latitude:${latitude}deg;--longitude:${i*360/count+(latitude>0?20:0)}deg"`));
   }
-  host.innerHTML=`<section class="market-composition" aria-label="Fevzipaşa pazarları"><div class="market-editorial"><div class="market-spine" aria-hidden="true"></div><div class="market-location"><span>FEVZİPAŞA<br>ÇANAKKALE</span><span>Tasarımın<br>buluşma yeri.</span></div><h1 class="visually-hidden">Fevzipaşa Tasarım Pazarları</h1><div class="market-index">${markets.map((m,i)=>`<section class="market-chapter" style="--column:${[3,2,3,2,4,3][i%6]}"><div class="market-word"><span class="market-number">${String(i+1).padStart(2,'0')}</span><h2>${link(m,heading(m).replace(/<span>(.*?)<\/span>/g,'<span class="market-title-line"><span>$1</span></span>'),'market-title-link')}</h2><p>${escape(dates(m))}</p></div></section>`).join('')}</div><div class="market-editorial-note"><p>Bir sokak.<br>Birçok buluşma.<br>Her pazarın kendi hikâyesi.</p></div><div class="market-signoff"><span>© ’26</span></div></div><div class="market-edge" aria-hidden="true"><span>fevzi</span><span>paşa</span></div></section><section class="market-parallax-gallery" aria-label="Pazardan üç kare"><div class="market-parallax-pin"><div class="market-parallax-heading"><p class="eyebrow">SOKAĞIN İÇİNDEN</p><h2>Pazardan kareler.</h2></div><div class="market-parallax-window"><div class="market-parallax-track">${pool.slice(0,3).map(({m,src})=>link(m,photo(m,src),'market-parallax-card')).join('')}</div></div></div></section><section class="market-work-scene" aria-label="Tüm pazarlar, 2025–2026"><div class="market-work-stage"><h2 class="visually-hidden">Tüm pazarlar / 25–26</h2><div class="market-sphere" aria-label="Pazar fotoğraflarının üç boyutlu arşivi"><div class="market-sphere-rotor">${tiles.join('')}</div></div><a class="market-work-title" href="#market-directory"><span class="market-wave">Tüm pazarlar</span></a><span class="market-work-years" aria-hidden="true"><span class="market-wave">25–26</span></span></div></section><section class="market-directory" id="market-directory"><div class="market-directory-head"><div><p class="eyebrow">FEVZİPAŞA / PAZAR ARŞİVİ</p><h2>Pazar hikâyeleri.</h2></div><span class="market-directory-years">25–26</span></div><ul class="market-all-links">${markets.map((m,i)=>`<li>${link(m,`<span>${String(i+1).padStart(2,'0')}</span><strong>${escape(m.name)}</strong><small>${escape(dates(m))}</small><span aria-hidden="true">↗</span>`)}</li>`).join('')}</ul></section>`;
+  host.innerHTML=`<section class="market-composition" aria-label="Fevzipaşa pazarları"><div class="market-editorial"><div class="market-spine" aria-hidden="true"></div><div class="market-location"><span>FEVZİPAŞA<br>ÇANAKKALE</span><span>Tasarımın<br>buluşma yeri.</span></div><h1 class="visually-hidden">Fevzipaşa Tasarım Pazarları</h1><div class="market-index">${markets.map((m,i)=>`<section class="market-chapter" style="--column:${[3,2,3,2,4,3][i%6]}"><div class="market-word"><span class="market-number">${String(i+1).padStart(2,'0')}</span><h2>${link(m,heading(m).replace(/<span>(.*?)<\/span>/g,'<span class="market-title-line"><span>$1</span></span>'),'market-title-link')}</h2><p>${escape(dates(m))}</p></div>${images(m).length?`<div class="market-local-photos" aria-label="${escape(m.name)} görselleri">${images(m).slice(0,3).map(src=>link(m,photo(m,src),'market-local-photo')).join('')}</div>`:''}</section>`).join('')}</div><div class="market-editorial-note"><p>Bir sokak.<br>Birçok buluşma.<br>Her pazarın kendi hikâyesi.</p></div><div class="market-signoff"><span>© ’26</span></div></div><div class="market-edge" aria-hidden="true"><span>fevzi</span><span>paşa</span></div></section><section class="market-work-scene" aria-label="Tüm pazarlar, 2025–2026"><div class="market-work-stage"><h2 class="visually-hidden">Tüm pazarlar / 25–26</h2><div class="market-sphere" aria-label="Pazar fotoğraflarının üç boyutlu arşivi"><div class="market-sphere-rotor">${tiles.join('')}</div></div><a class="market-work-title" href="#market-directory"><span class="market-wave">Tüm pazarlar</span></a><span class="market-work-years" aria-hidden="true"><span class="market-wave">25–26</span></span><a class="market-work-final" href="#market-directory">Tüm pazarlar</a></div></section><section class="market-directory" id="market-directory"><div class="market-directory-head"><div><p class="eyebrow">FEVZİPAŞA / PAZAR ARŞİVİ</p><h2>Pazar hikâyeleri.</h2></div><span class="market-directory-years">25–26</span></div><ul class="market-all-links">${markets.map((m,i)=>`<li>${link(m,`<span>${String(i+1).padStart(2,'0')}</span><strong>${escape(m.name)}</strong><small>${escape(dates(m))}</small><span aria-hidden="true">↗</span>`)}</li>`).join('')}</ul></section>`;
   updateNav();startHeadings();
  }
  function detail(m){
@@ -37,7 +37,7 @@
  }
  function updateNav(){document.querySelectorAll('nav a').forEach(a=>{if(a.getAttribute('href')==='/pazarlar')a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')})}
  function route(focus=false){stopHeadings();const path=location.pathname.replace(/\/$/,'');if(path==='/pazarlar'){listing();if(focus)main.focus({preventScroll:true});return}const key=path.split('/')[2],m=markets.find(x=>x.id===key);if(m){detail(m);if(focus)host.querySelector('h1').focus({preventScroll:true})}else{host.innerHTML='<section class="market-error"><h1>Pazar bulunamadı.</h1><a href="/pazarlar" data-market-back class="text-link">Tüm pazarlara dön ↗</a></section>';updateNav()}}
- let headingObserver=null,sceneFrame=0,entryTimer=0,sceneStart=0,sceneLast=0,sceneSpin=0,galleryX=0,waves=[];
+ let headingObserver=null,sceneFrame=0,entryTimer=0,sceneStart=0,sceneLast=0,sceneSpin=0,waves=[];
  const clamp=(v,min=0,max=1)=>Math.max(min,Math.min(max,v));
  const ease=v=>v*v*(3-2*v);
  function stopHeadings(){headingObserver?.disconnect();headingObserver=null;cancelAnimationFrame(sceneFrame);sceneFrame=0;sceneLast=0;clearTimeout(entryTimer);waves=[]}
@@ -46,15 +46,15 @@
   wave.start=performance.now();el.closest('.market-chapter')?.classList.add('is-entered');
  }
  function startHeadings(){
-  stopHeadings();sceneStart=performance.now();sceneSpin=0;galleryX=innerWidth*.15;
-  const texts=[...host.querySelectorAll('.market-word h2,.market-parallax-heading h2,.market-work-title .market-wave,.market-work-years .market-wave,.market-directory-head h2')];
+  stopHeadings();sceneStart=performance.now();sceneSpin=0;
+  const texts=[...host.querySelectorAll('.market-word h2,.market-directory-head h2')];
   if(!motion.matches){
    const ns='http://www.w3.org/2000/svg',svg=document.createElementNS(ns,'svg');svg.setAttribute('class','market-wave-defs');svg.setAttribute('aria-hidden','true');
    const defs=document.createElementNS(ns,'defs');svg.append(defs);
    texts.forEach((el,i)=>{
     const filter=document.createElementNS(ns,'filter'),id='market-wave-'+i;filter.id=id;filter.setAttribute('x','-50%');filter.setAttribute('y','-100%');filter.setAttribute('width','200%');filter.setAttribute('height','300%');filter.setAttribute('color-interpolation-filters','sRGB');
-    const blur=document.createElementNS(ns,'feGaussianBlur');blur.setAttribute('in','SourceGraphic');blur.setAttribute('stdDeviation','50');blur.setAttribute('result','blur');
-    const matrix=document.createElementNS(ns,'feColorMatrix');matrix.setAttribute('in','blur');matrix.setAttribute('mode','matrix');matrix.setAttribute('values','1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 13 -6');matrix.setAttribute('result','goo');
+    const blur=document.createElementNS(ns,'feGaussianBlur');blur.setAttribute('in','SourceGraphic');blur.setAttribute('stdDeviation','10');blur.setAttribute('result','blur');
+    const matrix=document.createElementNS(ns,'feColorMatrix');matrix.setAttribute('in','blur');matrix.setAttribute('mode','matrix');matrix.setAttribute('values','1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 4 -1');matrix.setAttribute('result','goo');
     const composite=document.createElementNS(ns,'feComposite');composite.setAttribute('in','SourceGraphic');composite.setAttribute('in2','goo');composite.setAttribute('operator','atop');
     filter.append(blur,matrix,composite);defs.append(filter);el.style.filter=`url(#${id})`;el.style.opacity='0';waves.push({el,blur,start:null,done:false});
    });host.append(svg);
@@ -79,28 +79,35 @@
   spine.style.transform=`scaleY(${line*boot})`;
   for(const wave of waves){
    if(wave.start===null||wave.done)continue;
-   const progress=clamp((now-wave.start)/2000),remaining=progress===1?0:Math.pow(2,-10*progress);
-   wave.blur.setAttribute('stdDeviation',String(50*remaining));wave.el.style.opacity=String(1-remaining);
+   const progress=clamp((now-wave.start)/950),remaining=progress===1?0:Math.pow(2,-10*progress);
+   wave.blur.setAttribute('stdDeviation',String(10*remaining));wave.el.style.opacity=String(1-remaining);
    if(progress===1){wave.done=true;wave.el.style.filter='none';wave.el.style.opacity='1'}
   }
-  const gallery=host.querySelector('.market-parallax-gallery'),track=host.querySelector('.market-parallax-track');
-  if(gallery&&track){
-   const gr=gallery.getBoundingClientRect(),p=clamp((vh-gr.top)/Math.max(1,gallery.offsetHeight+vh));
-   const target=p<.55?vw*.15*(1-ease(clamp(p/.55))):vw*.20*ease(clamp((p-.55)/.45));
-   galleryX=motion.matches?0:galleryX+(target-galleryX)*(1-Math.exp(-Math.max(dt,1)*.012));track.style.transform=`translate3d(${galleryX.toFixed(2)}px,0,0)`;
-   track.querySelectorAll('img').forEach(img=>{const cr=img.parentElement.getBoundingClientRect(),distance=clamp((cr.left+cr.width/2-vw/2)/(vw/2),-1,1);img.style.transform=motion.matches?'none':`translate3d(${-distance*10}%,0,0)`});
-  }
+  host.querySelectorAll('.market-local-photos').forEach(group=>{
+   const chapter=group.closest('.market-chapter'),cr=chapter.getBoundingClientRect(),p=clamp((vh-cr.top)/Math.max(1,vh+cr.height));
+   const amount=p<.55?1-ease(clamp(p/.55)):ease(clamp((p-.55)/.45)),direction=chapter.style.getPropertyValue('--column')==='2'?-1:1;
+   const target=motion.matches?0:amount*Math.min(vw*.06,90)*direction;
+   const current=Number(group.dataset.x||target),x=current+(target-current)*(1-Math.exp(-Math.max(dt,1)*.014));
+   group.dataset.x=String(x);group.style.transform=`translate3d(${x.toFixed(2)}px,0,0)`;
+   group.querySelectorAll('img').forEach(img=>img.style.transform=motion.matches?'none':`translateX(${-amount*direction*7}%)`);
+  });
   const scene=host.querySelector('.market-work-scene'),stage=host.querySelector('.market-work-stage');if(!scene)return;
-  const r=scene.getBoundingClientRect(),h=vh-header,g=clamp((header-r.top)/Math.max(1,scene.offsetHeight-h)),opening=ease(clamp((g-.12)/.28)),roll=ease(clamp((g-.58)/.36));
-  const small=vw<=640,ry=h*(small?.29:.31),angle=roll*Math.PI/2;
-  const title=host.querySelector('.market-work-title'),years=host.querySelector('.market-work-years'),tw=title.offsetWidth||vw*.31,yw=years.offsetWidth||vw*.14,gap=vw*(small?.035:.04),radius=small?vw*.31:Math.min(vw*.19,270);
-  const leftBase=(yw+gap)/2,rightBase=(tw+gap)/2,leftOpen=radius+tw/2+gap*.65,rightOpen=radius+yw/2+gap*.65;
-  const titleX=-(leftBase+(leftOpen-leftBase)*opening)*Math.cos(angle),yearX=(rightBase+(rightOpen-rightBase)*opening)*Math.cos(angle);
-  stage.style.setProperty('--title-x',titleX+'px');stage.style.setProperty('--year-x',yearX+'px');stage.style.setProperty('--roll-y',ry*Math.sin(angle)+'px');stage.style.setProperty('--roll-angle',roll*360+'deg');
-  stage.style.setProperty('--year-opacity',String(1-clamp((roll-.55)/.45)));stage.style.setProperty('--sphere-opacity',String(opening));stage.style.setProperty('--sphere-y',h*.38*(1-opening)-h*.12*roll+'px');
+  const r=scene.getBoundingClientRect(),h=vh-header,g=clamp((header-r.top)/Math.max(1,scene.offsetHeight-h));
+  const opening=ease(clamp((g-.08)/.18)),sphereOpening=ease(clamp((g-.27)/.12)),roll=clamp((g-.52)/.43),descent=ease(clamp(roll/.6)),merge=ease(clamp((roll-.6)/.4));
+  const small=vw<=640,title=host.querySelector('.market-work-title'),years=host.querySelector('.market-work-years'),tw=title.offsetWidth||vw*.29,yw=years.offsetWidth||vw*.13,th=title.offsetHeight||h*.07,yh=years.offsetHeight||h*.07;
+  const radius=Math.min(vw*(small?.14:.12),180,h*.19),tileSize=Math.min(vw*(small?.08:.043),68,h*.12),safeRadius=radius*1.18+tileSize*.7,gap=Math.min(vw*.02,32,h*.04);
+  const leftBase=(yw+gap)/2,rightBase=(tw+gap)/2,leftOpen=safeRadius+tw/2+gap,rightOpen=safeRadius+yw/2+gap;
+  // Descend outside the sphere first. Merge horizontally only below its lowest face.
+  const titleX=-(leftBase+(leftOpen-leftBase)*opening)*(1-merge),yearX=(rightBase+(rightOpen-rightBase)*opening)*(1-merge);
+  const joinY=Math.max(0,safeRadius+gap+Math.max(th,yh)/2-h*.1),y=joinY*descent;
+  const sideOpacity=1-ease(clamp((merge-.2)/.4)),finalOpacity=ease(clamp((merge-.6)/.4));
+  stage.style.setProperty('--title-x',titleX+'px');stage.style.setProperty('--year-x',yearX+'px');stage.style.setProperty('--roll-y',y+'px');
+  stage.style.setProperty('--side-opacity',String(sideOpacity));stage.style.setProperty('--year-opacity',String(sideOpacity));stage.style.setProperty('--final-opacity',String(finalOpacity));stage.style.setProperty('--sphere-opacity',String(sphereOpening));stage.style.setProperty('--sphere-y',h*.08*(1-sphereOpening)+'px');
+  const sphere=host.querySelector('.market-sphere');sphere.style.setProperty('--sphere-radius',radius+'px');sphere.style.setProperty('--tile-size',tileSize+'px');
+  const final=host.querySelector('.market-work-final');final.inert=finalOpacity<.5;final.style.visibility=finalOpacity>0?'visible':'hidden';title.inert=sideOpacity<.1;
   stage.style.setProperty('--spin',sceneSpin.toFixed(3)+'deg');
-  const sphere=host.querySelector('.market-sphere');sphere.inert=opening<.15;
-  sphere.classList.toggle('is-visible',opening>.01);
+  sphere.inert=sphereOpening<.15;
+  sphere.classList.toggle('is-visible',sphereOpening>.01);
  }
  document.addEventListener('focusin',e=>{
   const title=e.target.closest('.market-title-link')?.closest('h2'),wave=waves.find(w=>w.el===title);
