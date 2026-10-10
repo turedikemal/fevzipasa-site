@@ -89,7 +89,7 @@
   const people=article.querySelector('.market-people ul');
   if(people){const r=people.getBoundingClientRect(),y=r.bottom-origin.top+24;points.push([points.at(-1)[0],y],[Math.max(20,r.left-origin.left),y]);}
   const nextTitle=article.querySelector('.market-next h2');
-  if(nextTitle){const r=nextTitle.getBoundingClientRect(),y=r.top-origin.top+r.height*.5,x=r.left-origin.left+r.width*.5;points.push([points.at(-1)[0],y],[x,y]);}
+  if(nextTitle){const r=(nextTitle.querySelector('a')||nextTitle).getBoundingClientRect(),section=nextTitle.closest('.market-next').getBoundingClientRect(),y=r.top-origin.top+r.height*.5,x=Math.min(width-20,r.right-origin.left+28);points.push([points.at(-1)[0],y],[x,y],[x,section.bottom-origin.top-24]);}
   else points.push([points.at(-1)[0],height-30],[0,height-30]);
   const d=points.map(([x,y],i)=>(i?'L':'M')+' '+x+' '+y).join(' ');
   svg.setAttribute('viewBox',`0 0 ${width} ${height}`);svg.setAttribute('width',width);svg.setAttribute('height',height);
@@ -97,7 +97,7 @@
   // Break the line at photos and text instead of drawing across their contents.
   let mask=svg.querySelector('mask');
   if(!mask){svg.insertAdjacentHTML('afterbegin','<defs><mask id="market-flow-mask" maskUnits="userSpaceOnUse"></mask></defs>');mask=svg.querySelector('mask');path.setAttribute('mask','url(#market-flow-mask)')}
-  const holes=[...article.querySelectorAll('.repeat-main,.market-story p,.market-gallery-grid,.market-gallery-pause,.market-gallery>h2,.market-people>h2,.market-people li,.market-next h2')].map(el=>{const r=el.getBoundingClientRect();return `<rect x="${r.left-origin.left-6}" y="${r.top-origin.top-4}" width="${r.width+12}" height="${r.height+8}" fill="black"/>`}).join('');
+  const holes=[...article.querySelectorAll('.repeat-main,.market-story p,.market-gallery-grid,.market-gallery-pause,.market-gallery>h2,.market-people>h2,.market-people li')].map(el=>{const r=el.getBoundingClientRect();return `<rect x="${r.left-origin.left-6}" y="${r.top-origin.top-4}" width="${r.width+12}" height="${r.height+8}" fill="black"/>`}).join('');
   const maskMarkup=`<rect width="${width}" height="${height}" fill="white"/>${holes}`;
   if(mask.innerHTML!==maskMarkup)mask.innerHTML=maskMarkup;
   const visibleY=innerHeight*.85-origin.top;
