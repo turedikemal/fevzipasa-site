@@ -65,7 +65,8 @@
    const mainLayer=el.querySelector('.repeat-main');if(!mainLayer)return;
    const height=Math.max(1,mainLayer.offsetHeight),rect=mainLayer.getBoundingClientRect();
    // Measure the actual text, not the blank space reserved for its copies.
-   const p=clamp((innerHeight-rect.top)/Math.max(1,innerHeight+height));
+   const isListing=el.classList.contains('market-list-repeat');
+   const p=isListing?clamp((innerHeight*.45-rect.top)/Math.max(1,innerHeight*.65)):clamp((innerHeight-rect.top)/Math.max(1,innerHeight+height));
    if(el.classList.contains('market-list-repeat'))el.style.paddingBottom=(motion.matches?0:height*1.28)+'px';
    const direction=el.closest('.market-chapter')?.style.getPropertyValue('--column')==='2'?-1:1;
    el.querySelectorAll('.repeat-copy').forEach((span,i)=>{
