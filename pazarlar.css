@@ -211,3 +211,12 @@
 @keyframes market-photo-parallax{from{transform:translateX(-7%)}to{transform:translateX(7%)}}
 @media(max-width:640px){.market-split-hero{padding:25px 6% 45px}.market-split-grid{grid-template-columns:1fr;gap:35px;margin-top:25px}.market-split-copy h1{font-size:13vw}.market-hero-window{height:380px}.market-hero-photo{width:65vw}.market-hero-empty{min-height:200px}}
 @media(prefers-reduced-motion:reduce){.market-hero-track,.market-hero-photo img{animation:none;will-change:auto}.market-hero-window{overflow-x:auto}.market-hero-set[aria-hidden="true"]{display:none}.market-gallery-pause{display:none}}
+
+/* Left-side chapter titles end before the timeline, regardless of word length. */
+.market-chapter[style*="--column:2"]{margin-left:0;width:calc(32.25% - 24px);max-width:calc(32.25% - 24px);text-align:right}
+.market-chapter[style*="--column:2"] .market-local-photos{text-align:left}
+@media(max-width:640px){
+ .market-chapter,.market-chapter[style*="--column:2"]{margin-left:calc(25% + 12px);width:auto;max-width:none;text-align:left}
+}
+
+.market-between-invitation{font:12px/1.6 'Roboto Mono',monospace;letter-spacing:0;margin:18px 0 0;max-width:32em}
