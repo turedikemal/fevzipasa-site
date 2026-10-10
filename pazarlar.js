@@ -79,7 +79,10 @@
   }
   const height=article.offsetHeight;
   const axis=Math.min(width-20,pr.left-origin.left+pr.width*.5);
-  const points=[[0,title.top-origin.top+title.height*.5],[axis,title.top-origin.top+title.height*.5]];
+  const nameRange=document.createRange();nameRange.selectNodeContents(article.querySelector('h1').lastElementChild||article.querySelector('h1'));
+  const nameEnd=[...nameRange.getClientRects()].at(-1)||title;
+  const startX=Math.min(width-20,nameEnd.right-origin.left+16),startY=nameEnd.top-origin.top+nameEnd.height*.5;
+  const points=[[startX,startY],[Math.max(startX,axis),startY]];
   for(const heading of article.querySelectorAll('.market-story-chapter h2,.market-gallery>h2,.market-people>h2')){
    const r=heading.getBoundingClientRect(),y=r.top-origin.top+r.height*.5;
    if(y<=points.at(-1)[1])continue;
@@ -111,8 +114,10 @@
    shown+=segment*fraction;length+=segment;
   }
   if(!svg.dataset.started)svg.dataset.started=performance.now();
-  const entry=motion.matches?1:clamp((performance.now()-Number(svg.dataset.started))/1100);
-  path.style.strokeDasharray=String(length);path.style.strokeDashoffset=String(length-(motion.matches?length:shown*entry));
+  const scrolled=Math.max(0,scrollY);
+  const entry=motion.matches?(scrolled>4?1:0):clamp((scrolled-4)/140);
+  svg.style.opacity=entry>0?'1':'0';
+  path.style.strokeDasharray=String(length);path.style.strokeDashoffset=String(length-shown*entry);
  }
 
  function updateNav(){document.querySelectorAll('nav a').forEach(a=>{if(a.getAttribute('href')==='/pazarlar')a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')})}
