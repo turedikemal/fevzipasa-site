@@ -97,7 +97,10 @@
   // Break the line at photos and text instead of drawing across their contents.
   let mask=svg.querySelector('mask');
   if(!mask){svg.insertAdjacentHTML('afterbegin','<defs><mask id="market-flow-mask" maskUnits="userSpaceOnUse"></mask></defs>');mask=svg.querySelector('mask');path.setAttribute('mask','url(#market-flow-mask)')}
-  const holes=[...article.querySelectorAll('.repeat-main,.market-story p,.market-gallery-grid,.market-gallery-pause,.market-gallery>h2,.market-people>h2,.market-people li')].map(el=>{const r=el.getBoundingClientRect();return `<rect x="${r.left-origin.left-6}" y="${r.top-origin.top-4}" width="${r.width+12}" height="${r.height+8}" fill="black"/>`}).join('');
+  const holes=[...article.querySelectorAll('h1,h2,h3,p,li,a,button,img,.market-hero-window,.market-repeat')].flatMap(el=>{
+   const copy=el.closest('.repeat-copy');if(copy&&Number(getComputedStyle(copy).opacity)<.01)return [];
+   const r=el.getBoundingClientRect();return r.width&&r.height?[`<rect x="${r.left-origin.left-8}" y="${r.top-origin.top-6}" width="${r.width+16}" height="${r.height+12}" fill="black"/>`]:[];
+  }).join('');
   const maskMarkup=`<rect width="${width}" height="${height}" fill="white"/>${holes}`;
   if(mask.innerHTML!==maskMarkup)mask.innerHTML=maskMarkup;
   const visibleY=innerHeight*.85-origin.top;
