@@ -190,3 +190,24 @@
 .market-story-chapter.is-right .market-repeat{margin-left:auto;margin-right:12%}
 @media(max-width:640px){.market-story{padding:45px 6% 60px}.market-story-intro{padding-bottom:35px}.market-story-chapter{margin:30px 0 60px}.market-repeat{font-size:17vw;margin-bottom:40px}.market-story-chapter.is-right .market-repeat{margin-right:7%}}
 @media(prefers-reduced-motion:reduce){.market-repeat{padding-bottom:0}.market-repeat .repeat-copy{display:none}.market-repeat>span{will-change:auto}}
+
+/* Split market hero: site typography on the left, autonomous clipped parallax on the right. */
+.market-split-hero{padding:35px 5% 75px;background:var(--yellow);color:var(--orange);overflow:hidden}
+.market-split-grid{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,6fr);gap:5vw;align-items:center;margin-top:40px}
+.market-split-copy h1{font-size:clamp(58px,6.25vw,112px);font-weight:800;letter-spacing:-.06em;line-height:.91;margin:22px 0 30px;overflow-wrap:anywhere}
+.market-split-copy h1 span{display:block}
+.market-split-copy .market-detail-facts{max-width:350px}
+.market-hero-gallery{min-width:0}
+.market-hero-window{overflow:hidden;width:100%;height:clamp(300px,45vw,650px)}
+.market-hero-track{display:flex;width:max-content;height:100%;animation:market-gallery-drift 28s linear infinite;will-change:transform}
+.market-hero-set{display:flex;gap:14px;padding-right:14px;height:100%}
+.market-hero-photo{display:block;position:relative;width:clamp(190px,22vw,380px);height:100%;overflow:hidden;border:0;padding:0;cursor:pointer;background:transparent}
+.market-hero-photo img{position:absolute;left:-12.5%;width:125%;max-width:none;height:100%;object-fit:cover;animation:market-photo-parallax 12s ease-in-out infinite alternate;will-change:transform}
+.market-hero-photo:nth-child(2) img{animation-delay:-4s}.market-hero-photo:nth-child(3) img{animation-delay:-8s}
+.market-hero-gallery.is-paused .market-hero-track,.market-hero-gallery.is-paused img,.market-hero-gallery:hover .market-hero-track,.market-hero-gallery:hover img,.market-hero-gallery:focus-within .market-hero-track,.market-hero-gallery:focus-within img{animation-play-state:paused}
+.market-gallery-pause{display:block;margin:16px 0 0 auto;background:transparent;border:0;color:var(--orange);font:10px 'Roboto Mono',monospace;cursor:pointer;padding:8px 0}
+.market-hero-empty{display:flex;min-height:350px;align-items:center;justify-content:center;border-top:1px solid currentColor;border-bottom:1px solid currentColor;font-size:16px;padding:30px}
+@keyframes market-gallery-drift{to{transform:translateX(-50%)}}
+@keyframes market-photo-parallax{from{transform:translateX(-7%)}to{transform:translateX(7%)}}
+@media(max-width:640px){.market-split-hero{padding:25px 6% 45px}.market-split-grid{grid-template-columns:1fr;gap:35px;margin-top:25px}.market-split-copy h1{font-size:13vw}.market-hero-window{height:380px}.market-hero-photo{width:65vw}.market-hero-empty{min-height:200px}}
+@media(prefers-reduced-motion:reduce){.market-hero-track,.market-hero-photo img{animation:none;will-change:auto}.market-hero-window{overflow-x:auto}.market-hero-set[aria-hidden="true"]{display:none}.market-gallery-pause{display:none}}
