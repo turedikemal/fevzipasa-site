@@ -263,3 +263,8 @@
 .market-all-heading-row .market-repeat{font-size:clamp(38px,8vw,150px)}
 .market-all-heading-row .market-directory-years{font-size:clamp(24px,3vw,54px);line-height:.9;padding-top:.12em;white-space:nowrap}
 @media(max-width:640px){.market-all-kicker{margin-bottom:20px}.market-all-heading-row{gap:14px}.market-all-heading-row .market-repeat{font-size:8vw}.market-all-heading-row .market-directory-years{font-size:4vw}}
+
+.market-soon-badge{display:inline-block;vertical-align:middle;margin:0 0 0 12px;padding:5px 9px;border:1px solid currentColor;border-radius:999px;font-family:var(--font-mono,monospace);font-size:11px!important;font-weight:500;line-height:1.2;letter-spacing:.02em;white-space:nowrap}
+.market-word>.market-soon-badge{margin:10px 0 12px}
+.market-split-copy>.market-soon-badge{margin:0 0 20px}
+@media(max-width:640px){.market-soon-badge{font-size:10px!important;margin-left:8px}}
