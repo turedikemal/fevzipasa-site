@@ -106,7 +106,8 @@
   host.querySelectorAll('.market-local-photos').forEach(group=>{
    const chapter=group.closest('.market-chapter'),cr=chapter.getBoundingClientRect(),p=clamp((vh-cr.top)/Math.max(1,vh+cr.height));
    const amount=p<.55?1-ease(clamp(p/.55)):ease(clamp((p-.55)/.45)),direction=chapter.style.getPropertyValue('--column')==='2'?-1:1;
-   const growth=motion.matches?1:ease(clamp((p-.15)/.45));
+   // Fully spread by the time this market reaches the upper half of the viewport.
+   const growth=motion.matches?1:ease(clamp((vh*.92-cr.top)/(vh*.37)));
    const available=vw<=640?Math.max(180,cr.width):Math.max(130,vw-cr.right-64);
    const base=Math.min(vw<=640?220:420,available),expanded=available;
    group.style.setProperty('--photo-width',(base+(expanded-base)*growth)+'px');
