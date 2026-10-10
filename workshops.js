@@ -13,12 +13,14 @@ const seats=w=>w.capacity?(w.left?`${w.left} kişilik yer kaldı`:'Kontenjan dol
 const join=(w,cls='pill')=>!upcoming(w)?'':w.capacity&&!w.left?`<span class="${cls} off">Kontenjan doldu</span>`:`<a class="${cls}" href="/katilim?kayit&ws=${w.id}">Yerini ayırt <span>↗</span></a>`;
 const get=u=>fetch(u,{cache:'no-store'}).then(r=>r.ok?r.json():Promise.reject(r));
 
+const card=(w,i)=>`<a class="ws-card" href="/workshop/${w.id}"><span class="card-image">${cover(w,i)}<span class="card-arrow">↗</span><span class="ws-date">${short(w.date)}${w.time?'<br>'+esc(w.time):''}</span></span><span class="card-caption"><small>${esc((w.organizer||w.brand||'Fevzipaşa').toLocaleUpperCase('tr'))}</small><strong>${esc(w.title)}</strong><span class="ws-meta"><span>${price(w)}</span>${w.duration?`<span>${w.duration} dk</span>`:''}${upcoming(w)&&seats(w)?`<span>${seats(w)}</span>`:''}</span></span></a>`;
+
 const list=document.querySelector('[data-ws-list]');
 if(list)get('/api/public/workshops').then(all=>{
   const next=all.filter(upcoming),past=all.filter(w=>!upcoming(w)).reverse();
-  list.innerHTML=next.length?next.map((w,i)=>`<a class="ws-card" href="/workshop/${w.id}"><span class="card-image">${cover(w,i)}<span class="card-arrow">↗</span><span class="ws-date">${short(w.date)}${w.time?'<br>'+esc(w.time):''}</span></span><span class="card-caption"><small>${esc((w.organizer||w.brand||'Fevzipaşa').toLocaleUpperCase('tr'))}</small><strong>${esc(w.title)}</strong><span class="ws-meta"><span>${price(w)}</span>${w.duration?`<span>${w.duration} dk</span>`:''}${seats(w)?`<span>${seats(w)}</span>`:''}</span></span></a>`).join(''):'<p class="ws-empty">Yeni workshoplar çok yakında burada. Takipte kal.</p>';
+  list.innerHTML=next.length?next.map(card).join(''):'<p class="ws-empty">Yeni workshoplar çok yakında burada. Takipte kal.</p>';
   const p=document.querySelector('[data-ws-past]');
-  if(p&&past.length)p.innerHTML=`<h3 class="ws-past-title">Geçmiş workshoplar</h3><div class="ws-past">${past.map(w=>`<a href="/workshop/${w.id}"><span>${short(w.date)}</span><b>${esc(w.title)}</b><small>${esc(w.organizer||w.brand||'')}</small><i>↗</i></a>`).join('')}</div>`;
+  if(p&&past.length)p.innerHTML=`<h3 class="ws-past-title">Geçmiş workshoplar</h3><div class="ws-grid">${past.map(card).join('')}</div>`;
 }).catch(()=>{list.innerHTML='<p class="ws-empty">Workshoplar şu an yüklenemedi.</p>'});
 
 const box=document.querySelector('[data-ws-detail]');
@@ -38,10 +40,11 @@ if(box){const wid=location.pathname.split('/').filter(Boolean)[1];get('/api/publ
     <h3>${esc(m?.name||'Fevzipaşa Tasarım Pazarı')}</h3>
     <p class="ws-market-lead">${m?`Workshop, ${m.edition?m.edition+'. ':''}Fevzipaşa Tasarım Pazarı sırasında yapılıyor. Atölyeden sonra pazarı gez, üreticilerle tanış; aynı gün birçok tasarımı yakından gör.`:'Atölyeden sonra pazarı gez, üreticilerle tanış.'}</p>
     <dl class="ws-facts">${[['Pazar günleri',range],['Saatler',m?.hours],['Yer',m?.location]].filter(x=>x[1]).map(([k,v])=>`<div><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join('')}</dl>
-    ${others.length?`<p class="eyebrow" style="margin-top:28px">BU PAZARDAKİ DİĞER WORKSHOPLAR</p><div class="ws-others">${others.slice(0,4).map(o=>`<a href="/workshop/${o.id}"><span>${short(o.date)}${o.time?' · '+esc(o.time):''}</span><b>${esc(o.title)}</b><i>↗</i></a>`).join('')}</div>`:''}
+    ${others.length?`<p class="eyebrow" style="margin-top:28px">BU PAZARDAKİ DİĞER WORKSHOPLAR</p><div class="ws-grid" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr))">${others.slice(0,4).map(card).join('')}</div>`:''}
     <div class="ws-market-links"><a class="text-link" href="/ziyaret">Ziyaret bilgileri ↗</a><a class="text-link" href="/katilimcilar">Katılımcılar ↗</a></div>`};
     paint([]);get('/api/public/workshops').then(all=>paint(all.filter(o=>o.id!==w.id&&upcoming(o)&&(m?o.market?.id===m.id:true)))).catch(()=>{});
   }
 ;
 }).catch(()=>{box.innerHTML='<section class="ws-detail-missing section"><h1>Workshop bulunamadı.</h1><a class="pill" href="/workshoplar">Tüm workshoplar <span>↗</span></a></section>'})}
 })();
+
