@@ -81,7 +81,7 @@
   const axis=Math.min(width-20,pr.left-origin.left+pr.width*.5);
   const nameRange=document.createRange();nameRange.selectNodeContents(article.querySelector('h1').lastElementChild||article.querySelector('h1'));
   const nameEnd=[...nameRange.getClientRects()].at(-1)||title;
-  const startX=Math.max(0,title.left-origin.left-28),startY=title.top-origin.top+title.height*.5;
+  const startX=0,startY=nameEnd.top-origin.top+nameEnd.height*.5;
   const points=[[startX,startY],[Math.max(startX,axis),startY]];
   for(const heading of article.querySelectorAll('.market-story-chapter h2,.market-gallery>h2,.market-people>h2')){
    const r=heading.getBoundingClientRect(),y=r.top-origin.top+r.height*.5;
@@ -102,7 +102,9 @@
   if(!mask){svg.insertAdjacentHTML('afterbegin','<defs><mask id="market-flow-mask" maskUnits="userSpaceOnUse"></mask></defs>');mask=svg.querySelector('mask');path.setAttribute('mask','url(#market-flow-mask)')}
   const holes=[...article.querySelectorAll('h1,h2,h3,p,li,a,button,img,.market-hero-window,.market-repeat')].flatMap(el=>{
    const copy=el.closest('.repeat-copy');if(copy&&Number(getComputedStyle(copy).opacity)<.01)return [];
-   const r=el.getBoundingClientRect();return r.width&&r.height?[`<rect x="${r.left-origin.left-8}" y="${r.top-origin.top-6}" width="${r.width+16}" height="${r.height+12}" fill="black"/>`]:[];
+   let r=el.getBoundingClientRect();
+   if(el.tagName==='H1'){const range=document.createRange();range.selectNodeContents(el);r=range.getBoundingClientRect();}
+   return r.width&&r.height?[`<rect x="${r.left-origin.left-8}" y="${r.top-origin.top-6}" width="${r.width+16}" height="${r.height+12}" fill="black"/>`]:[];
   }).join('');
   const maskMarkup=`<rect width="${width}" height="${height}" fill="white"/>${holes}`;
   if(mask.innerHTML!==maskMarkup)mask.innerHTML=maskMarkup;
