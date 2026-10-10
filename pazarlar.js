@@ -103,6 +103,9 @@
    group.style.setProperty('--deck-count',String(Math.max(1,count)));
    const shuffle=Number(group.dataset.shuffleUntil||0)>now,spread=shuffle?0:growth;
    if(!motion.matches&&growth<.8&&!busy&&!group.contains(document.activeElement)&&now-Number(group.dataset.lastShuffle||sceneStart)>6000){shuffleDeck(group,now)}
+   if(spread>=.995){group.dataset.openSince??=String(now)}else delete group.dataset.openSince;
+   const all=group.querySelector('.market-photos-all'),allVisible=spread>=.995&&(motion.matches||now-Number(group.dataset.openSince)>=650);
+   if(all){all.classList.toggle('is-visible',allVisible);all.inert=!allVisible;all.setAttribute('aria-hidden',String(!allVisible))}
    const width=base+(expanded-base)*growth,step=(width-8*(count-1))/Math.max(1,count)+8;
    cards.forEach((card,i)=>{const rank=Number(card.dataset.rank??i),x=((count-1)/2-i)*step*(1-spread),angle=(rank-(count-1)/2)*9*(1-spread);card.style.transform=`translate3d(${x}px,${rank*4*(1-spread)}px,0) rotate(${angle}deg)`;card.style.zIndex=String(10+rank)});
    const current=Number(group.dataset.x||target),x=current+(target-current)*(1-Math.exp(-Math.max(dt,1)*.014));
