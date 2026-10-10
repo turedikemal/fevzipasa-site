@@ -19,6 +19,7 @@
  const displayName=m=>m.name.replace(/fevzipaşa\s*/ig,'').replace(/^\d+\.\s*/,'').trim()||m.name;
  const heading=m=>displayName(m).split(/\s+/).map(word=>`<span>${escape(word)}</span>`).join('');
  const repeatedTitle=text=>`<h2 class="market-repeat" aria-label="${escape(text)}">${Array.from({length:8},(_,i)=>`<span aria-hidden="true" class="${i===7?'repeat-main':'repeat-copy'}">${escape(text)}</span>`).join('')}</h2>`;
+ const repeatedMarketTitle=m=>`<h2 class="market-repeat market-list-repeat" aria-label="${escape(displayName(m))}">${Array.from({length:8},(_,i)=>`<span aria-hidden="true" class="${i===7?'repeat-main':'repeat-copy'}">${heading(m)}</span>`).join('')}</h2>`;
  function marketStory(m){
   const isPast=past(m),planned=m.status==='planlandi',name=displayName(m);
   const intro=planned?`${name}, 25–27 Aralık 2026 için planlanıyor. Yılın son buluşmasının programı ve katılımcıları bu sayfada duyurulacak.`:isPast?`${name}, ${dates(m)} tarihlerinde Fevzipaşa’daki buluşmalarımızdan biri oldu. Bu sayfada o pazara ait yayınlanan görselleri ve katılımcıları bir arada bulabilirsin.`:`${name}, ${dates(m)} tarihlerinde Fevzipaşa’da. Tarih, konum ve yayınlanan katılımcı listesi bu sayfada.`;
@@ -39,7 +40,7 @@
    if(!pool.length)break;const item=pool[n++%pool.length];
    tiles.push(link(item.m,`<span class="sphere-front">${photo(item.m,item.src)}</span><span class="sphere-back" aria-hidden="true">${photo(item.m,item.src)}</span>`,'market-sphere-tile').replace('class="market-sphere-tile"',`class="market-sphere-tile" tabindex="-1" aria-label="${escape(item.m.name)}" style="--latitude:${latitude}deg;--longitude:${i*360/count+(latitude>0?20:0)}deg"`));
   }
-  host.innerHTML=`<section class="market-composition" aria-label="Fevzipaşa pazarları"><div class="market-editorial"><div class="market-spine" aria-hidden="true"></div><div class="market-location"><span>FEVZİPAŞA<br>ÇANAKKALE</span><span>Tasarımın<br>buluşma yeri.</span></div><h1 class="visually-hidden">Fevzipaşa Tasarım Pazarları</h1><div class="market-index">${markets.map((m,i)=>`<section class="market-chapter" style="--column:${[3,2,3,2,3,2][i%6]}"><div class="market-word">${live(m)?'<span class="market-live"><span aria-hidden="true"></span>Şu anda gerçekleşiyor</span>':''}<span class="market-number">${String(i+1).padStart(2,'0')}</span><h2>${link(m,heading(m).replace(/<span>(.*?)<\/span>/g,'<span class="market-title-line"><span>$1</span></span>'),'market-title-link')}</h2><p>${escape(dates(m))}${m.status==='planlandi'?'<br><strong>PLANLANAN PAZAR</strong>':''}</p></div>${images(m).length?`<div class="market-local-photos" aria-label="${escape(m.name)} görselleri">${images(m).slice(0,3).map((src,i)=>link(m,photo(m,src),'market-local-photo').replace('data-market-link',`data-market-link data-deck-index="${i}"`)).join('')}<a class="market-photos-all" data-market-link href="${href(m)}#pazar-gorselleri">Tümünü gör <span aria-hidden="true">↗</span></a></div>`:''}</section>${i<markets.length-1&&[1,3,4].includes(i)?`<div class="market-between"><span>${i===4&&markets[i+1]?.startDate==='2026-12-25'?'Yıl bitmeden yeniden buluşalım.':({1:'Tanış.',3:'Keşfet.',4:'Tasarımı destekle.'})[i]}</span>${i===4&&markets[i+1]?.startDate==='2026-12-25'?'<p class="market-between-invitation">25–27 Aralık 2026 · Sizi bekliyoruz.</p>':''}</div>`:''}`).join('')}</div><div class="market-editorial-note"><p>Bir sokak.<br>Birçok buluşma.<br>Her pazarın kendi hikâyesi.</p></div><div class="market-signoff"><span>© ’26</span></div></div><div class="market-edge" aria-hidden="true"><span>fevzi</span><span>paşa</span></div></section><section class="market-work-scene" aria-label="Tüm pazarlar, 2025–2026"><div class="market-work-stage"><h2 class="visually-hidden">Tüm pazarlar / 25–26</h2><div class="market-sphere" aria-label="Pazar fotoğraflarının üç boyutlu arşivi"><div class="market-sphere-rotor">${tiles.join('')}</div></div><a class="market-work-title" href="#market-directory"><span class="market-wave">Tüm pazarlar</span></a><span class="market-work-years" aria-hidden="true"><span class="market-wave">25–26</span></span><a class="market-work-final" href="#market-directory">Tüm pazarlar</a></div></section><section class="market-directory" id="market-directory"><div class="market-directory-head"><div><p class="eyebrow">FEVZİPAŞA / PAZAR ARŞİVİ</p><h2>Pazar hikâyeleri.</h2></div><span class="market-directory-years">25–26</span></div><ul class="market-all-links">${markets.map((m,i)=>`<li>${link(m,`<span>${String(i+1).padStart(2,'0')}</span><strong>${escape(m.name)}</strong><small>${escape(dates(m))}</small><span aria-hidden="true">↗</span>`)}</li>`).join('')}</ul></section>`;
+  host.innerHTML=`<section class="market-composition" aria-label="Fevzipaşa pazarları"><div class="market-editorial"><div class="market-spine" aria-hidden="true"></div><div class="market-location"><span>FEVZİPAŞA<br>ÇANAKKALE</span><span>Tasarımın<br>buluşma yeri.</span></div><h1 class="visually-hidden">Fevzipaşa Tasarım Pazarları</h1><div class="market-index">${markets.map((m,i)=>`<section class="market-chapter" style="--column:${[3,2,3,2,3,2][i%6]}"><div class="market-word">${live(m)?'<span class="market-live"><span aria-hidden="true"></span>Şu anda gerçekleşiyor</span>':''}<span class="market-number">${String(i+1).padStart(2,'0')}</span>${link(m,repeatedMarketTitle(m),'market-title-link')}<p>${escape(dates(m))}${m.status==='planlandi'?'<br><strong>PLANLANAN PAZAR</strong>':''}</p></div>${images(m).length?`<div class="market-local-photos" aria-label="${escape(m.name)} görselleri">${images(m).slice(0,3).map((src,i)=>link(m,photo(m,src),'market-local-photo').replace('data-market-link',`data-market-link data-deck-index="${i}"`)).join('')}<a class="market-photos-all" data-market-link href="${href(m)}#pazar-gorselleri">Tümünü gör <span aria-hidden="true">↗</span></a></div>`:''}</section>${i<markets.length-1&&[1,3,4].includes(i)?`<div class="market-between"><span>${i===4&&markets[i+1]?.startDate==='2026-12-25'?'Yıl bitmeden yeniden buluşalım.':({1:'Tanış.',3:'Keşfet.',4:'Tasarımı destekle.'})[i]}</span>${i===4&&markets[i+1]?.startDate==='2026-12-25'?'<p class="market-between-invitation">25–27 Aralık 2026 · Sizi bekliyoruz.</p>':''}</div>`:''}`).join('')}</div><div class="market-editorial-note"><p>Bir sokak.<br>Birçok buluşma.<br>Her pazarın kendi hikâyesi.</p></div><div class="market-signoff"><span>© ’26</span></div></div><div class="market-edge" aria-hidden="true"><span>fevzi</span><span>paşa</span></div></section><section class="market-work-scene" aria-label="Tüm pazarlar, 2025–2026"><div class="market-work-stage"><h2 class="visually-hidden">Tüm pazarlar / 25–26</h2><div class="market-sphere" aria-label="Pazar fotoğraflarının üç boyutlu arşivi"><div class="market-sphere-rotor">${tiles.join('')}</div></div><a class="market-work-title" href="#market-directory"><span class="market-wave">Tüm pazarlar</span></a><span class="market-work-years" aria-hidden="true"><span class="market-wave">25–26</span></span><a class="market-work-final" href="#market-directory">Tüm pazarlar</a></div></section><section class="market-directory" id="market-directory"><div class="market-directory-head"><div><p class="eyebrow">FEVZİPAŞA / PAZAR ARŞİVİ</p>${repeatedTitle('Pazar hikâyeleri.')}</div><span class="market-directory-years">25–26</span></div><ul class="market-all-links">${markets.map((m,i)=>`<li>${link(m,`<span>${String(i+1).padStart(2,'0')}</span><strong>${escape(m.name)}</strong><small>${escape(dates(m))}</small><span aria-hidden="true">↗</span>`)}</li>`).join('')}</ul></section>`;
   updateNav();startHeadings();
  }
  function detail(m){
@@ -51,37 +52,19 @@
  }
  function updateNav(){document.querySelectorAll('nav a').forEach(a=>{if(a.getAttribute('href')==='/pazarlar')a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')})}
  function route(focus=false){stopHeadings();const path=location.pathname.replace(/\/$/,'');if(path==='/pazarlar'){listing();if(focus)main.focus({preventScroll:true});return}const key=path.split('/')[2],m=markets.find(x=>x.id===key);if(m){detail(m);if(focus)host.querySelector('h1').focus({preventScroll:true})}else{host.innerHTML='<section class="market-error"><h1>Pazar bulunamadı.</h1><a href="/pazarlar" data-market-back class="text-link">Tüm pazarlara dön ↗</a></section>';updateNav()}}
- let headingObserver=null,sceneFrame=0,entryTimer=0,sceneStart=0,sceneLast=0,sceneSpin=0,waves=[];
+ let sceneFrame=0,sceneStart=0,sceneLast=0,sceneSpin=0;
  const clamp=(v,min=0,max=1)=>Math.max(min,Math.min(max,v));
  const ease=v=>v*v*(3-2*v);
- function stopHeadings(){headingObserver?.disconnect();headingObserver=null;cancelAnimationFrame(sceneFrame);sceneFrame=0;sceneLast=0;clearTimeout(entryTimer);waves=[]}
- function beginWave(el){
-  const wave=waves.find(w=>w.el===el);if(!wave||wave.done||wave.start!==null)return;
-  wave.start=performance.now();el.closest('.market-chapter')?.classList.add('is-entered');
- }
+ function stopHeadings(){cancelAnimationFrame(sceneFrame);sceneFrame=0;sceneLast=0;}
  function startHeadings(){
   stopHeadings();sceneStart=performance.now();sceneSpin=0;
-  const texts=[...host.querySelectorAll('.market-word h2,.market-directory-head h2')];
-  if(!motion.matches){
-   const ns='http://www.w3.org/2000/svg',svg=document.createElementNS(ns,'svg');svg.setAttribute('class','market-wave-defs');svg.setAttribute('aria-hidden','true');
-   const defs=document.createElementNS(ns,'defs');svg.append(defs);
-   texts.forEach((el,i)=>{
-    const filter=document.createElementNS(ns,'filter'),id='market-wave-'+i;filter.id=id;filter.setAttribute('x','-50%');filter.setAttribute('y','-100%');filter.setAttribute('width','200%');filter.setAttribute('height','300%');filter.setAttribute('color-interpolation-filters','sRGB');
-    const blur=document.createElementNS(ns,'feGaussianBlur');blur.setAttribute('in','SourceGraphic');blur.setAttribute('stdDeviation','10');blur.setAttribute('result','blur');
-    const matrix=document.createElementNS(ns,'feColorMatrix');matrix.setAttribute('in','blur');matrix.setAttribute('mode','matrix');matrix.setAttribute('values','1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 4 -1');matrix.setAttribute('result','goo');
-    const composite=document.createElementNS(ns,'feComposite');composite.setAttribute('in','SourceGraphic');composite.setAttribute('in2','goo');composite.setAttribute('operator','atop');
-    filter.append(blur,matrix,composite);defs.append(filter);el.style.filter=`url(#${id})`;el.style.opacity='0';waves.push({el,blur,start:null,done:false});
-   });host.append(svg);
-   if(typeof IntersectionObserver!=='undefined'){
-    headingObserver=new IntersectionObserver(entries=>{for(const entry of entries)if(entry.isIntersecting){beginWave(entry.target);headingObserver?.unobserve(entry.target)}},{threshold:.12,rootMargin:'0px 0px -10% 0px'});
-    entryTimer=setTimeout(()=>texts.forEach(text=>headingObserver?.observe(text)),700);
-   }else texts.forEach(beginWave);
-  }
   paintScene(sceneStart);if(!motion.matches)sceneFrame=requestAnimationFrame(sceneTick);
  }
  function paintDetailText(){
   host.querySelectorAll('.market-repeat').forEach(el=>{const rect=el.getBoundingClientRect(),p=clamp((innerHeight-rect.top)/Math.max(1,innerHeight+rect.height));
-   el.querySelectorAll('.repeat-copy').forEach((span,i)=>{const rank=8-i,t=motion.matches?0:clamp((p-rank*.01)/.92);span.style.transform=`translate(${rank*2*t}%,${rank*16*t}%)`;span.style.opacity=motion.matches?'0':String(Math.min(i*.15,1)*t)})
+   if(el.classList.contains('market-list-repeat'))el.style.paddingBottom=(motion.matches?0:el.querySelector('.repeat-main').offsetHeight*1.28)+'px';
+   const direction=el.closest('.market-chapter')?.style.getPropertyValue('--column')==='2'?-1:1;
+   el.querySelectorAll('.repeat-copy').forEach((span,i)=>{const rank=8-i,t=motion.matches?0:clamp((p-rank*.01)/.92);span.style.transform=`translate(${direction*rank*2*t}%,${rank*16*t}%)`;span.style.opacity=motion.matches?'0':String(Math.min(i*.15,1)*t)})
   });
  }
  function startDetailText(){paintDetailText();if(!motion.matches)sceneFrame=requestAnimationFrame(sceneTick)}
@@ -103,12 +86,7 @@
   const spineHeight=Math.max(1,editorial.offsetHeight-(vw<=640?120:180)-15);
   const line=clamp((vh*.88-rect.top-15)/spineHeight),boot=motion.matches?1:ease(clamp((now-sceneStart)/650));
   spine.style.transform=`scaleY(${line*boot})`;
-  for(const wave of waves){
-   if(wave.start===null||wave.done)continue;
-   const progress=clamp((now-wave.start)/950),remaining=progress===1?0:Math.pow(2,-10*progress);
-   wave.blur.setAttribute('stdDeviation',String(10*remaining));wave.el.style.opacity=String(1-remaining);
-   if(progress===1){wave.done=true;wave.el.style.filter='none';wave.el.style.opacity='1'}
-  }
+  paintDetailText();
   host.querySelectorAll('.market-local-photos').forEach(group=>{
    const chapter=group.closest('.market-chapter'),cr=chapter.getBoundingClientRect(),p=clamp((vh-cr.top)/Math.max(1,vh+cr.height));
    const amount=p<.55?1-ease(clamp(p/.55)):ease(clamp((p-.55)/.45)),direction=chapter.style.getPropertyValue('--column')==='2'?-1:1;
@@ -151,10 +129,6 @@
   sphere.inert=sphereOpening<.15;
   sphere.classList.toggle('is-visible',sphereOpening>.01);
  }
- document.addEventListener('focusin',e=>{
-  const title=e.target.closest('.market-title-link')?.closest('h2'),wave=waves.find(w=>w.el===title);
-  if(wave){wave.done=true;wave.blur.setAttribute('stdDeviation','0');wave.el.style.filter='none';wave.el.style.opacity='1'}
- });
  addEventListener('resize',()=>{paintScene();paintDetailText()});
  motion.addEventListener('change',()=>route());
  async function go(url,m,back=false,source=null){
