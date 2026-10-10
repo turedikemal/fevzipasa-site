@@ -19,7 +19,7 @@
  const displayName=m=>m.name.replace(/fevzipaşa\s*/ig,'').replace(/^\d+\.\s*/,'').trim()||m.name;
  const heading=m=>displayName(m).split(/\s+/).map(word=>`<span>${escape(word)}</span>`).join('');
  const repeatedTitle=text=>`<h2 class="market-repeat" aria-label="${escape(text)}">${Array.from({length:8},(_,i)=>`<span aria-hidden="true" class="${i===7?'repeat-main':'repeat-copy'}">${escape(text)}</span>`).join('')}</h2>`;
- const repeatedMarketTitle=m=>`<h2 class="market-repeat market-list-repeat" aria-label="${escape(displayName(m))}">${Array.from({length:8},(_,i)=>`<span aria-hidden="true" class="${i===7?'repeat-main':'repeat-copy'}">${heading(m)}</span>`).join('')}</h2>`;
+ const repeatedMarketTitle=m=>`<h2 class="market-repeat market-list-repeat" aria-label="${escape(displayName(m))}">${Array.from({length:4},(_,i)=>`<span aria-hidden="true" class="${i===3?'repeat-main':'repeat-copy'}">${heading(m)}</span>`).join('')}</h2>`;
  function marketStory(m){
   const isPast=past(m),planned=m.status==='planlandi',name=displayName(m);
   const intro=planned?`${name}, 25–27 Aralık 2026 için planlanıyor. Yılın son buluşmasının programı ve katılımcıları bu sayfada duyurulacak.`:isPast?`${name}, ${dates(m)} tarihlerinde Fevzipaşa’daki buluşmalarımızdan biri oldu. Bu sayfada o pazara ait yayınlanan görselleri ve katılımcıları bir arada bulabilirsin.`:`${name}, ${dates(m)} tarihlerinde Fevzipaşa’da. Tarih, konum ve yayınlanan katılımcı listesi bu sayfada.`;
@@ -71,9 +71,9 @@
    if(isListing)el.style.paddingBottom=(motion.matches?0:maxTrail)+'px';
    const direction=el.closest('.market-chapter')?.style.getPropertyValue('--column')==='2'?-1:1;
    el.querySelectorAll('.repeat-copy').forEach((span,i)=>{
-    const rank=8-i,t=motion.matches?0:clamp((p-rank*.01)/.92);
-    span.style.transform=isListing?`translate3d(${direction*(rank/8)*24*t}px,${(rank/8)*maxTrail*t}px,0)`:`translate3d(${direction*rank*2*t}%,${rank*16*t}%,0)`;
-    span.style.opacity=motion.matches?'0':String(Math.min(i*.15,1)*t);
+    const rank=isListing?3-i:8-i,t=motion.matches?0:clamp((p-rank*.01)/.92);
+    span.style.transform=isListing?`translate3d(${direction*(rank/3)*24*t}px,${(rank/3)*maxTrail*t}px,0)`:`translate3d(${direction*rank*2*t}%,${rank*16*t}%,0)`;
+    span.style.opacity=motion.matches?'0':String((isListing?[.08,.14,.22][i]:Math.min(i*.15,1))*t);
    });
   });
  }
