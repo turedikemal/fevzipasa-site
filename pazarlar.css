@@ -253,3 +253,7 @@
 .market-lined-detail>section>*{position:relative;z-index:2}
 \n.market-detail-line{z-index:3}\n
 .market-next-title{display:inline-block;text-decoration:none}.market-next-title:hover{text-decoration:underline;text-underline-offset:.12em}.market-next-title:focus-visible{outline:2px solid currentColor;outline-offset:8px}
+
+.market-all-heading{padding:100px 6% 50px;background:var(--yellow);color:var(--orange);overflow:hidden}
+.market-all-heading .market-repeat{font-size:clamp(42px,10vw,180px);max-width:100%;margin:0;letter-spacing:-.06em}
+@media(max-width:640px){.market-all-heading{padding:65px 6% 30px}.market-all-heading .market-repeat{font-size:10vw}}
