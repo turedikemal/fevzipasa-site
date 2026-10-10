@@ -86,7 +86,12 @@
   host.querySelectorAll('.market-local-photos').forEach(group=>{
    const chapter=group.closest('.market-chapter'),cr=chapter.getBoundingClientRect(),p=clamp((vh-cr.top)/Math.max(1,vh+cr.height));
    const amount=p<.55?1-ease(clamp(p/.55)):ease(clamp((p-.55)/.45)),direction=chapter.style.getPropertyValue('--column')==='2'?-1:1;
-   const target=motion.matches?0:amount*Math.min(vw*.06,90)*direction;
+   const growth=motion.matches?1:ease(clamp((p-.15)/.45));
+   const available=vw<=640?Math.max(180,cr.width):Math.max(130,vw-cr.right-64);
+   const base=Math.min(vw<=640?220:270,available),expanded=Math.min(vw<=640?available:720,available);
+   group.style.setProperty('--photo-width',(base+(expanded-base)*growth)+'px');
+   group.style.setProperty('--photo-height',((vw<=640?88:114)+(vw<=640?32:110)*growth)+'px');
+   const target=motion.matches||vw<=640?0:amount*Math.min(24,Math.max(0,available-expanded))*direction;
    const current=Number(group.dataset.x||target),x=current+(target-current)*(1-Math.exp(-Math.max(dt,1)*.014));
    group.dataset.x=String(x);group.style.transform=`translate3d(${x.toFixed(2)}px,0,0)`;
    group.querySelectorAll('img').forEach(img=>img.style.transform=motion.matches?'none':`translateX(${-amount*direction*7}%)`);
