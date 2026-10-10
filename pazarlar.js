@@ -47,7 +47,7 @@
   stopHeadings();
   document.title=m.name+' | Fevzipaşa';const i=markets.indexOf(m),next=markets[i+1]||markets[0];
   const isPast=past(m),people=Array.isArray(m.participants)?m.participants:[];
-  host.innerHTML=`<article>${marketHero(m)}${marketStory(m)}${winter(m)?`<section class="market-gallery" id="pazar-gorselleri"><p class="eyebrow">KIŞ PAZARINDAN / SOKAĞIN İÇİNDEN</p><h2>BİR BULUŞMANIN İZLERİ.</h2><div class="market-gallery-grid">${[['sokak-kitap','Kitaplar ve karşılaşmalar'],['sokak-tekstil','Dokular ve üreticiler'],['sokak-taki','Küçük detaylar']].map(([file,caption])=>`<button class="market-photo" data-market-photo="/assets/${file}.webp" data-caption="${caption}" aria-label="${caption} fotoğrafını büyüt"><img src="/assets/${file}.webp" alt="Kış Pazarı — ${caption}" loading="lazy"><span>${caption} ↗</span></button>`).join('')}</div></section>`:''}<section class="market-people"><p class="eyebrow">${isPast?'BU PAZARDA BİZİMLEYDİLER':'BU PAZARIN KATILIMCILARI'}</p><h2>TASARIMIN İNSANLARI.</h2>${people.length?`<ul>${people.map(p=>`<li>${p.instagram?`<a href="https://www.instagram.com/${encodeURIComponent(p.instagram)}/" target="_blank" rel="noopener noreferrer">${escape(p.name)} ↗</a>`:escape(p.name)}</li>`).join('')}</ul>`:'<p>Bu pazarın katılımcı listesi henüz yayınlanmadı.</p>'}</section>${next&&next!==m?`<section class="market-next"><div><p class="eyebrow">BİR SONRAKİ HİKÂYE</p><h2>${escape(next.name)}</h2></div>${link(next,'Pazarı keşfet ↗','text-link')}</section>`:''}</article>`;
+  host.innerHTML=`<article>${marketHero(m)}${marketStory(m)}${winter(m)?`<section class="market-gallery" id="pazar-gorselleri"><p class="eyebrow">KIŞ PAZARINDAN / SOKAĞIN İÇİNDEN</p><h2>BİR BULUŞMANIN İZLERİ.</h2><div class="market-gallery-grid">${[['sokak-kitap','Kitaplar ve karşılaşmalar'],['sokak-tekstil','Dokular ve üreticiler'],['sokak-taki','Küçük detaylar']].map(([file,caption])=>`<button class="market-photo" data-market-photo="/assets/${file}.webp" data-caption="${caption}" aria-label="${caption} fotoğrafını büyüt"><img src="/assets/${file}.webp" alt="Kış Pazarı — ${caption}" loading="lazy"><span>${caption} ↗</span></button>`).join('')}</div></section>`:''}<section class="market-people"><p class="eyebrow">${isPast?'BU PAZARDA BİZİMLEYDİLER':'BU PAZARIN KATILIMCILARI'}</p><h2>TASARIMIN İNSANLARI.</h2>${people.length?`<ul>${people.map(p=>`<li>${p.instagram?`<a href="https://www.instagram.com/${encodeURIComponent(p.instagram)}/" target="_blank" rel="noopener noreferrer">${escape(p.name)} ↗</a>`:escape(p.name)}</li>`).join('')}</ul>`:'<p>Bu pazarın katılımcı listesi henüz yayınlanmadı.</p>'}</section>${next&&next!==m?`<section class="market-next"><div><p class="eyebrow">BİR SONRAKİ HİKÂYE</p><h2>${link(next,escape(next.name),'market-next-title')}</h2></div>${link(next,'Bu pazarı keşfet','text-link')}</section>`:''}</article>`;
   updateNav();mountDetailLine();startDetailText();
  }
 
@@ -65,20 +65,24 @@
   const pr=pause.getBoundingClientRect(),width=article.clientWidth,height=article.offsetHeight;
   const axis=Math.min(width-20,pr.left-origin.left+pr.width*.5);
   const points=[[0,title.top-origin.top+title.height*.5],[axis,title.top-origin.top+title.height*.5]];
-  for(const heading of article.querySelectorAll('.market-story-chapter h2,.market-gallery>h2,.market-people>h2,.market-next h2')){
+  for(const heading of article.querySelectorAll('.market-story-chapter h2,.market-gallery>h2,.market-people>h2')){
    const r=heading.getBoundingClientRect(),y=r.top-origin.top+r.height*.5;
    if(y<=points.at(-1)[1])continue;
    const x=Math.max(20,Math.min(width-20,r.left-origin.left+r.width*.5));
    points.push([points.at(-1)[0],y],[x,y]);
   }
-  points.push([points.at(-1)[0],height-30],[0,height-30]);
+  const people=article.querySelector('.market-people ul');
+  if(people){const r=people.getBoundingClientRect(),y=r.bottom-origin.top+24;points.push([points.at(-1)[0],y],[Math.max(20,r.left-origin.left),y]);}
+  const nextTitle=article.querySelector('.market-next h2');
+  if(nextTitle){const r=nextTitle.getBoundingClientRect(),y=r.top-origin.top+r.height*.5,x=r.left-origin.left+r.width*.5;points.push([points.at(-1)[0],y],[x,y]);}
+  else points.push([points.at(-1)[0],height-30],[0,height-30]);
   const d=points.map(([x,y],i)=>(i?'L':'M')+' '+x+' '+y).join(' ');
   svg.setAttribute('viewBox',`0 0 ${width} ${height}`);svg.setAttribute('width',width);svg.setAttribute('height',height);
   const path=svg.querySelector('path');path.setAttribute('d',d);
   // Break the line at photos and text instead of drawing across their contents.
   let mask=svg.querySelector('mask');
   if(!mask){svg.insertAdjacentHTML('afterbegin','<defs><mask id="market-flow-mask" maskUnits="userSpaceOnUse"></mask></defs>');mask=svg.querySelector('mask');path.setAttribute('mask','url(#market-flow-mask)')}
-  const holes=[...article.querySelectorAll('h1,.repeat-main,.market-hero-window,.market-gallery-grid,.market-gallery-pause,.market-gallery>h2,.market-people>h2,.market-next h2')].map(el=>{const r=el.getBoundingClientRect();return `<rect x="${r.left-origin.left-6}" y="${r.top-origin.top-4}" width="${r.width+12}" height="${r.height+8}" fill="black"/>`}).join('');
+  const holes=[...article.querySelectorAll('.repeat-main,.market-gallery-grid,.market-gallery-pause,.market-gallery>h2,.market-people>h2,.market-people li,.market-next h2')].map(el=>{const r=el.getBoundingClientRect();return `<rect x="${r.left-origin.left-6}" y="${r.top-origin.top-4}" width="${r.width+12}" height="${r.height+8}" fill="black"/>`}).join('');
   const maskMarkup=`<rect width="${width}" height="${height}" fill="white"/>${holes}`;
   if(mask.innerHTML!==maskMarkup)mask.innerHTML=maskMarkup;
   const visibleY=innerHeight*.85-origin.top;
