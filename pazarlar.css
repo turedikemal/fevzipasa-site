@@ -157,9 +157,6 @@
 .market-local-photos{grid-template-columns:repeat(var(--deck-count,3),minmax(0,1fr))}
 .market-local-photo{transition:transform .65s cubic-bezier(.22,1,.36,1);transform-origin:center;box-shadow:0 5px 14px #15151515}
 .market-local-photo[hidden]{display:none}
-.market-deck-controls{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px;pointer-events:auto;margin-bottom:12px}
-.market-deck-controls button{font:10px 'Roboto Mono',monospace;color:var(--orange);padding:7px 10px;border:1px solid currentColor;border-radius:20px;background:transparent;cursor:pointer}
-.market-deck-controls button[aria-pressed="true"]{background:var(--orange);color:var(--yellow)}
 .market-chapter:has(.market-local-photos){min-height:calc(var(--chapter-photo-height,114px) + 138px)}
 .market-photo-transition{position:fixed;inset:0;z-index:100;background:transparent;pointer-events:none;overflow:hidden}
 .market-photo-transition>img{position:absolute;max-width:none;object-fit:cover}
