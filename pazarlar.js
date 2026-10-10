@@ -66,12 +66,13 @@
    const height=Math.max(1,mainLayer.offsetHeight),rect=mainLayer.getBoundingClientRect();
    // Measure the actual text, not the blank space reserved for its copies.
    const isListing=el.classList.contains('market-list-repeat');
-   const p=isListing?clamp((innerHeight*.45-rect.top)/Math.max(1,innerHeight*.65)):clamp((innerHeight-rect.top)/Math.max(1,innerHeight+height));
-   if(el.classList.contains('market-list-repeat'))el.style.paddingBottom=(motion.matches?0:height*1.28)+'px';
+   const p=isListing?clamp((innerHeight*.45-rect.top)/Math.max(1,innerHeight*.25)):clamp((innerHeight-rect.top)/Math.max(1,innerHeight+height));
+   const maxTrail=Math.min(height*.4,innerWidth<=640?64:112);
+   if(isListing)el.style.paddingBottom=(motion.matches?0:maxTrail)+'px';
    const direction=el.closest('.market-chapter')?.style.getPropertyValue('--column')==='2'?-1:1;
    el.querySelectorAll('.repeat-copy').forEach((span,i)=>{
     const rank=8-i,t=motion.matches?0:clamp((p-rank*.01)/.92);
-    span.style.transform=`translate3d(${direction*rank*2*t}%,${rank*16*t}%,0)`;
+    span.style.transform=isListing?`translate3d(${direction*(rank/8)*24*t}px,${(rank/8)*maxTrail*t}px,0)`:`translate3d(${direction*rank*2*t}%,${rank*16*t}%,0)`;
     span.style.opacity=motion.matches?'0':String(Math.min(i*.15,1)*t);
    });
   });
