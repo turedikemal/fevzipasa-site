@@ -81,7 +81,7 @@
   const axis=Math.min(width-20,pr.left-origin.left+pr.width*.5);
   const nameRange=document.createRange();nameRange.selectNodeContents(article.querySelector('h1').lastElementChild||article.querySelector('h1'));
   const nameEnd=[...nameRange.getClientRects()].at(-1)||title;
-  const startX=0,startY=nameEnd.top-origin.top+nameEnd.height*.5;
+  const startX=0,startY=title.top-origin.top+title.height*.5;
   const points=[[startX,startY],[Math.max(startX,axis),startY]];
   for(const heading of article.querySelectorAll('.market-story-chapter h2,.market-gallery>h2,.market-people>h2')){
    const r=heading.getBoundingClientRect(),y=r.top-origin.top+r.height*.5;
