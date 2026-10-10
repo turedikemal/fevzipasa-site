@@ -1,0 +1,531 @@
+[
+ {
+  "v": "2.19.4",
+  "date": "2026-10-09",
+  "notes": [
+   "Sitede Katılımcılar: her pazar 6 şerit, “Tüm katılımcılar” 10 şerit; şeritler sırayla ters yöne kayıyor."
+  ]
+ },
+ {
+  "v": "2.19.3",
+  "date": "2026-10-09",
+  "notes": [
+   "Sitede Katılımcılar: “Tüm katılımcılar” bölümü 6 şerit; pazarlar 3-4 şerit olarak kaldı."
+  ]
+ },
+ {
+  "v": "2.19.2",
+  "date": "2026-10-09",
+  "notes": [
+   "Sitede Katılımcılar: isim şeritleri sırayla ters yöne kayıyor (sol, sağ, sol, sağ); bütün pazarlarda ve “Tüm katılımcılar”da aynı düzen."
+  ]
+ },
+ {
+  "v": "2.19.1",
+  "date": "2026-10-09",
+  "notes": [
+   "Sitede Katılımcılar: pazarlar yine kapalı geliyor; tıklayınca açılıyor. “Tüm katılımcılar” bölümü ve 3-4 şerit aynen duruyor."
+  ]
+ },
+ {
+  "v": "2.19.0",
+  "date": "2026-10-09",
+  "notes": [
+   "Sitede Katılımcılar: pazarlardan hemen sonra “Tüm katılımcılar” bölümü eklendi (her marka bir kez, alfabetik). Her pazar 3 şerit (çok katılımcıda 4) kayıyor, daha kalabalık görünüyor. Sayfa açılınca bütün pazarlar açık geliyor."
+  ]
+ },
+ {
+  "v": "2.18.9",
+  "date": "2026-10-09",
+  "notes": [
+   "Sokağa in: inişte hiç yavaşlama yok. Büyütme sürekli hızlanıyor, sokak fotoğrafı iniş bitmeden beliriyor; bulanıklık kaldırıldığı için takılma da azaldı."
+  ]
+ },
+ {
+  "v": "2.18.8",
+  "date": "2026-10-09",
+  "notes": [
+   "Sokağa in: sondaki yavaşlama kaldırıldı. İniş yavaş başlıyor, hızlanarak bitiyor; sokak fotoğrafı yavaşça yaklaşmadan, doğrudan beliriyor."
+  ]
+ },
+ {
+  "v": "2.18.7",
+  "date": "2026-10-09",
+  "notes": [
+   "Sokağa in: yana kayma kaldırıldı. Fotoğraf olduğu yerden, işaretli noktaya doğru tek ve dümdüz bir hareketle iniyor; hız önce yavaş, ortada hızlı, sonda yine yavaş."
+  ]
+ },
+ {
+  "v": "2.18.6",
+  "date": "2026-10-09",
+  "notes": [
+   "Sokağa in: vertigo inişi. Fotoğraf karttan tam ekrana açılıyor ve işaretli noktaya doğru içine çekiliyor; sokak fotoğrafı siyah ekran ya da küçük kare olmadan doğrudan tam ekran beliriyor."
+  ]
+ },
+ {
+  "v": "2.18.5",
+  "date": "2026-10-09",
+  "notes": [
+   "Sokağa in: spiral yerine “eğilerek alçalma” kullanılıyor. Fotoğraf karttan tam ekrana açılıyor, noktaya yaklaşıp yatarak sokağa iniyor; ilk fotoğraf kitap standı."
+  ]
+ },
+ {
+  "v": "2.18.4",
+  "date": "2026-10-09",
+  "notes": [
+   "Sokağa in: 2.18.3’teki dar spiral geri alındı, 2.18.2’deki dalışa dönüldü."
+  ]
+ },
+ {
+  "v": "2.18.2",
+  "date": "2026-10-09",
+  "notes": [
+   "Sokağa in: fotoğraf önce karttan tam ekrana açılıyor, sonra işaretli noktaya spiral dalışla iniyor. Sokakta ilk olarak kitap standının fotoğrafı açılıyor."
+  ]
+ },
+ {
+  "v": "2.18.1",
+  "date": "2026-10-09",
+  "notes": [
+   "Ana sayfa: “Sokağa in” işareti stantların arasındaki sokağa taşındı. İniş artık tam ekranda: fotoğraf o noktaya yaklaşıp yatarak yere alçalıyor, sokak fotoğrafı yukarıdan göz hizasına oturuyor."
+  ]
+ },
+ {
+  "v": "2.18.0",
+  "date": "2026-10-08",
+  "notes": [
+   "Ana sayfa: kuşbakışı fotoğrafın üzerine gelince sokağa doğru yaklaşır, “Sokağa in” işaretine ya da fotoğrafa tıklayınca Google Haritalar’daki gibi sokağa inilir ve pazarın sokak fotoğrafları tam ekran açılır (oklar, kaydırma, Esc ile kuşbakışına dönüş)."
+  ]
+ },
+ {
+  "v": "2.17.2",
+  "date": "2026-10-08",
+  "notes": [
+   "Otomatik yedek: her içe aktarma, toplu işlem ve mükerrer birleştirmeden önce verinin kopyası data/yedekler/ klasörüne alınır (son 30 kopya). Yanlış bir işlemde bir önceki hale dönülebilir."
+  ]
+ },
+ {
+  "v": "2.17.1",
+  "date": "2026-10-08",
+  "notes": [
+   "Katılımcılar tablosunda pazar dairelerine tıklayınca marka o pazara eklenir, tekrar tıklayınca çıkarılır."
+  ]
+ },
+ {
+  "v": "2.17.0",
+  "date": "2026-10-08",
+  "notes": [
+   "Mükerrer kayıtları birleştirme: Katılımcılar sayfasında aynı marka adı, e-posta ya da Instagram’la birden fazla kayıt varsa “Mükerrerleri birleştir (N)” düğmesi çıkar. Her grupta kalacak kartı seçersin; pazarlar, ödemeler, görseller, başvurular, workshoplar, puanlar ve eksik bilgiler o karta taşınır, fazlalar silinir.",
+   "İçe aktarmada “Bu pazara da ekle” listesine “Tüm pazarlar” seçeneği eklendi. Ana kullanıcı çubuğundaki pazar listesinde de var: listedekileri tüm pazarlara ekleyip çıkarabilirsin."
+  ]
+ },
+ {
+  "v": "2.16.0",
+  "date": "2026-10-08",
+  "notes": [
+   "Başvurularda toplu işlem: her satırda seçim kutusu, başlıkta “tümünü seç”, altta çıkan çubukta “Listedekilerin tümünü seç”, “✓ Kabul et”, Yeni / İnceleniyor / Yedek / Red. Toplu kabulde her başvuru tek tek kabul edilmiş gibi katılımcılara eklenir.",
+   "Kabul listesi: bir form seçip Excel ↓ deyince tek dosyada iki sayfa iner, “Kabul edilenler” ve “Kabul edilmeyenler”. CSV tek sayfa olduğu için başta “Liste” sütunu var, kabul edilenler üstte."
+  ]
+ },
+ {
+  "v": "2.15.3",
+  "date": "2026-10-08",
+  "notes": [
+   "Mesajlar: mesaj gönderince sayfa artık yukarı kaymıyor; sohbet en yeni mesajda açılıyor ve yazma kutusu odakta kalıyor."
+  ]
+ },
+ {
+  "v": "2.15.2",
+  "date": "2026-10-08",
+  "notes": [
+   "Kabul edilmiş başvuruda Değerlendirme kartında artık açıkça “✓ Kabul edildi” yazıyor."
+  ]
+ },
+ {
+  "v": "2.15.1",
+  "date": "2026-10-08",
+  "notes": [
+   "Katılımcılarda bir markaya girip geri dönünce (Geri, üstteki KATILIMCILAR bağlantısı, kaydet ya da sil) seçili pazar ve filtreler korunuyor; artık en son pazara atmıyor."
+  ]
+ },
+ {
+  "v": "2.15.0",
+  "date": "2026-10-08",
+  "notes": [
+   "Katılımcılar sayfasında yalnızca ana kullanıcının gördüğü toplu araçlar: Tümünü seç, Tümünü pazara ekle, Tümünü pazardan çıkar, Tümünü sil. Hepsi o an filtrelenmiş listedeki markalara uygulanır.",
+   "“Tümünü sil” için onay kutusuna SİL yazmak gerekir; markaların görselleri depoda kalır."
+  ]
+ },
+ {
+  "v": "2.14.0",
+  "date": "2026-10-08",
+  "notes": [
+   "Excel'le eklenen katılımcılar artık gerçek kayıt sayılır: “Örnekleri sil” onları ve bağlı oldukları pazarı silmez.",
+   "Eski pazarlara eklenen katılımcılar o pazarın başvuru ve kabul sayılarına da “listeden” olarak eklenir; pazar kartı, pazar sayfası ve genel bakış bunu gösterir.",
+   "Stant sayısı artık elle girilmiyor: pazarın katılımcı listesinden otomatik sayılır.",
+   "Afiş alanı pazarın Düzenle penceresinin en üstünde ve pazar sayfasında ayrı bir kart olarak. Yeni pazar oluştururken de afiş seçilebilir.",
+   "Afişler Görseller'de “Pazar afişleri” klasöründe toplanır (her pazarın kendi klasöründe de görünür)."
+  ]
+ },
+ {
+  "v": "2.13.0",
+  "date": "2026-10-08",
+  "notes": [
+   "Pazara afiş alanı: pazarı düzenle penceresinde “Afiş yükle”. Tek görsel; yenisi eskisinin yerine geçer, “Kaldır” ile silinir. Afiş sitede herkese açık görünür.",
+   "Sitedeki Katılımcılar alanı pazar pazar ayrıldı: pazarlar numara, ad ve tarihle alt alta. Üzerine gelince satır siyaha döner ve o pazarın afişi imleci takip eder (afiş yoksa adı ve tarihi yazan renkli bir kart çıkar).",
+   "Pazara tıklayınca altında o pazarın katılımcıları kayan şeritlerle açılır (spot ışığı, tıklayınca Instagram). Süren ya da sıradaki pazar açık başlar. Telefonda afiş açılan alanın içinde görünür."
+  ]
+ },
+ {
+  "v": "2.12.0",
+  "date": "2026-10-08",
+  "notes": [
+   "Sunucu yeniden başlatılınca artık oturum kapanmıyor: girişler data/sessions.json dosyasında saklanıyor. İçe aktarırken çıkan “Oturum kapandı” hatası bundandı.",
+   "İçe aktarma önce kontrol eder: “Kontrol ediliyor…” yazar, her satırı dener ama hiçbir şey kaydetmez. Hepsi doğruysa içe aktarır.",
+   "Hata varsa hiçbir şey içe aktarılmaz; “Hatalı Excel ↓” ile dosyanın kendisi iner, en sağdaki HATA sütununda her satırın hatası yazar. Düzeltip yeniden yüklenir.",
+   "Kontrol edilenler: boş zorunlu alanlar, tanınmayan tarih, sayı ve e-posta, bulunamayan pazar ya da marka, form sorularında geçersiz tip, Zorunlu ve Katılımcı alanı değerleri. Tamamen boş satırlar atlanır."
+  ]
+ },
+ {
+  "v": "2.11.2",
+  "date": "2026-10-08",
+  "notes": [
+   "Katılımcı isimleri: fare isimden çekildiği anda tüm isimler beklemeden normale döner. Kendi kendine gezen spot ışığı kaldırıldı; isimler sadece üzerine gelince soluklaşır."
+  ]
+ },
+ {
+  "v": "2.11.1",
+  "date": "2026-10-08",
+  "notes": [
+   "Katılımcılar alanında isimler artık iki şerit halinde ters yönlere akıyor (kayan şeritler). Spot ışığı da şeritlerde çalışıyor: bir ismin üzerine gelince şeritler durur, isim sarıya döner, diğerleri soluklaşır."
+  ]
+ },
+ {
+  "v": "2.11.0",
+  "date": "2026-10-08",
+  "notes": [
+   "Sitedeki Katılımcılar alanı artık panele bağlı: sıradaki pazarın katılımcı isimleri siyah oval çerçevelerde görünür, isme tıklayınca markanın Instagram sayfası açılır.",
+   "İsimlerde spot ışığı efekti: bir ismin üzerine gelince diğerleri soluklaşır, seçilen isim sarıya döner. Kimse dokunmazken ışık isimler arasında kendi kendine gezer."
+  ]
+ },
+ {
+  "v": "2.10.3",
+  "date": "2026-10-08",
+  "notes": [
+   "Workshoplar sayfasının giriş yazısı yenilendi."
+  ]
+ },
+ {
+  "v": "2.10.2",
+  "date": "2026-10-08",
+  "notes": [
+   "Başvuru sayfasında ekip notunun altında “Gönder” butonu: not kaydedilir ve başvuruya bağlı mesaj olarak Mesajlar’a gider. Notu yazıp çıkınca artık sadece kaydedilir, mesaj göndermez."
+  ]
+ },
+ {
+  "v": "2.10.1",
+  "date": "2026-10-08",
+  "notes": [
+   "Mesajlar: sohbet alanının zemini beyazdan ayrıldı (açık bej, çerçeveli); mesaj kutuları üzerinde net görünüyor."
+  ]
+ },
+ {
+  "v": "2.10.0",
+  "date": "2026-10-08",
+  "notes": [
+   "Yeni “Mesajlar”: yöneticilerin ortak sohbeti. @ ile kişi anılır, başvuru ya da markaya bağlanır, Kabul/Yedek/Red, Evet/Hayır ya da özel oylama açılır. Ekip notları da buraya düşer.",
+   "Başvuru ve marka sayfalarında başlığın sağında yöneticilere özel özet: skor, sadakat, ekip ortalaması, indirim ve öneri listesi. Katılımcılar görmez.",
+   "Kullanıcılar: satıra basınca kişinin profili açılır (bilgiler, markası, katılımları, başvuruları, görevleri, son işlemleri). İz haritası profilin içinde.",
+   "Hesabım: aynı profil; son işlemler sadeleşti, tümü CSV olarak indirilebilir. Yöneticiye marka bağlanabilir.",
+   "Puanlama: 1–10 tıklamalı puan şeridi, üç adımlı “nasıl çalışır” şeması, sade ayarlar. Yönetici markaları puanlamaya girmez.",
+   "Kara listedeki “Ekle” butonu görünür oldu; görev, puan, kara liste ve mesajlara örnekler eklendi.",
+   "Görsel deposunda “Fatura & fiş” klasörü yok; fişler kasada kalır.",
+   "Yüklenen tüm fotoğraflar WEBP’ye çevrilir ve SEO uyumlu ad alır (ör. dardanos-fine-foods-logo.webp).",
+   "Sitenin ana sayfasında sağda pazarın kuşbakışı fotoğrafı."
+  ]
+ },
+ {
+  "v": "2.9.0",
+  "date": "2026-10-08",
+  "notes": [
+   "Sekmelere ve kasa kutularına basınca sayfa artık en üste kaymıyor; olduğun yerde kalıyor.",
+   "Yeni “Görevler” sayfası: herkes kendi görevini ekler, yapınca işaretler, tarih ve not girer. Ana yönetici tüm ekibi görev ağacında görür, kime görev listesi açılacağını seçer.",
+   "Yeni “Puanlama” sayfası: yöneticiler katılımcılara 10 üzerinden puan verir; kimin kaç verdiğini yalnızca ana yönetici görür.",
+   "Sadakat puanı: her pazar ve üst üste katılım puan kazandırır. Puan ya da skora göre indirim basamakları; kasada tek tuşla “Sadakat indirimlerini uygula”.",
+   "Öneri listesi: skor 6 ve üzeri sonraki pazara katılsın, altı katılmasın. Yerleri yalnızca ana yönetici değiştirir.",
+   "Kara liste: sebebiyle birlikte; kara listedekiler öneriye girmez, başvuruda uyarı çıkar.",
+   "Başvurularda geçmiş pazarlar küçük bir şeritle gösteriliyor; “Tanıdık marka” kutusu yeniden tasarlandı.",
+   "Katılımcı tablosunda pazar numaralarının üstünde “Katılım sağlanan pazarlar” yazıyor.",
+   "Genel bakışta “Son hareketler” yerine görevler ve yalnızca önemli işler.",
+   "Katılımcı görselleri pazar klasöründe marka adına klasörleniyor; görsel kuralları (4:5, 1080×1350, üzerinde yazı yok) katılımcı panelinde.",
+   "Google Drive: Drive klasörünü bağlayınca her görsel aynı klasör düzeniyle oraya kopyalanır.",
+   "Kullanıcılar sayfasında rol açıklamaları “i” butonuyla açılan pencerede; ana yönetici diğerlerine yönetici olarak görünür."
+  ]
+ },
+ {
+  "v": "2.8.0",
+  "date": "2026-10-08",
+  "notes": [
+   "Katılımcılarda yeni “Liste” görünümü: marka, yetkili, telefon, e-posta, Instagram, kategori; tek tuşla yazdır ya da PDF kaydet.",
+   "Kasada “+ Kasaya para gir” ve “− Masraf gir” butonları.",
+   "Kasada “Devreden” kutusu: açılış bakiyesi ve önceki pazarlardan devreden para; KASADA toplamı buna göre hesaplanır.",
+   "Kasada “+ Gelir gir” butonu da var; “Kasaya para gir” kendi kategorisiyle (Kasaya para girişi) kaydedilir."
+  ]
+ },
+ {
+  "v": "2.7.0",
+  "date": "2026-10-08",
+  "notes": [
+   "Sitede “Katılım koşulları ve KVKK” sayfası (/kosullar): düzenleyen, başvuru, stant ücreti iadesi (3 gün kuralı), workshop, iptal, fotoğraf, kişisel veriler.",
+   "Başvuru formlarındaki onay kutusunun yanında “Koşulları oku” bağlantısı var; kayıt ekranında ve tüm sayfaların altında da bağlantı var.",
+   "Koşullara kurulum saati (açılıştan en geç 1 saat önce hazır), yasaklar (alkol, huzuru bozmak vb.), erteleme ve ücretli/ücretsiz workshop kuralları eklendi.",
+   "Tüm başvuru formlarına zorunlu “fotoğraf ve video izni” kutusu eklendi."
+  ]
+ },
+ {
+  "v": "2.6.0",
+  "date": "2026-10-08",
+  "notes": [
+   "Workshop sayfalarından gelenler marka formu yerine kişisel workshop kayıt formu görür: ad soyad, e-posta, telefon, şifre.",
+   "Workshop katılımcısının panelinde yalnızca workshoplar ve ödeme bilgileri var; marka ve stant başvurusu yok.",
+   "Ana hesap kurulunca örnek veriler otomatik yüklenir; mum workshopunda 3 örnek görsel var.",
+   "Windows'ta kayıt ve girişte çıkan sunucu hatası düzeltildi.",
+   "Çocuklar için kolaj atölyesine 3 örnek görsel eklendi.",
+   "Giriş/kayıt ekranında sol üstteki yazı “Fevzipaşa Tasarım Pazarı” oldu, tıklayınca sitenin ana sayfasına gider.",
+   "Workshop sayfasındaki görseller tıklanınca büyümüyor."
+  ]
+ },
+ {
+  "v": "2.5.3",
+  "date": "2026-10-08",
+  "notes": [
+   "Ücretli workshopa katılırken ödeme adımı açılır: ücret, 3 adım, açıklamaya yazılacak metin ve kopyalanabilir IBAN ile banka bilgileri.",
+   "Kayıt sonrası workshop kartında “Ödeme bilgileri” butonu çıkar."
+  ]
+ },
+ {
+  "v": "2.5.2",
+  "date": "2026-10-08",
+  "notes": [
+   "Workshop sayfasında “Gel. Dene. Üret.” alanının sağına workshopun yapıldığı pazarın kartı geldi: pazar adı, günleri, saatleri, yeri, aynı pazardaki diğer workshoplar ve ziyaret/katılımcı bağlantıları."
+  ]
+ },
+ {
+  "v": "2.5.1",
+  "date": "2026-10-08",
+  "notes": [
+   "Her sayfada sağ üstte “Çıkış” butonu (yönetim ve katılımcı paneli).",
+   "Logonun etrafında çıkan turuncu çerçeve kaldırıldı."
+  ]
+ },
+ {
+  "v": "2.5.0",
+  "date": "2026-10-08",
+  "notes": [
+   "Sitede üst menüye “Workshoplar” sekmesi: panelde açılan (iptal edilmemiş) workshoplar kartlarla listelenir; geçmiş olanlar altta.",
+   "Her workshopun kendi sayfası: tarih, saat, yer, düzenleyen, ücret, kontenjan, açıklama, görsel galerisi ve “Yerini ayırt” butonu.",
+   "“Yerini ayırt” kayıt/giriş ekranına götürür; giriş sonrası katılımcı panelinde o workshop işaretli gelir.",
+   "Panelde workshop penceresine görsel yükleme: ilk görsel kapak olur, görseller sitede herkese açık görünür."
+  ]
+ },
+ {
+  "v": "2.4.5",
+  "date": "2026-10-08",
+  "notes": [
+   "Geniş ekranda paneldeki üst butonlar kenara yapışmıyor; içerikle aynı hizada.",
+   "Sitedeki dönen Kayıt ol yazısı daha hızlı."
+  ]
+ },
+ {
+  "v": "2.4.4",
+  "date": "2026-10-08",
+  "notes": [
+   "Yönetim panelinde Hesabım sayfasına “Çıkış yap” butonu eklendi."
+  ]
+ },
+ {
+  "v": "2.4.3",
+  "date": "2026-10-08",
+  "notes": [
+   "Form düzenleme ekranına “Yayınla” / “Yayından kaldır” ve “Önizle / Formu aç” butonları eklendi."
+  ]
+ },
+ {
+  "v": "2.4.2",
+  "date": "2026-10-08",
+  "notes": [
+   "Katılımcı menüsündeki Hesabım sekmesi kaldırıldı; hesaba sağ üstteki “Hesabım” butonundan girilir."
+  ]
+ },
+ {
+  "v": "2.4.1",
+  "date": "2026-10-08",
+  "notes": [
+   "Seçili “Kayıt ol” sekmesi pembe yerine turuncu zemin, sarı yazı."
+  ]
+ },
+ {
+  "v": "2.4.0",
+  "date": "2026-10-08",
+  "notes": [
+   "Katılımcı panelinde “Hesabım” sekmesi ve sağ üstte “Hesabım · ad” butonu: e-posta, marka, hesap açılışı, son giriş, ad/şifre güncelleme ve çıkış."
+  ]
+ },
+ {
+  "v": "2.3.3",
+  "date": "2026-10-08",
+  "notes": [
+   "Giriş ekranı sekmeleri sitenin renklerinde: seçili Giriş yap mavi, seçili Kayıt ol pembe; seçili olmayan zemine şeffaf, siyah çerçeveli."
+  ]
+ },
+ {
+  "v": "2.3.2",
+  "date": "2026-10-08",
+  "notes": [
+   "Sitedeki Kayıt ol butonu turuncu oldu; dönen yazıda ters yönde inen kelime hatası giderildi.",
+   "Hesabım sadeleşti: son işlemler kaldırıldı; e-posta, rol, hesap açılışı, son giriş, rol yetkisi ve ad/şifre güncelleme var.",
+   "“Aramıza katıl.” başlığı küçültüldü.",
+   "Kayıtta Instagram alanının başında sabit @ var."
+  ]
+ },
+ {
+  "v": "2.3.1",
+  "date": "2026-10-08",
+  "notes": [
+   "Alt imza: “Bu site THE GOATZ STUDIO tarafından yapılmıştır.” (Inter italik, büyük harf), thegoatzstudio.com bağlantısı ve küçük favicon; yanında standart telif yazısı.",
+   "Katılımcılar: kategori ve katılım çip yığınları sade açılır menülere dönüştü.",
+   "Başvurular listesinde markanın daha önce katıldığı pazarlar görünüyor; yeni markada “İlk kez başvuruyor” yazıyor.",
+   "Panel arama çubuğu küçültüldü."
+  ]
+ },
+ {
+  "v": "2.3.0",
+  "date": "2026-10-08",
+  "notes": [
+   "Ana sitede “Ziyaret et” yanında siyah “Kayıt ol” butonu: üzerindeki yazı Stant başvurusu / Workshop / Bilgi diye sırayla döner.",
+   "Herkes /katilim adresinden girer: yönetici de katılımcı da. Girişte “Giriş yap / Kayıt ol” sekmeleri var.",
+   "Katılımcı paneli: açılışta büyük “Pazara başvur” (turuncu) ve “Workshop'a katıl” (mavi) bölümleri; başvurularım, workshoplarım, markam, ödeme bilgileri sekmeleri.",
+   "Workshop kaydı: katılımcı yer ayırır, ekip Workshoplar ekranından onaylar ya da reddeder.",
+   "Kasa: havale/EFT bilgileri (banka, alıcı, IBAN, not) girilir; katılımcı panelinde kopyalanabilir şekilde görünür.",
+   "Üst menü: beyaz zemin, siyah çerçeveli yuvarlak butonlar; üzerine gelince siyaha döner.",
+   "Kendi kaydını açan marka, e-posta ya da Instagram eşleşirse mevcut kartıyla bağlanmak üzere onaya düşer.",
+   "Örnek verilere yayında bir örnek stant başvuru formu eklendi."
+  ]
+ },
+ {
+  "v": "2.2.1",
+  "date": "2026-10-08",
+  "notes": [
+   "Sayfa geçişlerinde ve her tıklamada içeriğin aşağıdan kayarak gelmesi kaldırıldı; sayfalar yerinde sabit açılıyor."
+  ]
+ },
+ {
+  "v": "2.2.0",
+  "date": "2026-10-08",
+  "notes": [
+   "Yeni roller: ana yönetici, yönetici, organizatör, editör, katılımcı. Kullanıcılar sayfası rol ve yetkiler tablosu ile kurallar listesiyle yenilendi; liste role göre gruplu.",
+   "Katılımcı paneli: marka sahibi aynı girişten girer, yalnızca kendi markasını görür; bilgilerini günceller (organizatör onayıyla yayımlanır), logo ve görsel ekler, başvurularını ve katılım durumunu görür.",
+   "Katılımcı sayfasında onay bekleyen değişiklikler eski/yeni karşılaştırmasıyla; Onayla ya da Reddet.",
+   "Üst menü ortada, büyük, siyah çerçeveli kutular; üzerine gelince renk değiştiriyor.",
+   "Her sayfada ← Geri tuşu.",
+   "Kasa: Gelirler − Masraflar = Kasada akışı; ayrı Masraflar ve Gelirler ekranları, kategori ve ödeme şekli dağılımı.",
+   "Taslak formlar: listede Önizle ve Yayınla butonları; panele girişliyken taslak form önizleme olarak açılıyor.",
+   "Örnek verileri yükle şeridi artık her sayfada."
+  ]
+ },
+ {
+  "v": "2.1.0",
+  "date": "2026-10-08",
+  "notes": [
+   "Örnek veriler: Genel bakıştan tek tıkla geçmiş ve yaklaşan pazarlar, 16 örnek marka (logolarıyla), ödemeler, workshoplar, kasa hareketleri, örnek yöneticiler ve iz kayıtları yüklenir; tek tıkla silinir, gerçek kayıtlara dokunmaz.",
+   "Üst menüye Hesabım sekmesi eklendi.",
+   "Yöneticiler sayfası: roller ve yetkileri tablosu, liste role göre gruplandı (ana yönetici ve yöneticiler en üstte)."
+  ]
+ },
+ {
+  "v": "2.0.0",
+  "date": "2026-10-07",
+  "notes": [
+   "Kategoriler 10 genel başlığa indirildi (Giyim ve Moda, Ayakkabı ve Çanta…); eski kategoriler otomatik eşlendi.",
+   "Kategoriye tıklayınca o kategorideki markalar, katılımcı sayfasında benzer markalar görünüyor.",
+   "Görsellere Logo kategorisi eklendi; logolar kare içine sığdırılıyor.",
+   "Instagram her yerde @ ile kaydediliyor ve eşleşiyor; başvuru formunda @ hazır geliyor.",
+   "Katılımcılar: tablo görünümü, toplu seçim (pazara ekle/çıkar, kategori, etiket, sil), yeni/devam eden/geri dönen/katılmayan filtreleri, kaç pazar katıldı.",
+   "Katılımcı Excel'i pazar sütunlarıyla: kim hangi pazara katıldı tek tabloda, içe aktarınca katılımlar güncelleniyor.",
+   "Katılımcı kaydedince listeye dönülüyor.",
+   "Pencerelerde kapatma (×) butonu; pazar düzenleme bölümlere ayrıldı.",
+   "Formlar: 4 adımlı anlatım ve büyük “Yeni başvuru formu” butonu; Excel'den form oluşturma.",
+   "Başvurular: nereden geldiği ve ne içerdiği açıklaması, örnek başvuru ekle/sil.",
+   "Workshoplar menüsü: yapılan ve yapılacaklar, düzenleyen, ücretli/ücretsiz, kontenjan.",
+   "Kasa: katılımcı ödemeleri ve masraflar tek yerde; ödeme tipi (nakit, havale, kart), fatura ve fiş durumu, kim ödedi, kasadaki tutar.",
+   "Tüm içe aktarmalarda indirilebilir şablon ve uyarı; pazarlar, formlar, katılımcılar, ödemeler, workshoplar, kasa için Excel/CSV.",
+   "Yeni roller: ana yönetici, yönetici, yönetici yardımcısı, stajyer; yetki tablosu.",
+   "Herkes kendi girdiği kaydı değiştirebiliyor; ana yönetici hepsini.",
+   "İz haritası: ana yönetici her yöneticinin ne yaptığını gün gün görüyor."
+  ]
+ },
+ {
+  "v": "1.5.0",
+  "date": "2026-10-07",
+  "notes": [
+   "Pazarlar sıra numarasına göre otomatik sıralanıyor (en yeni üstte), tüm listelerde aynı sıra.",
+   "Yeni pazara sıra no otomatik veriliyor; kullanılan ya da silinen bir pazarın numarası tekrar kullanılamıyor."
+  ]
+ },
+ {
+  "v": "1.4.2",
+  "date": "2026-10-07",
+  "notes": [
+   "Giriş ekranında tarayıcının otomatik doldurma gri/mavi zemini kaldırıldı.",
+   "Giriş butonu yeniden tasarlandı: tam genişlik siyah blok, üzerine gelince turuncu dolgu."
+  ]
+ },
+ {
+  "v": "1.4.1",
+  "date": "2026-10-07",
+  "notes": [
+   "İmza “The Goatz Studio 2026” olarak düzeltildi."
+  ]
+ },
+ {
+  "v": "1.4.0",
+  "date": "2026-10-07",
+  "notes": [
+   "Katılımcılar, ödemeler ve başvurular Excel (.xlsx) ve CSV olarak dışa aktarılıyor.",
+   "Katılımcılar ve ödemeler Excel ya da CSV dosyasından içe aktarılıyor.",
+   "Sürüm notları: sol alttaki sürüm yazısına tıklayınca açılıyor.",
+   "Sitenin ve panelin en altına The Goatz Studio 2026 imzası eklendi."
+  ]
+ },
+ {
+  "v": "1.3.0",
+  "date": "2026-10-07",
+  "notes": [
+   "Her katılımcının pazar başına ücreti, ödenen tutarı, yöntemi ve tarihi kaydediliyor.",
+   "Yeni Ödemeler sayfası: toplam, tahsil edilen, kalan ve rapor.",
+   "Pazara varsayılan katılım ücreti girilebiliyor; kabul edilen katılımcıya otomatik atanıyor."
+  ]
+ },
+ {
+  "v": "1.2.0",
+  "date": "2026-10-07",
+  "notes": [
+   "Panel sitenin tasarım diline taşındı: üst menü, renk blokları, büyük başlıklar."
+  ]
+ },
+ {
+  "v": "1.1.0",
+  "date": "2026-10-07",
+  "notes": [
+   "Giriş ekranındaki başlık ana sayfadaki animasyonla aynı.",
+   "Giriş formu yeniden tasarlandı."
+  ]
+ },
+ {
+  "v": "1.0.0",
+  "date": "2026-10-06",
+  "notes": [
+   "Yönetim paneli: pazarlar, başvuru formları, başvurular, katılımcılar, görsel deposu, yöneticiler."
+  ]
+ }
+]
