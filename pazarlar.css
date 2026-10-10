@@ -257,3 +257,9 @@
 .market-all-heading{padding:100px 6% 50px;background:var(--yellow);color:var(--orange);overflow:hidden}
 .market-all-heading .market-repeat{font-size:clamp(42px,10vw,180px);max-width:100%;margin:0;letter-spacing:-.06em}
 @media(max-width:640px){.market-all-heading{padding:65px 6% 30px}.market-all-heading .market-repeat{font-size:10vw}}
+
+.market-all-kicker{margin:0 0 28px}
+.market-all-heading-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:32px;align-items:start}
+.market-all-heading-row .market-repeat{font-size:clamp(38px,8vw,150px)}
+.market-all-heading-row .market-directory-years{font-size:clamp(24px,3vw,54px);line-height:.9;padding-top:.12em;white-space:nowrap}
+@media(max-width:640px){.market-all-kicker{margin-bottom:20px}.market-all-heading-row{gap:14px}.market-all-heading-row .market-repeat{font-size:8vw}.market-all-heading-row .market-directory-years{font-size:4vw}}
