@@ -62,7 +62,22 @@
   if(!svg)return;
   const origin=article.getBoundingClientRect(),title=article.querySelector('h1').getBoundingClientRect();
   const pause=article.querySelector('.market-gallery-pause')||article.querySelector('.market-hero-gallery');
-  const pr=pause.getBoundingClientRect(),width=article.clientWidth,height=article.offsetHeight;
+  const pr=pause.getBoundingClientRect(),width=article.clientWidth;
+  const alignCopy=(p,lineX,preferLeft)=>{
+   if(!p)return;const box=p.parentElement.getBoundingClientRect(),styles=getComputedStyle(p.parentElement),paddingLeft=parseFloat(styles.paddingLeft)||0,paddingRight=parseFloat(styles.paddingRight)||0;
+   const parent={left:box.left+paddingLeft,width:box.width-paddingLeft-paddingRight},gap=28;
+   const local=Math.max(0,Math.min(parent.width,lineX-parent.left));
+   const leftSpace=Math.max(0,local-gap),rightSpace=Math.max(0,parent.width-local-gap);
+   const left=preferLeft?leftSpace>=180||leftSpace>=rightSpace:!(rightSpace>=180||rightSpace>=leftSpace);
+   const available=left?leftSpace:rightSpace,w=Math.min(600,available);
+   if(w<140){p.style.width='';p.style.marginLeft='';p.style.marginRight='';return;}
+   p.style.width=w+'px';p.style.marginLeft=(left?local-gap-w:local+gap)+'px';p.style.marginRight='0';
+  };
+  alignCopy(article.querySelector('.market-story-intro'),pr.left+pr.width*.5,true);
+  for(const chapter of article.querySelectorAll('.market-story-chapter')){
+   const r=chapter.querySelector('h2').getBoundingClientRect();alignCopy(chapter.querySelector('p'),r.left+r.width*.5,chapter.classList.contains('is-right'));
+  }
+  const height=article.offsetHeight;
   const axis=Math.min(width-20,pr.left-origin.left+pr.width*.5);
   const points=[[0,title.top-origin.top+title.height*.5],[axis,title.top-origin.top+title.height*.5]];
   for(const heading of article.querySelectorAll('.market-story-chapter h2,.market-gallery>h2,.market-people>h2')){
@@ -82,7 +97,7 @@
   // Break the line at photos and text instead of drawing across their contents.
   let mask=svg.querySelector('mask');
   if(!mask){svg.insertAdjacentHTML('afterbegin','<defs><mask id="market-flow-mask" maskUnits="userSpaceOnUse"></mask></defs>');mask=svg.querySelector('mask');path.setAttribute('mask','url(#market-flow-mask)')}
-  const holes=[...article.querySelectorAll('.repeat-main,.market-gallery-grid,.market-gallery-pause,.market-gallery>h2,.market-people>h2,.market-people li,.market-next h2')].map(el=>{const r=el.getBoundingClientRect();return `<rect x="${r.left-origin.left-6}" y="${r.top-origin.top-4}" width="${r.width+12}" height="${r.height+8}" fill="black"/>`}).join('');
+  const holes=[...article.querySelectorAll('.repeat-main,.market-story p,.market-gallery-grid,.market-gallery-pause,.market-gallery>h2,.market-people>h2,.market-people li,.market-next h2')].map(el=>{const r=el.getBoundingClientRect();return `<rect x="${r.left-origin.left-6}" y="${r.top-origin.top-4}" width="${r.width+12}" height="${r.height+8}" fill="black"/>`}).join('');
   const maskMarkup=`<rect width="${width}" height="${height}" fill="white"/>${holes}`;
   if(mask.innerHTML!==maskMarkup)mask.innerHTML=maskMarkup;
   const visibleY=innerHeight*.85-origin.top;
