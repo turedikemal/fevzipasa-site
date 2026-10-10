@@ -153,3 +153,22 @@
 .market-photos-all:hover{background:var(--orange);color:var(--yellow)}
 #pazar-gorselleri{scroll-margin-top:110px}
 @media(max-width:640px){.market-chapter:has(.market-local-photos){min-height:0}.market-photos-all{font-size:11px;padding:9px 14px}}
+
+.market-local-photos{grid-template-columns:repeat(var(--deck-count,3),minmax(0,1fr))}
+.market-local-photo{transition:transform .65s cubic-bezier(.22,1,.36,1);transform-origin:center;box-shadow:0 5px 14px #15151515}
+.market-local-photo[hidden]{display:none}
+.market-deck-controls{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px;pointer-events:auto;margin-bottom:12px}
+.market-deck-controls button{font:10px 'Roboto Mono',monospace;color:var(--orange);padding:7px 10px;border:1px solid currentColor;border-radius:20px;background:transparent;cursor:pointer}
+.market-deck-controls button[aria-pressed="true"]{background:var(--orange);color:var(--yellow)}
+.market-chapter:has(.market-local-photos){min-height:calc(var(--chapter-photo-height,114px) + 138px)}
+.market-photo-transition{position:fixed;inset:0;z-index:100;background:transparent;pointer-events:none;overflow:hidden}
+.market-photo-transition>img{position:absolute;max-width:none;object-fit:cover}
+.market-photo-marquee{position:absolute;top:40%;left:0;font-size:clamp(64px,12vw,200px);font-weight:800;letter-spacing:-.06em;line-height:1;white-space:nowrap;color:var(--yellow);text-shadow:0 2px 20px #15151555;animation:market-photo-name 14s linear infinite}
+@keyframes market-photo-name{to{transform:translateX(-40%)}}
+@media(max-width:640px){.market-chapter:has(.market-local-photos){min-height:0}}
+@media(prefers-reduced-motion:reduce){.market-local-photo{transition:none}.market-photo-marquee{animation:none}}
+
+.market-detail-visual{position:relative;overflow:hidden}
+.market-detail-marquee{position:absolute;inset:40% 0 auto;overflow:hidden;pointer-events:none;color:var(--yellow);text-shadow:0 2px 20px #15151555}
+.market-detail-marquee span{display:block;width:max-content;font-size:clamp(64px,12vw,200px);font-weight:800;letter-spacing:-.06em;line-height:1.05;animation:market-photo-name 24s linear infinite}
+@media(prefers-reduced-motion:reduce){.market-detail-marquee span{animation:none}}
