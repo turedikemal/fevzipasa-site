@@ -251,3 +251,4 @@
 .market-detail-line path{stroke:currentColor;stroke-width:1;stroke-linejoin:round;stroke-linecap:round}
 .market-lined-detail>section{position:relative}
 .market-lined-detail>section>*{position:relative;z-index:2}
+\n.market-detail-line{z-index:3}\n

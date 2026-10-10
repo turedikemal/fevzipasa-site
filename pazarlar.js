@@ -60,17 +60,37 @@
  function paintDetailLine(){
   const article=host.querySelector('.market-lined-detail'),svg=article?.querySelector('.market-detail-line');
   if(!svg)return;
-  const origin=article.getBoundingClientRect(),title=article.querySelector('h1').getBoundingClientRect(),gallery=article.querySelector('.market-hero-gallery').getBoundingClientRect();
-  const width=article.clientWidth,height=article.offsetHeight;
-  const mobile=width<=640,startY=title.top-origin.top+title.height*.5;
-  const bendY=mobile?gallery.top-origin.top-18:title.bottom-origin.top+18;
-  const axis=mobile?width*.94:gallery.left-origin.left+gallery.width*.5;
-  const startX=Math.max(12,title.left-origin.left-20),bottom=Math.max(bendY+40,height-30);
-  const d=`M 0 ${startY} H ${startX} V ${bendY} H ${axis} V ${bottom} H 0`;
+  const origin=article.getBoundingClientRect(),title=article.querySelector('h1').getBoundingClientRect();
+  const pause=article.querySelector('.market-gallery-pause')||article.querySelector('.market-hero-gallery');
+  const pr=pause.getBoundingClientRect(),width=article.clientWidth,height=article.offsetHeight;
+  const axis=Math.min(width-20,pr.left-origin.left+pr.width*.5);
+  const points=[[0,title.top-origin.top+title.height*.5],[axis,title.top-origin.top+title.height*.5]];
+  for(const heading of article.querySelectorAll('.market-story-chapter h2,.market-gallery>h2,.market-people>h2,.market-next h2')){
+   const r=heading.getBoundingClientRect(),y=r.top-origin.top+r.height*.5;
+   if(y<=points.at(-1)[1])continue;
+   const x=Math.max(20,Math.min(width-20,r.left-origin.left+r.width*.5));
+   points.push([points.at(-1)[0],y],[x,y]);
+  }
+  points.push([points.at(-1)[0],height-30],[0,height-30]);
+  const d=points.map(([x,y],i)=>(i?'L':'M')+' '+x+' '+y).join(' ');
   svg.setAttribute('viewBox',`0 0 ${width} ${height}`);svg.setAttribute('width',width);svg.setAttribute('height',height);
-  const path=svg.querySelector('path');if(path.getAttribute('d')!==d){path.setAttribute('d',d);svg.dataset.length=path.getTotalLength()}
-  const length=Number(svg.dataset.length),p=motion.matches?1:clamp((innerHeight*.85-origin.top)/Math.max(1,height));
-  path.style.strokeDasharray=String(length);path.style.strokeDashoffset=String(length*(1-p));
+  const path=svg.querySelector('path');path.setAttribute('d',d);
+  // Break the line at photos and text instead of drawing across their contents.
+  let mask=svg.querySelector('mask');
+  if(!mask){svg.insertAdjacentHTML('afterbegin','<defs><mask id="market-flow-mask" maskUnits="userSpaceOnUse"></mask></defs>');mask=svg.querySelector('mask');path.setAttribute('mask','url(#market-flow-mask)')}
+  const holes=[...article.querySelectorAll('h1,.repeat-main,.market-hero-window,.market-gallery-grid,.market-gallery-pause,.market-gallery>h2,.market-people>h2,.market-next h2')].map(el=>{const r=el.getBoundingClientRect();return `<rect x="${r.left-origin.left-6}" y="${r.top-origin.top-4}" width="${r.width+12}" height="${r.height+8}" fill="black"/>`}).join('');
+  const maskMarkup=`<rect width="${width}" height="${height}" fill="white"/>${holes}`;
+  if(mask.innerHTML!==maskMarkup)mask.innerHTML=maskMarkup;
+  const visibleY=innerHeight*.85-origin.top;
+  let length=0,shown=0;
+  for(let i=1;i<points.length;i++){
+   const [x1,y1]=points[i-1],[x2,y2]=points[i],segment=Math.hypot(x2-x1,y2-y1);
+   const fraction=y2===y1?(visibleY>=y1?1:0):clamp((visibleY-y1)/(y2-y1));
+   shown+=segment*fraction;length+=segment;
+  }
+  if(!svg.dataset.started)svg.dataset.started=performance.now();
+  const entry=motion.matches?1:clamp((performance.now()-Number(svg.dataset.started))/1100);
+  path.style.strokeDasharray=String(length);path.style.strokeDashoffset=String(length-(motion.matches?length:shown*entry));
  }
 
  function updateNav(){document.querySelectorAll('nav a').forEach(a=>{if(a.getAttribute('href')==='/pazarlar')a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')})}
