@@ -48,8 +48,31 @@
   document.title=m.name+' | Fevzipaşa';const i=markets.indexOf(m),next=markets[i+1]||markets[0];
   const isPast=past(m),people=Array.isArray(m.participants)?m.participants:[];
   host.innerHTML=`<article>${marketHero(m)}${marketStory(m)}${winter(m)?`<section class="market-gallery" id="pazar-gorselleri"><p class="eyebrow">KIŞ PAZARINDAN / SOKAĞIN İÇİNDEN</p><h2>BİR BULUŞMANIN İZLERİ.</h2><div class="market-gallery-grid">${[['sokak-kitap','Kitaplar ve karşılaşmalar'],['sokak-tekstil','Dokular ve üreticiler'],['sokak-taki','Küçük detaylar']].map(([file,caption])=>`<button class="market-photo" data-market-photo="/assets/${file}.webp" data-caption="${caption}" aria-label="${caption} fotoğrafını büyüt"><img src="/assets/${file}.webp" alt="Kış Pazarı — ${caption}" loading="lazy"><span>${caption} ↗</span></button>`).join('')}</div></section>`:''}<section class="market-people"><p class="eyebrow">${isPast?'BU PAZARDA BİZİMLEYDİLER':'BU PAZARIN KATILIMCILARI'}</p><h2>TASARIMIN İNSANLARI.</h2>${people.length?`<ul>${people.map(p=>`<li>${p.instagram?`<a href="https://www.instagram.com/${encodeURIComponent(p.instagram)}/" target="_blank" rel="noopener noreferrer">${escape(p.name)} ↗</a>`:escape(p.name)}</li>`).join('')}</ul>`:'<p>Bu pazarın katılımcı listesi henüz yayınlanmadı.</p>'}</section>${next&&next!==m?`<section class="market-next"><div><p class="eyebrow">BİR SONRAKİ HİKÂYE</p><h2>${escape(next.name)}</h2></div>${link(next,'Pazarı keşfet ↗','text-link')}</section>`:''}</article>`;
-  updateNav();startDetailText();
+  updateNav();mountDetailLine();startDetailText();
  }
+
+ function mountDetailLine(){
+  const article=host.querySelector('article');if(!article)return;
+  article.classList.add('market-lined-detail');
+  article.insertAdjacentHTML('afterbegin','<svg class="market-detail-line" aria-hidden="true" focusable="false"><path fill="none" vector-effect="non-scaling-stroke"/></svg>');
+  paintDetailLine();
+ }
+ function paintDetailLine(){
+  const article=host.querySelector('.market-lined-detail'),svg=article?.querySelector('.market-detail-line');
+  if(!svg)return;
+  const origin=article.getBoundingClientRect(),title=article.querySelector('h1').getBoundingClientRect(),gallery=article.querySelector('.market-hero-gallery').getBoundingClientRect();
+  const width=article.clientWidth,height=article.offsetHeight;
+  const mobile=width<=640,startY=title.top-origin.top+title.height*.5;
+  const bendY=mobile?gallery.top-origin.top-18:title.bottom-origin.top+18;
+  const axis=mobile?width*.94:gallery.left-origin.left+gallery.width*.5;
+  const startX=Math.max(12,title.left-origin.left-20),bottom=Math.max(bendY+40,height-30);
+  const d=`M 0 ${startY} H ${startX} V ${bendY} H ${axis} V ${bottom} H 0`;
+  svg.setAttribute('viewBox',`0 0 ${width} ${height}`);svg.setAttribute('width',width);svg.setAttribute('height',height);
+  const path=svg.querySelector('path');if(path.getAttribute('d')!==d){path.setAttribute('d',d);svg.dataset.length=path.getTotalLength()}
+  const length=Number(svg.dataset.length),p=motion.matches?1:clamp((innerHeight*.85-origin.top)/Math.max(1,height));
+  path.style.strokeDasharray=String(length);path.style.strokeDashoffset=String(length*(1-p));
+ }
+
  function updateNav(){document.querySelectorAll('nav a').forEach(a=>{if(a.getAttribute('href')==='/pazarlar')a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')})}
  function route(focus=false){stopHeadings();const path=location.pathname.replace(/\/$/,'');if(path==='/pazarlar'){listing();if(focus)main.focus({preventScroll:true});return}const key=path.split('/')[2],m=markets.find(x=>x.id===key);if(m){detail(m);if(focus)host.querySelector('h1').focus({preventScroll:true})}else{host.innerHTML='<section class="market-error"><h1>Pazar bulunamadı.</h1><a href="/pazarlar" data-market-back class="text-link">Tüm pazarlara dön ↗</a></section>';updateNav()}}
  let sceneFrame=0,sceneStart=0,sceneLast=0,sceneSpin=0;
@@ -61,6 +84,7 @@
   paintScene(sceneStart);if(!motion.matches)sceneFrame=requestAnimationFrame(sceneTick);
  }
  function paintDetailText(){
+  paintDetailLine();
   host.querySelectorAll('.market-repeat').forEach(el=>{
    const mainLayer=el.querySelector('.repeat-main');if(!mainLayer)return;
    const height=Math.max(1,mainLayer.offsetHeight),rect=mainLayer.getBoundingClientRect();
