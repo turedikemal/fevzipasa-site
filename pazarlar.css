@@ -237,3 +237,10 @@
 @media(prefers-reduced-motion:reduce){.market-directory-head .market-repeat{padding-bottom:0}}
 
 .market-word .market-list-repeat{overflow:hidden}
+
+/* Size the moving photographs from the gallery width, keeping three balanced frames. */
+.market-hero-gallery{container-type:inline-size}
+.market-hero-window{height:calc((100cqw - 28px)*5/12)}
+.market-hero-photo{flex:none;width:calc((100cqw - 28px)/3);height:100%;aspect-ratio:4/5}
+.market-hero-photo img{left:-8%;width:116%;object-position:center}
+@media(max-width:640px){.market-hero-window{height:90cqw;max-height:440px}.market-hero-photo{width:72cqw}}
